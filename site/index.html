@@ -22,7 +22,7 @@
         <h1>LLM inference hardware</h1>
         <span class="seg" id="theme" role="group" aria-label="Theme"><button type="button" data-theme="auto" aria-pressed="true">Auto</button><button type="button" data-theme="light" aria-pressed="false">Light</button><button type="button" data-theme="dark" aria-pressed="false">Dark</button></span>
       </div>
-      <p class="lede">Each hardware tab puts one capability against its two costs, purchase price and electrical power, first for a GPU, then for a complete computer, and then shows what that capability buys. Higher and further left means more capability for the cost. All points are the same size; shape and color give the family. Every value comes from a cited source in the repository's CSV tables.</p>
+      <p class="lede">Each hardware tab puts one capability against its two costs, purchase price and electrical power, first for a GPU, then for a complete computer, and then shows what that capability buys: memory sets the smartest model you can load, bandwidth the generation speed, compute the prefill speed. Higher and further left means more capability for the cost. All points are the same size; color gives the brand and shape the family.</p>
     </header>
 
     <nav class="tabs" role="tablist" aria-label="Section">
@@ -47,33 +47,48 @@
       <div id="capability">
         <p class="sub" id="cap-note"></p>
         <div class="legends">
+          <div><h2>Brand</h2><div class="legend" id="leg-brand"></div></div>
           <div><h2>GPUs</h2><div class="legend" id="leg-gpu"></div></div>
           <div><h2>Computers</h2><div class="legend" id="leg-sys"></div></div>
         </div>
         <div class="group">Per GPU</div>
         <div class="grid">
-          <section class="card"><h3 id="t-gpu-price"></h3><p class="note">Market price when the source states one, otherwise launch price, in US dollars.</p><div class="chart" id="c-gpu-price"></div><p class="missing" id="x-gpu-price"></p></section>
-          <section class="card"><h3 id="t-gpu-power"></h3><p class="note">Board power as each source states it.</p><div class="chart" id="c-gpu-power"></div><p class="missing" id="x-gpu-power"></p></section>
+          <section class="card"><h3 id="t-gpu-price"></h3><p class="note">Public, street, or estimated price in US dollars. Spark, Ryzen AI Max, and DGX Station are systems sold around a single chip.</p><div class="chart" id="c-gpu-price"></div><p class="missing" id="x-gpu-price"></p></section>
+          <section class="card"><h3 id="t-gpu-power"></h3><p class="note">Board power, or system power for Spark, Ryzen AI Max, and DGX Station.</p><div class="chart" id="c-gpu-power"></div><p class="missing" id="x-gpu-power"></p></section>
         </div>
         <div class="group">Per computer</div>
         <div class="grid">
-          <section class="card"><h3 id="t-sys-price"></h3><p class="note">Complete machine. Market price when stated, otherwise launch price.</p><div class="chart" id="c-sys-price"></div><p class="missing" id="x-sys-price"></p></section>
-          <section class="card"><h3 id="t-sys-power"></h3><p class="note">System power as each source states it.</p><div class="chart" id="c-sys-power"></div><p class="missing" id="x-sys-power"></p></section>
+          <section class="card"><h3 id="t-sys-price"></h3><p class="note">Complete machine, capacities summed over its GPUs. Supplier quotes are converted at $1.12 per €.</p><div class="chart" id="c-sys-price"></div><p class="missing" id="x-sys-price"></p></section>
+          <section class="card"><h3 id="t-sys-power"></h3><p class="note">Power of the complete system.</p><div class="chart" id="c-sys-power"></div><p class="missing" id="x-sys-power"></p></section>
         </div>
-        <div id="yield-block">
-          <div class="group" id="yield-group"></div>
-          <section class="card"><h3 id="t-yield"></h3><p class="note" id="n-yield"></p><div class="legend" id="leg-yield"></div><div class="chart" id="c-yield"></div><p class="missing" id="x-yield"></p></section>
-        </div>
+        <div class="group" id="yield-group"></div>
+        <section class="card"><h3 id="t-yield"></h3><p class="note" id="n-yield"></p><div class="legend" id="leg-yield"></div><div class="chart" id="c-yield"></div><p class="missing" id="x-yield"></p></section>
+        <p class="note">Prices mix MSRPs, street prices seen in October 2026, market or analyst estimates, and supplier quotes converted at $1.12 per €; each tooltip gives the basis. Compute values are the dense 16-bit peaks vendors publish; ≈ marks a value scaled from a sibling chip. GPUs without a known price (H100, H200, MI300X, MI325X, Radeon AI PRO R9700S and R9600, RTX PRO 6000 Server) appear only on the power charts. These hardware tables are a compilation in <code>data/atlas/</code> without per-row source links; the measurements carry their URL.</p>
       </div>
 
-      <section class="card" id="hardware-data" hidden>
-        <div class="card-head">
-          <h3>Devices</h3>
-          <a class="button" href="data/hardware.csv" download>Download hardware.csv</a>
-        </div>
-        <p class="note">Every row of <code>hardware.csv</code>. Blank means the cited source did not state it. Click a header to sort.</p>
-        <div class="table-wrap"><table id="hw-table"></table></div>
-      </section>
+      <div id="hardware-data" hidden>
+        <section class="card">
+          <div class="card-head"><h3>GPUs</h3><a class="button" href="data/atlas/gpus.csv" download>gpus.csv</a></div>
+          <div class="table-wrap"><table id="t-atlas-gpus"></table></div>
+        </section>
+        <section class="card">
+          <div class="card-head"><h3>Computers</h3><a class="button" href="data/atlas/systems.csv" download>systems.csv</a></div>
+          <div class="table-wrap"><table id="t-atlas-systems"></table></div>
+        </section>
+        <section class="card">
+          <div class="card-head"><h3>Single-user measurements</h3><a class="button" href="data/atlas/measures.csv" download>measures.csv</a></div>
+          <div class="table-wrap"><table id="t-atlas-measures"></table></div>
+        </section>
+        <section class="card">
+          <div class="card-head"><h3>Open models</h3><a class="button" href="data/atlas/models.csv" download>models.csv</a></div>
+          <div class="table-wrap"><table id="t-atlas-models"></table></div>
+        </section>
+        <section class="card">
+          <div class="card-head"><h3>Sourced device specs</h3><a class="button" href="data/hardware.csv" download>hardware.csv</a></div>
+          <p class="note">The repository's contract table: every row cites a public source. Blank means that source did not state the value.</p>
+          <div class="table-wrap"><table id="hw-table"></table></div>
+        </section>
+      </div>
     </section>
 
     <section id="panel-inference" role="tabpanel" aria-labelledby="tab-inference" hidden>
@@ -97,7 +112,7 @@
     </section>
 
     <footer class="page-foot">
-      <p>Data: <a href="data/measurements.csv">measurements.csv</a> · <a href="data/hardware.csv">hardware.csv</a> · <a href="data/models.csv">models.csv</a> · <a href="data/sources.csv">sources.csv</a> · <a href="datapackage.json">datapackage.json</a> · <a href="llms.txt">llms.txt</a></p>
+      <p>Data: <a href="data/measurements.csv">measurements.csv</a> · <a href="data/hardware.csv">hardware.csv</a> · <a href="data/models.csv">models.csv</a> · <a href="data/sources.csv">sources.csv</a> · <a href="datapackage.json">datapackage.json</a> · <a href="llms.txt">llms.txt</a> · <a href="data/atlas/README.md">atlas tables</a></p>
       <p>CC BY 4.0 data, MIT code. Source and contribution guide: <a href="https://github.com/knoel99/inference-data">github.com/knoel99/inference-data</a></p>
     </footer>
   </main>

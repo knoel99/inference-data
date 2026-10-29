@@ -1,0 +1,12 @@
+name,family,aa_index,weights_gb,weights_basis,format,licence,total_params_b,active_params_b
+MiMo-V2.6-Pro,mimo,46,573.5,official checkpoint,MXFP4 experts + FP8,MIT,1020.0,40.6
+DeepSeek V4.1 Flash,ds,45,510.3,official checkpoint,FP4 experts + FP8,MIT,552.0,16.9
+GLM-5.3,glm,45,755.4,official checkpoint,FP8,GLM-5.3 License,743.7,41.5
+Step 5 Preview,step,44,650.3,official checkpoint,FP8,StepFun Model License 1.0,604.4,33.0
+GLM-5.3-Flash,glm,42,328.3,official checkpoint,FP8,MIT,314.1,18.1
+Muse Spark Open,muse,39,530,official checkpoint,NVFP4 experts,Muse Model License,816.0,42.1
+Qwen3.8-27B,qwen,34,55.6,official checkpoint,"BF16, dense",Apache-2.0,27.8,27.8
+K2 Horizon 375B,k2,31,382.5,computed (FP8),FP8,Apache-2.0,375.0,22.5
+Beam 1.0,beam,30,293.6,computed (NVFP4),NVFP4,Apache-2.0,501.3,23.5
+Nemotron 3.5 Super VL,nemo,26,75.0,official checkpoint,NVFP4,OpenMDW-1.1,120.6,12.7
+Claude Opus 5.5 xhigh,claude,56,,closed,Anthropic API,proprietary,,

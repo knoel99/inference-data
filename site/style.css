@@ -18,6 +18,8 @@
   --series-6: #008300;
   --series-7: #6250d6;
   --series-other: #898781;
+  --brand-nvidia: #76b900;
+  --brand-amd: #b0141c;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -40,6 +42,8 @@
     --series-6: #008300;
     --series-7: #9085e9;
     --series-other: #898781;
+    --brand-nvidia: #6aa800;
+    --brand-amd: #cc2229;
   }
 }
 :root[data-theme="dark"] {
@@ -62,6 +66,8 @@
   --series-6: #008300;
   --series-7: #9085e9;
   --series-other: #898781;
+  --brand-nvidia: #6aa800;
+  --brand-amd: #cc2229;
 }
 
 * { box-sizing: border-box; }
@@ -128,10 +134,10 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--series-1); 
 .seg button + button { border-left: 1px solid var(--axis); }
 .seg button[aria-pressed="true"] { background: var(--text-primary); color: var(--page); }
 
-#capability, #yield-block { display: flex; flex-direction: column; gap: 14px; }
+#capability, #hardware-data { display: flex; flex-direction: column; gap: 14px; }
 .legends {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
   gap: 8px 32px;
 }
 .legends h2 { font-size: 13px; margin-bottom: 4px; }
