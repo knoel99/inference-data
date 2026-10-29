@@ -1,0 +1,1 @@
+Write the numbers from 1 to 3000 in words, separated by commas, with no commentary before or after the list.
