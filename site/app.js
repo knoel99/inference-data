@@ -20,9 +20,9 @@ const EVIDENCE_LABEL = {
 const BRANDS = [{k: "NVIDIA", token: "--brand-nvidia"}, {k: "AMD", token: "--brand-amd"}];
 const GPU_FAMILIES = [
   {k: "geforce", label: "GeForce RTX 50", symbol: d3.symbolCircle},
-  {k: "radeon", label: "Radeon RX 9000", symbol: d3.symbolDiamond},
+  {k: "radeon", label: "Radeon RX 7000 and 9000", symbol: d3.symbolDiamond},
   {k: "rtxpro", label: "RTX PRO Blackwell", symbol: d3.symbolTriangle},
-  {k: "radeonpro", label: "Radeon AI PRO", symbol: d3.symbolWye},
+  {k: "radeonpro", label: "Radeon PRO and AI PRO", symbol: d3.symbolWye},
   {k: "nvhbm", label: "NVIDIA HBM (datacenter, DGX Station)", symbol: d3.symbolSquare},
   {k: "instinct", label: "AMD Instinct HBM", symbol: d3.symbolCross},
   {k: "unified", label: "Unified memory (Spark, Ryzen AI Max)", symbol: d3.symbolStar},

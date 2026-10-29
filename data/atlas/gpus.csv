@@ -22,9 +22,12 @@ RX 9060 XT 16 GB,AMD,radeon,500,16,320,103,published,160,"street price, October 
 RX 9060 XT 8 GB,AMD,radeon,390,8,320,103,published,150,"street price, October 2026",
 RX 9060,AMD,radeon,420,8,288,86,published,132,"street price, October 2026",
 RX 9050,AMD,radeon,279,8,288,43,published,92,reported launch price,
+RX 7900 XTX,AMD,radeon,999,24,960,122.8,published,355,"launch MSRP, December 2022",previous generation (RDNA 3)
 Radeon AI PRO R9700,AMD,radeonpro,1700,32,640,191,published,300,"street price, October 2026","MSRP $1,299"
 Radeon AI PRO R9700S,AMD,radeonpro,,32,640,191,published,300,,
 Radeon AI PRO R9600,AMD,radeonpro,,32,640,99,published,150,,R9600D identical
+Radeon PRO W7900,AMD,radeonpro,3839,48,864,122.6,published,295,"street price, October 2026",previous generation (RDNA 3)
+Radeon PRO W7800,AMD,radeonpro,2226,32,576,90.5,published,260,"street price, October 2026","previous generation (RDNA 3); a 48 GB, 864 GB/s edition also exists"
 B100,NVIDIA,nvhbm,32000,192,8000,1750,published,700,market estimate,
 B200,NVIDIA,nvhbm,47501,192,8000,2250,published,1000,market estimate,
 B300,NVIDIA,nvhbm,53000,288,8000,2250,published,1000,market estimate,
