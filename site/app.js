@@ -16,7 +16,8 @@ const EVIDENCE_SYMBOL = ["circle", "square", "triangle", "diamond"];
 const SLOTS = 7;
 const OTHER = "Other devices";
 
-const state = {model: "", hw: "", metric: "decode_tok_s", evidence: new Set(EVIDENCE.slice(0, 3))};
+const TABS = ["measurements", "hardware"];
+const state = {tab: "measurements", model: "", hw: "", metric: "decode_tok_s", evidence: new Set(EVIDENCE.slice(0, 3))};
 const sort = {key: null, dir: 1};
 let db;
 
@@ -36,6 +37,7 @@ async function main() {
   }));
   db = index(tables);
   readUrl();
+  initTabs();
   initFilters();
   renderTiles();
   render();
@@ -112,6 +114,8 @@ function palette() {
 
 function readUrl() {
   const q = new URLSearchParams(location.search);
+  if (TABS.includes(q.get("tab"))) state.tab = q.get("tab");
+  Hardware.read(q);
   if (q.has("model")) state.model = q.get("model");
   if (q.has("hw")) state.hw = q.get("hw");
   if (q.get("metric") === "decode_tok_s_per_user") state.metric = "decode_tok_s_per_user";
@@ -120,11 +124,37 @@ function readUrl() {
 
 function writeUrl() {
   const q = new URLSearchParams();
+  if (state.tab !== "measurements") q.set("tab", state.tab);
   if (state.model) q.set("model", state.model);
   if (state.hw) q.set("hw", state.hw);
   if (state.metric !== "decode_tok_s") q.set("metric", state.metric);
   q.set("evidence", [...state.evidence].join(","));
+  Hardware.write(q);
   history.replaceState(null, "", `${location.pathname}?${q}`);
+}
+
+function initTabs() {
+  const buttons = TABS.map((t) => document.getElementById(`tab-${t}`));
+  buttons.forEach((b, i) => {
+    b.addEventListener("click", () => { state.tab = TABS[i]; render(); });
+    b.addEventListener("keydown", (e) => {
+      const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+      if (!step) return;
+      const next = buttons[(i + step + buttons.length) % buttons.length];
+      next.focus();
+      next.click();
+    });
+  });
+}
+
+function syncTabs() {
+  for (const t of TABS) {
+    const active = t === state.tab;
+    const b = document.getElementById(`tab-${t}`);
+    b.setAttribute("aria-selected", String(active));
+    b.tabIndex = active ? 0 : -1;
+    document.getElementById(t).hidden = !active;
+  }
 }
 
 function initFilters() {
@@ -178,14 +208,17 @@ function selection() {
 
 /* ---------- render ---------- */
 
+// Only the visible tab renders: charts size themselves to their container,
+// which has no width while hidden.
 function render() {
+  syncTabs();
   syncOptions();
   writeUrl();
+  if (state.tab === "hardware") return Hardware.render(db);
   const rows = selection();
   renderScaling(rows);
   renderSingle(rows);
   renderTable(rows);
-  renderSpecs();
 }
 
 function renderTiles() {
@@ -409,47 +442,6 @@ function download() {
   a.download = `inference-data-${state.model || "all"}${state.hw ? "-" + state.hw : ""}.csv`;
   a.click();
   URL.revokeObjectURL(a.href);
-}
-
-/* ---------- device specs ---------- */
-
-function renderSpecs() {
-  const all = [...db.hardware.values()];
-  const withAny = all.filter((h) => h.memory_gb != null || h.bandwidth_gb_s != null);
-  const order = withAny.slice().sort((a, b) => d3.descending(a.bandwidth_gb_s ?? -1, b.bandwidth_gb_s ?? -1) || d3.descending(a.memory_gb, b.memory_gb))
-    .map((h) => shortName(h.name));
-  const without = all.length - withAny.length;
-  document.getElementById("spec-foot").textContent =
-    `${without} device${without === 1 ? " has" : "s have"} neither value stated in its cited source and ${without === 1 ? "is" : "are"} not drawn. A blank bar means that one value is not stated.`;
-  const selected = state.hw ? shortName(db.hardware.get(state.hw).name) : null;
-  const marginLeft = Math.min(200, 16 + 6.5 * d3.max(order, (d) => d.length));
-  const specColor = css("--spec");
-  const highlight = state.hw && db.slot.has(state.hw) ? palette()[db.slot.get(state.hw)] : css("--series-other");
-  const bar = (key, label, box) => {
-    const data = withAny.filter((h) => h[key] != null).map((h) => ({...h, short: shortName(h.name)}));
-    box.replaceChildren(Plot.plot({
-      width: box.clientWidth || 520,
-      height: 50 + 26 * order.length,
-      marginLeft,
-      marginRight: 48,
-      style: plotStyle(),
-      x: {label, grid: true, nice: true, tickFormat: "~s"},
-      y: {label: null, domain: order, padding: 0.35},
-      marks: [
-        Plot.barX(data, {
-          x: key, y: "short", rx: 3,
-          fill: (h) => (h.short === selected ? highlight : specColor),
-          fillOpacity: (h) => (!selected || h.short === selected ? 0.9 : 0.35),
-          channels: {Device: "name", [label]: key, Source: (h) => db.sources.get(h.source_id)?.title ?? h.source_id},
-          tip: {format: {x: false, y: false, fill: false, fillOpacity: false}},
-        }),
-        Plot.text(data, {x: key, y: "short", text: (h) => fmt(h[key]), dx: 4, textAnchor: "start", fill: css("--text-secondary")}),
-        Plot.ruleX([0], {stroke: css("--axis")}),
-      ],
-    }));
-  };
-  bar("memory_gb", "Memory (GB)", document.getElementById("chart-mem"));
-  bar("bandwidth_gb_s", "Memory bandwidth (GB/s)", document.getElementById("chart-bw"));
 }
 
 /* ---------- helpers ---------- */

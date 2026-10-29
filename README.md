@@ -68,7 +68,7 @@ python examples/quickstart.py
 
 ## Explorer
 
-[knoel99.github.io/inference-data](https://knoel99.github.io/inference-data/) charts decode throughput against concurrency, single-user decode by device, and device memory and bandwidth, with a filterable table and a CSV download of the current selection. Filters are in the URL, so a view can be linked. `derived` rows are hidden unless the evidence filter includes them.
+[knoel99.github.io/inference-data](https://knoel99.github.io/inference-data/) has two tabs. **Measurements** charts decode throughput against concurrency and single-user decode by device, with a filterable table and a CSV download of the current selection. **Hardware specs** plots `hardware.csv` as Hertzsprung-Russell style planes (memory against bandwidth with constant sweep-time diagonals, TFLOPS against bandwidth, price against memory, bandwidth against power, or any two specs and ratios), with a device table. A device with a blank spec is listed under the chart, not drawn. Filters are in the URL, so a view can be linked. `derived` rows are hidden unless the evidence filter includes them.
 
 The page is `site/`, a static page with no build step that reads the same CSVs and `datapackage.json`. `.github/workflows/pages.yml` validates the data, assembles `_site/` with `scripts/build_site.py`, and deploys it on every push to `main`. To preview locally:
 

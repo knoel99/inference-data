@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Inference Data Explorer</title>
-  <meta name="description" content="Sourced LLM inference measurements: decode throughput by device, model, and concurrency, with the evidence level of every number.">
+  <meta name="description" content="Sourced LLM inference measurements: decode throughput by device, model, and concurrency, and the hardware they run on, with the evidence level of every number.">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/dist/plot.umd.min.js"></script>
@@ -13,64 +13,108 @@
   <main class="viz-root">
     <header class="page-head">
       <h1>LLM inference measurements</h1>
-      <p class="lede">Every point is a published result with a source link. Empty means the source did not state it. Roofline estimates are labeled <code>derived</code> and hidden by default.</p>
+      <p class="lede">Every point is a published result or a vendor spec with a source link. Empty means the source did not state it. Roofline estimates are labeled <code>derived</code> and hidden by default.</p>
       <div class="tiles" id="tiles" aria-live="polite"></div>
     </header>
 
-    <form class="filters" id="filters" aria-label="Filters">
-      <label>Model
-        <select id="f-model"></select>
-      </label>
-      <label>Device
-        <select id="f-hw"><option value="">All devices</option></select>
-      </label>
-      <label>Metric
-        <select id="f-metric">
-          <option value="decode_tok_s">Aggregate decode tok/s</option>
-          <option value="decode_tok_s_per_user">Per-user decode tok/s (when published)</option>
-        </select>
-      </label>
-      <fieldset>
-        <legend>Evidence</legend>
-        <label><input type="checkbox" name="evidence" value="measured_by_source" checked> measured</label>
-        <label><input type="checkbox" name="evidence" value="vendor_claim" checked> vendor claim</label>
-        <label><input type="checkbox" name="evidence" value="unverified_claim" checked> unverified</label>
-        <label><input type="checkbox" name="evidence" value="derived"> derived</label>
-      </fieldset>
-    </form>
+    <nav class="tabs" role="tablist" aria-label="Views">
+      <button type="button" role="tab" id="tab-measurements" aria-controls="measurements" aria-selected="true">Measurements</button>
+      <button type="button" role="tab" id="tab-hardware" aria-controls="hardware" aria-selected="false">Hardware specs</button>
+    </nav>
 
-    <section class="card">
-      <h2>Throughput vs concurrency</h2>
-      <p class="sub" id="scaling-sub"></p>
-      <div class="chart" id="chart-scaling"></div>
-      <p class="foot" id="scaling-foot"></p>
+    <section id="measurements" role="tabpanel" aria-labelledby="tab-measurements">
+      <form class="filters" id="filters" aria-label="Filters">
+        <label>Model
+          <select id="f-model"></select>
+        </label>
+        <label>Device
+          <select id="f-hw"><option value="">All devices</option></select>
+        </label>
+        <label>Metric
+          <select id="f-metric">
+            <option value="decode_tok_s">Aggregate decode tok/s</option>
+            <option value="decode_tok_s_per_user">Per-user decode tok/s (when published)</option>
+          </select>
+        </label>
+        <fieldset>
+          <legend>Evidence</legend>
+          <label><input type="checkbox" name="evidence" value="measured_by_source" checked> measured</label>
+          <label><input type="checkbox" name="evidence" value="vendor_claim" checked> vendor claim</label>
+          <label><input type="checkbox" name="evidence" value="unverified_claim" checked> unverified</label>
+          <label><input type="checkbox" name="evidence" value="derived"> derived</label>
+        </fieldset>
+      </form>
+
+      <section class="card">
+        <h2>Throughput vs concurrency</h2>
+        <p class="sub" id="scaling-sub"></p>
+        <div class="chart" id="chart-scaling"></div>
+        <p class="foot" id="scaling-foot"></p>
+      </section>
+
+      <section class="card">
+        <h2>Single-user decode by device</h2>
+        <p class="sub">Rows with concurrency 1. One dot per published result; a device can have several sources and setups.</p>
+        <div class="chart" id="chart-single"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Measurements</h2>
+          <button type="button" id="download">Download these rows (CSV)</button>
+        </div>
+        <p class="sub" id="table-sub"></p>
+        <div class="table-wrap">
+          <table id="table"></table>
+        </div>
+      </section>
     </section>
 
-    <section class="card">
-      <h2>Single-user decode by device</h2>
-      <p class="sub">Rows with concurrency 1. One dot per published result; a device can have several sources and setups.</p>
-      <div class="chart" id="chart-single"></div>
-    </section>
+    <section id="hardware" role="tabpanel" aria-labelledby="tab-hardware" hidden>
+      <div class="filters hw-controls" aria-label="Hardware view">
+        <div class="ctl"><span class="ctl-label">View</span>
+          <div class="chips" id="hw-view">
+            <button type="button" class="chip" data-v="memory" aria-pressed="true">Memory HR</button>
+            <button type="button" class="chip" data-v="compute" aria-pressed="false">Compute HR</button>
+            <button type="button" class="chip" data-v="price" aria-pressed="false">Price and memory</button>
+            <button type="button" class="chip" data-v="power" aria-pressed="false">Power efficiency</button>
+            <button type="button" class="chip" data-v="free" aria-pressed="false">Free axes</button>
+          </div>
+        </div>
+        <div class="ctl"><span class="ctl-label">Vendors</span><div class="chips" id="hw-vendors"></div></div>
+        <label>Color
+          <select id="hw-color"><option value="vendor">Vendor</option><option value="launch_price_usd">Launch price</option><option value="tdp_w">Power</option></select>
+        </label>
+        <label>Size
+          <select id="hw-size"><option value="memory_gb">Memory</option><option value="tdp_w">Power</option><option value="launch_price_usd">Launch price</option><option value="none">Fixed</option></select>
+        </label>
+        <div class="ctl"><span class="ctl-label">x axis</span><div class="seg" id="hw-xs"><button type="button" data-s="log" aria-pressed="true">log</button><button type="button" data-s="lin" aria-pressed="false">linear</button></div></div>
+        <div class="ctl"><span class="ctl-label">y axis</span><div class="seg" id="hw-ys"><button type="button" data-s="log" aria-pressed="true">log</button><button type="button" data-s="lin" aria-pressed="false">linear</button></div></div>
+        <div class="ctl-row" id="hw-free" hidden>
+          <label>x <select id="hw-fx"></select></label>
+          <label>y <select id="hw-fy"></select></label>
+        </div>
+      </div>
 
-    <section class="card">
-      <div class="card-head">
-        <h2>Measurements</h2>
-        <button type="button" id="download">Download these rows (CSV)</button>
-      </div>
-      <p class="sub" id="table-sub"></p>
-      <div class="table-wrap">
-        <table id="table"></table>
-      </div>
-    </section>
+      <section class="card">
+        <h2 id="hw-title"></h2>
+        <p class="sub" id="hw-sub"></p>
+        <div class="legend" id="hw-legend"></div>
+        <div class="chart" id="chart-hw"></div>
+        <div class="read" id="hw-read"></div>
+        <p class="foot" id="hw-foot"></p>
+      </section>
 
-    <section class="card">
-      <h2>Device specs</h2>
-      <p class="sub">All devices in <code>hardware.csv</code> with a stated value. Bandwidth divided by the weight size in GB is a rough ceiling on single-user decode tok/s.</p>
-      <div class="pair">
-        <div class="chart" id="chart-mem"></div>
-        <div class="chart" id="chart-bw"></div>
-      </div>
-      <p class="foot" id="spec-foot"></p>
+      <section class="card">
+        <div class="card-head">
+          <h2>Devices</h2>
+          <a class="button" href="data/hardware.csv" download>hardware.csv</a>
+        </div>
+        <p class="sub">Every row of <code>hardware.csv</code> with the ratios the charts use. Ratios are computed here from the stated specs. Click a header to sort.</p>
+        <div class="table-wrap">
+          <table id="hw-table"></table>
+        </div>
+      </section>
     </section>
 
     <footer class="page-foot">
@@ -78,6 +122,8 @@
       <p>CC BY 4.0 data, MIT code. Source and contribution guide: <a href="https://github.com/knoel99/inference-data">github.com/knoel99/inference-data</a></p>
     </footer>
   </main>
+  <div class="tip" id="tip" role="status" hidden></div>
   <script src="app.js"></script>
+  <script src="hardware.js"></script>
 </body>
 </html>
