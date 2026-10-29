@@ -39,8 +39,12 @@ H200,NVIDIA,nvhbm,,141,4800,989,published,700,,
 MI350X,AMD,instinct,25000,288,8000,2300,published,1000,analyst estimate,
 MI355X,AMD,instinct,25000,288,8000,2500,published,1400,analyst estimate,
 MI455X,AMD,instinct,50000,432,23300,5000,published,,analyst estimate (CLSA),other estimates at $28-30k
-MI300X,AMD,instinct,,192,5300,1307,published,750,,
+MI300X,AMD,instinct,15000,192,5300,1307,published,750,"analyst estimate (Citi, February 2024)",about $10k for Microsoft and $15k for other buyers
 MI325X,AMD,instinct,,256,6000,1307,published,1000,,
+MI300A,AMD,instinct,,128,5300,980.6,published,550,,"APU: 24 Zen 4 cores share the 128 GB HBM3; up to 760 W liquid-cooled"
+MI250X,AMD,instinct,,128,3277,383,published,560,,"two dies, seen as two 64 GB GPUs"
+MI210,AMD,instinct,,64,1638,181,published,300,,PCIe card
+MI430X,AMD,instinct,,432,23300,,,,,"HPC part: 288 TFLOPS FP64 and 9.2 PFLOPS FP4 published, no 16-bit figure"
 DGX Spark (GB10),NVIDIA,unified,6950,128,273,125,derived,140,"list price, October 2026",complete system
 Ryzen AI Max+ 395,AMD,unified,3449,128,256,,,120,complete Framework system,no published 16-bit figure for the iGPU
 DGX Station GB300,NVIDIA,station,102499,252,7100,2500,published,1600,market estimate,252 GB HBM3e + 496 GB LPDDR5X; system power
