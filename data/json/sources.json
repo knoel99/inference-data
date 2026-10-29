@@ -738,14 +738,14 @@
   },
   {
     "source_id": "unwire-m5",
-    "title": "Mac Studio M5 Ultra local LLM review",
+    "title": "Mac Studio M5 Ultra vs M3 Ultra - Local LLM 開箱評測：125B 本地 LLM 達 114 token/s",
     "url": "https://unwire.hk/2026/09/21/mac-studio-m5-ultra-local-llm-review/ai/",
     "author": "Unwire",
     "publisher": "Unwire",
     "date_published": "2026-09-21",
     "date_accessed": "2026-10-16",
     "source_type": "benchmark",
-    "notes": "MTPLX results. Second-hand citation. GPU powermetrics, not wall power."
+    "notes": "Original page title, kept as published. English reading: Mac Studio M5 Ultra vs M3 Ultra, local-LLM unboxing review; a 125B local model reaches 114 tok/s. MTPLX results. Second-hand citation. GPU powermetrics, not wall power."
   },
   {
     "source_id": "llamaperf-m5",
