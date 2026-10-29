@@ -348,5 +348,35 @@
     "license": null,
     "source_id": "joshua8-30b",
     "notes": "The citation says MoE ~30B-A3B (VL) and does not give a more precise checkpoint name. Not merged with the text-only Qwen3-30B-A3B row."
+  },
+  {
+    "model_id": "glm-5.2",
+    "name": "GLM-5.2",
+    "params_total_b": null,
+    "params_active_b": null,
+    "architecture": null,
+    "license": null,
+    "source_id": "inferencex-api-glm-5.2",
+    "notes": "Named by InferenceX. Parameter counts, architecture and license are not in the API response, so they are empty."
+  },
+  {
+    "model_id": "kimi-k3",
+    "name": "Kimi-K3",
+    "params_total_b": null,
+    "params_active_b": null,
+    "architecture": null,
+    "license": null,
+    "source_id": "inferencex-api-kimi-k3",
+    "notes": "Named by InferenceX. Parameter counts, architecture and license are not in the API response, so they are empty."
+  },
+  {
+    "model_id": "minimax-m3.1-flash",
+    "name": "MiniMax-M3.1-Flash",
+    "params_total_b": null,
+    "params_active_b": null,
+    "architecture": null,
+    "license": null,
+    "source_id": "inferencex-api-minimax-m3.1-flash",
+    "notes": "Named by InferenceX. Parameter counts, architecture and license are not in the API response, so they are empty."
   }
 ]

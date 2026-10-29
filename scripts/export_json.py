@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 OUT = DATA / "json"
-TABLES = ("sources", "hardware", "models", "measurements")
+TABLES = ("sources", "hardware", "models", "measurements", "agentic")
 INT_FIELDS = {
     "hw_count",
     "context_tokens",
@@ -19,6 +19,8 @@ INT_FIELDS = {
     "output_tokens",
     "concurrency",
     "ttft_ms",
+    "duration_s",
+    "requests_completed",
 }
 
 

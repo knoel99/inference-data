@@ -1,0 +1,4 @@
+session,task,period_utc,model,agents,peak_concurrent_agents,output_mtok,cache_read_mtok,cache_write_mtok,notes
+A,Course writing (MVA and LLGA),2026-10-22 20:25 to 2026-10-26 07:53,claude-opus-5-5 (effort xhigh in the transcripts),557,about 30,31.6,3140,76.1,"55 workflows; 300 agents completed, 257 cut, 189 of them almost immediately."
+B,Mastering Compute Infrastructure,2026-10-22 22:16 to 2026-10-26 08:03,claude-sonnet-5-5 then claude-opus-5-5 (xhigh),150,4,12.2,1887,35,16 workflows; completion count not recorded.
+C,Course consistency pass (PR #45),2026-10-22 20:18 to 2026-10-24 13:37,claude-opus-5-5,52,16,5.73,1232,27.0,52 agents completed after restarts; 17 interrupted by a usage cap. Per-agent rows in claude-code-session-c-agents.csv.

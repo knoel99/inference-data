@@ -130,6 +130,50 @@
           {"fields": ["source_id"], "reference": {"resource": "sources", "fields": ["source_id"]}}
         ]
       }
+    },
+    {
+      "name": "agentic",
+      "path": "data/agentic.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "dialect": {"delimiter": ",", "quoteChar": "\"", "lineTerminator": "\n"},
+      "description": "Agentic-trace serving results: recorded coding-agent sessions replayed at a fixed concurrency, with the prefix-cache hit rate. One row is one concurrency level of one published curve.",
+      "schema": {
+        "missingValues": [""],
+        "primaryKey": "agentic_id",
+        "fields": [
+          {"name": "agentic_id", "type": "string"},
+          {"name": "hardware_id", "type": "string"},
+          {"name": "hw_count", "type": "integer", "description": "GPUs serving one replica."},
+          {"name": "model_id", "type": "string"},
+          {"name": "quantization", "type": "string"},
+          {"name": "engine", "type": "string"},
+          {"name": "engine_version", "type": "string", "description": "Container image tag as published."},
+          {"name": "workload", "type": "string", "description": "Name of the replayed trace set."},
+          {"name": "speculative_decoding", "type": "string", "description": "MTP, EAGLE, draft model, or none."},
+          {"name": "kv_offload", "type": "string", "description": "Where evicted KV cache goes (dram, with backend), or none."},
+          {"name": "concurrency", "type": "integer", "description": "Agent sessions replayed at the same time."},
+          {"name": "mean_input_tokens", "type": "integer", "description": "Mean prompt length per request, cached tokens included. Unit: tokens.", "unit": "tokens"},
+          {"name": "cache_hit_rate", "type": "number", "description": "Share of prompt tokens served from the server's prefix cache, 0 to 1."},
+          {"name": "theoretical_cache_hit_rate", "type": "number", "description": "Share the trace could hit with an unbounded cache, 0 to 1."},
+          {"name": "input_tok_s", "type": "number", "description": "Aggregate prompt tokens per second over the run, cache hits included. Unit: tok/s.", "unit": "tok/s"},
+          {"name": "output_tok_s", "type": "number", "description": "Aggregate generated tokens per second over the run. Unit: tok/s.", "unit": "tok/s"},
+          {"name": "decode_tok_s_per_user", "type": "number", "description": "Median per-request generation speed as published. Unit: tok/s.", "unit": "tok/s"},
+          {"name": "ttft_ms", "type": "integer", "description": "Median time to first token. Unit: ms.", "unit": "ms"},
+          {"name": "duration_s", "type": "integer", "description": "Length of the run. Unit: s.", "unit": "s"},
+          {"name": "requests_completed", "type": "integer"},
+          {"name": "run_date", "type": "date"},
+          {"name": "source_id", "type": "string"},
+          {"name": "evidence", "type": "string", "constraints": {"enum": ["measured_by_source", "vendor_claim", "unverified_claim", "derived"]}},
+          {"name": "notes", "type": "string", "description": "Required. Run link and how to read the columns."}
+        ],
+        "foreignKeys": [
+          {"fields": ["hardware_id"], "reference": {"resource": "hardware", "fields": ["hardware_id"]}},
+          {"fields": ["model_id"], "reference": {"resource": "models", "fields": ["model_id"]}},
+          {"fields": ["source_id"], "reference": {"resource": "sources", "fields": ["source_id"]}}
+        ]
+      }
     }
   ]
 }

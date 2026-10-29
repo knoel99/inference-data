@@ -13,13 +13,14 @@ from pathlib import Path
 __all__ = ["load", "RAW_BASE"]
 
 RAW_BASE = "https://raw.githubusercontent.com/knoel99/inference-data/main/data"
-TABLES = ("hardware", "models", "sources", "measurements")
+TABLES = ("hardware", "models", "sources", "measurements", "agentic")
 
 
 def load(base: str | None = None, joined: bool = True):
     """Return a measurements frame left-joined to hardware, models, and sources.
 
-    Pass ``joined=False`` to get a dict of the four tables instead.
+    Pass ``joined=False`` to get a dict of all tables instead, including
+    ``agentic`` (agentic-trace results with prefix-cache hit rates).
     """
     import pandas as pd
 
