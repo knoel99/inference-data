@@ -6,3 +6,4 @@
 {"run_id":"composer-2.5-ctx32k_longv2","model_pinned":"composer-2.5","cell":"ctx32k_longv2","step":5,"t_before":"1793313123.369452531","t_after":"1793313130.959616595","read_bytes":5,"read_tokens_est":1,"write_bytes":0,"write_tokens_est":0}
 {"run_id":"composer-2.5-ctx32k_longv2","model_pinned":"composer-2.5","cell":"ctx32k_longv2","step":6,"t_before":"1793313134.446857756","t_after":"1793313137.204659815","read_bytes":5,"read_tokens_est":1,"write_bytes":0,"write_tokens_est":0}
 {"run_id":"composer-2.5-ctx32k_longv2","model_pinned":"composer-2.5","cell":"ctx32k_longv2","step":7,"t_before":"1793313138.836786546","t_after":"1793313151.012592911","read_bytes":0,"read_tokens_est":0,"write_bytes":7065,"write_tokens_est":1766}
+{"run_id":"composer-2.5-ctx32k_longv2","model_pinned":"composer-2.5","cell":"ctx32k_longv2","step":8,"t_before":"1793313153.247452656","t_after":"1793313157.724200999","read_bytes":0,"read_tokens_est":0,"write_bytes":0,"write_tokens_est":0}
