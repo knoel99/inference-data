@@ -22,7 +22,7 @@ erDiagram
 | `data/sources.csv` | A public page, post, or video: URL, author, publisher, dates, type |
 | `data/hardware.csv` | A device: memory, bandwidth, dense 16-bit TFLOPS, FP4 TFLOPS, watts, prices |
 | `data/models.csv` | A checkpoint: total and active parameters, architecture, license |
-| `data/measurements.csv` | One result: device count, quant, engine, token lengths, concurrency, prefill and decode tok/s, TTFT, power, task time, evidence |
+| `data/measurements.csv` | One result: device count, quant, engine, token lengths, concurrency, prefill and decode tok/s, TTFT, power, task time, cache state, evidence |
 
 `datapackage.json` is a [Frictionless Data Package](https://specs.frictionlessdata.io/data-package/) with types, units, and foreign keys. `data/json/` is the same tables as JSON. Column units are in the name (`decode_tok_s`, `ttft_ms`, `bandwidth_gb_s`) and in the package field descriptions.
 
@@ -38,6 +38,19 @@ erDiagram
 | `derived` | Computed here from a spec (a roofline). Not something a timer recorded |
 
 Per-user decode is filled only when the source printed it. Dividing an aggregate by concurrency is not stored as if it had been measured.
+
+Cache columns, all optional:
+
+| Column | Meaning |
+| --- | --- |
+| `cache_state` | `warm` (prefix or KV hit), `cold` (miss or cache off), `uncached` (prompt processing with cache off or unused), `mixed` (one figure that combines hits and misses). Empty when the source did not separate them. |
+| `cache_setup` | Prefix cache, RAM or disk tier, or the engine flags the source named. |
+| `spec_decoding` | Speculative method when stated (MTP, DSpark, DFlash2). |
+| `kv_pool_tokens` | KV pool capacity in tokens. |
+| `cache_hit_ratio` | Fraction of prompt tokens served from cache, from 0 to 1. A stated 99% is stored as 0.99. A range is left empty. A recompute percentage is not inverted into a hit rate. |
+| `cached_input_tokens`, `uncached_input_tokens` | Token counts the source reported as cache reads or uncached prompt tokens. Notes say when a count is a cumulative counter rather than one request. |
+
+`ttft_ms` is warm or cold according to `cache_state`. `prefill_tok_s` with `cache_state` `uncached` is uncached prompt processing. A researcher total marked as calculated is not stored.
 
 ## Quick start
 

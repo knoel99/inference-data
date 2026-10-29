@@ -601,6 +601,9 @@ const M_COLUMNS = [
   {key: "ttft_ms", label: "TTFT ms", num: true},
   {key: "power_w", label: "Power W", num: true},
   {key: "task_time_s", label: "Task s", num: true},
+  {key: "cache_state", label: "Cache"},
+  {key: "cache_hit_ratio", label: "Hit ratio", num: true},
+  {key: "kv_pool_tokens", label: "KV pool", num: true},
   {key: "evidence", label: "Evidence", badge: true},
   {key: "sourceTitle", label: "Source", link: "sourceUrl"},
   {key: "sourceDate", label: "Published"},
@@ -619,7 +622,7 @@ function renderHardwareData() {
 function measurementRows() {
   const q = state.q.trim().toLowerCase();
   return db.rows.filter((r) => (state.derived || r.evidence !== "derived") &&
-    (!q || [r.measurement_id, r.device, r.modelName, r.quantization, r.engine, r.sourceTitle, r.notes, r.hardware_id, r.model_id]
+    (!q || [r.measurement_id, r.device, r.modelName, r.quantization, r.engine, r.sourceTitle, r.notes, r.hardware_id, r.model_id, r.cache_state, r.cache_setup, r.spec_decoding]
       .some((v) => v && String(v).toLowerCase().includes(q))));
 }
 
@@ -683,7 +686,9 @@ function drawTable(table, rows, columns, sort, redraw) {
 function download() {
   const fields = ["measurement_id", "hardware_id", "hw_count", "model_id", "quantization", "engine", "engine_version",
     "context_tokens", "input_tokens", "output_tokens", "concurrency", "prefill_tok_s", "decode_tok_s",
-    "decode_tok_s_per_user", "ttft_ms", "power_w", "task_time_s", "source_id", "evidence", "notes"];
+    "decode_tok_s_per_user", "ttft_ms", "power_w", "task_time_s", "cache_state", "cache_setup",
+    "spec_decoding", "kv_pool_tokens", "cache_hit_ratio", "cached_input_tokens", "uncached_input_tokens",
+    "source_id", "evidence", "notes"];
   const csv = d3.csvFormat(measurementRows().map((r) => ({...Object.fromEntries(fields.map((f) => [f, r[f] ?? ""])), source_url: r.sourceUrl ?? ""})));
   const a = el("a");
   a.href = URL.createObjectURL(new Blob([csv + "\n"], {type: "text/csv"}));

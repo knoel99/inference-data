@@ -119,6 +119,10 @@ def main() -> int:
                 enum = field.get("constraints", {}).get("enum")
                 if enum and value not in enum:
                     fail(errors, f"{name}:{i} {pk_val} {fname}={value!r} not in {enum}")
+                if fname == "cache_hit_ratio":
+                    ratio = float(value)
+                    if ratio < 0 or ratio > 1:
+                        fail(errors, f"{name}:{i} {pk_val} cache_hit_ratio {value} is outside 0 to 1")
                 if fname == "url" and not value.startswith("https://"):
                     fail(errors, f"{name}:{i} {pk_val} url is not https")
         tables[name] = rows
@@ -173,6 +177,11 @@ def main() -> int:
                 "ttft_ms",
                 "power_w",
                 "task_time_s",
+                "kv_pool_tokens",
+                "cache_hit_ratio",
+                "cached_input_tokens",
+                "uncached_input_tokens",
+                "output_tokens",
             )
         )
         if not metric and "empty" not in notes.lower() and "not stored" not in notes.lower() and "range" not in notes.lower():

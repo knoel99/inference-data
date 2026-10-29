@@ -19,6 +19,9 @@ INT_FIELDS = {
     "output_tokens",
     "concurrency",
     "ttft_ms",
+    "kv_pool_tokens",
+    "cached_input_tokens",
+    "uncached_input_tokens",
 }
 
 
