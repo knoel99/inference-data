@@ -6,3 +6,4 @@
 {"run_id":"grok-4.7-ctx8k_long","model_pinned":"grok-4.7","cell":"ctx8k_long","step":5,"t_before":"1793313578.692403128","t_after":"1793313578.717404690","read_bytes":0,"read_tokens_est":0,"write_bytes":0,"write_tokens_est":0}
 {"run_id":"grok-4.7-ctx8k_long","model_pinned":"grok-4.7","cell":"ctx8k_long","step":6,"t_before":"1793313621.615710610","t_after":"1793313621.639975879","read_bytes":0,"read_tokens_est":0,"write_bytes":0,"write_tokens_est":0}
 {"run_id":"grok-4.7-ctx8k_long","model_pinned":"grok-4.7","cell":"ctx8k_long","step":7,"t_before":"1793313637.692403574","t_after":"1793313637.716325384","read_bytes":0,"read_tokens_est":0,"write_bytes":94863,"write_tokens_est":23715}
+{"run_id":"grok-4.7-ctx8k_long","model_pinned":"grok-4.7","cell":"ctx8k_long","step":8,"t_before":"1793313661.023823944","t_after":"1793313661.105990069","read_bytes":0,"read_tokens_est":0,"write_bytes":0,"write_tokens_est":0}
