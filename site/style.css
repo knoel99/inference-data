@@ -82,7 +82,8 @@ button, input { font: inherit; color: inherit; }
   margin: 0 auto;
   padding: 32px 16px 48px;
 }
-h1 { font-size: 28px; line-height: 1.2; margin: 0 0 8px; }
+h1 { font-size: 28px; line-height: 1.2; margin: 0; }
+.head-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-bottom: 8px; }
 h2, h3 { font-size: 16px; font-weight: 600; margin: 0; }
 .lede { color: var(--text-secondary); margin: 0; max-width: 78ch; }
 .sub { color: var(--text-secondary); margin: 0; font-size: 14px; max-width: 80ch; }

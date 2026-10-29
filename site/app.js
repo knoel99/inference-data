@@ -156,11 +156,12 @@ function wire() {
     b.addEventListener("click", () => go(b.dataset.tab === "inference" ? "inference-data" : state.lastHardware));
   }
   for (const b of document.querySelectorAll(".subtabs button")) b.addEventListener("click", () => go(b.dataset.sub));
-  for (const seg of document.querySelectorAll(".seg")) {
+  for (const seg of document.querySelectorAll(".seg[data-axis]")) {
     for (const b of seg.querySelectorAll("button")) {
       b.addEventListener("click", () => { state[seg.dataset.axis] = b.dataset.s; render(); });
     }
   }
+  for (const b of document.querySelectorAll("#theme button")) b.addEventListener("click", () => setTheme(b.dataset.theme));
   const q = document.getElementById("q");
   q.addEventListener("input", () => { state.q = q.value; renderMeasurements(); });
   const derived = document.getElementById("with-derived");
@@ -177,13 +178,29 @@ function syncNav() {
     document.getElementById(`panel-${b.dataset.tab}`).hidden = !on;
   }
   for (const b of document.querySelectorAll(".subtabs button")) b.setAttribute("aria-selected", String(b.dataset.sub === state.sub));
-  for (const seg of document.querySelectorAll(".seg")) {
+  for (const seg of document.querySelectorAll(".seg[data-axis]")) {
     for (const b of seg.querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.s === state[seg.dataset.axis]));
   }
+  const theme = document.documentElement.dataset.theme || "auto";
+  for (const b of document.querySelectorAll("#theme button")) b.setAttribute("aria-pressed", String(b.dataset.theme === theme));
   const isCap = Boolean(CAPS[state.sub]);
   document.getElementById("capability").hidden = !isCap;
   document.getElementById("axes").hidden = !isCap;
   document.getElementById("hardware-data").hidden = state.sub !== "hardware-data";
+}
+
+// Auto follows the system setting; Light and Dark override it and are
+// remembered in this browser only.
+function setTheme(theme) {
+  if (theme === "auto") delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = theme;
+  try {
+    if (theme === "auto") localStorage.removeItem("theme");
+    else localStorage.setItem("theme", theme);
+  } catch (e) {
+    // Storage can be blocked; the choice then lasts for this page view.
+  }
+  render();
 }
 
 // Only the visible view renders: charts size themselves to their container,
