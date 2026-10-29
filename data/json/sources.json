@@ -790,5 +790,71 @@
     "date_accessed": "2026-10-29",
     "source_type": "benchmark",
     "notes": "README status on 2026-10-28: experimental. h2-REF is the serving release promoted that day. Numbers below come from the README and from results/2026-10-28-h2-splitkv-ap2/throughput.csv, plus power-by-phase.csv for the v25 power row and card.yaml for the BFCL scores."
+  },
+  {
+    "source_id": "inferencex-api-glm-5.2",
+    "title": "InferenceX benchmarks API, GLM-5.2",
+    "url": "https://inferencex.semianalysis.com/api/v1/benchmarks?model=GLM-5.2",
+    "author": "SemiAnalysis",
+    "publisher": "SemiAnalysis InferenceX",
+    "date_published": null,
+    "date_accessed": "2026-10-29",
+    "source_type": "benchmark",
+    "notes": "Public JSON API behind the InferenceX dashboard. Rows with benchmark_type agentic_traces replay recorded coding-agent sessions for about one hour per concurrency level. Each row links its GitHub Actions run in run_url."
+  },
+  {
+    "source_id": "inferencex-api-deepseek-v4.1-flash",
+    "title": "InferenceX benchmarks API, DeepSeek-V4.1-Flash",
+    "url": "https://inferencex.semianalysis.com/api/v1/benchmarks?model=DeepSeek-V4.1-Flash",
+    "author": "SemiAnalysis",
+    "publisher": "SemiAnalysis InferenceX",
+    "date_published": null,
+    "date_accessed": "2026-10-29",
+    "source_type": "benchmark",
+    "notes": "Public JSON API behind the InferenceX dashboard. Rows with benchmark_type agentic_traces replay recorded coding-agent sessions for about one hour per concurrency level. Each row links its GitHub Actions run in run_url."
+  },
+  {
+    "source_id": "inferencex-api-qwen3.8-flash-next",
+    "title": "InferenceX benchmarks API, Qwen3.8-Flash-Next",
+    "url": "https://inferencex.semianalysis.com/api/v1/benchmarks?model=Qwen3.8-Flash-Next",
+    "author": "SemiAnalysis",
+    "publisher": "SemiAnalysis InferenceX",
+    "date_published": null,
+    "date_accessed": "2026-10-29",
+    "source_type": "benchmark",
+    "notes": "Public JSON API behind the InferenceX dashboard. Rows with benchmark_type agentic_traces replay recorded coding-agent sessions for about one hour per concurrency level. Each row links its GitHub Actions run in run_url."
+  },
+  {
+    "source_id": "inferencex-api-kimi-k3",
+    "title": "InferenceX benchmarks API, Kimi-K3",
+    "url": "https://inferencex.semianalysis.com/api/v1/benchmarks?model=Kimi-K3",
+    "author": "SemiAnalysis",
+    "publisher": "SemiAnalysis InferenceX",
+    "date_published": null,
+    "date_accessed": "2026-10-29",
+    "source_type": "benchmark",
+    "notes": "Public JSON API behind the InferenceX dashboard. Rows with benchmark_type agentic_traces replay recorded coding-agent sessions for about one hour per concurrency level. Each row links its GitHub Actions run in run_url."
+  },
+  {
+    "source_id": "inferencex-api-minimax-m3.1-flash",
+    "title": "InferenceX benchmarks API, MiniMax-M3.1-Flash",
+    "url": "https://inferencex.semianalysis.com/api/v1/benchmarks?model=MiniMax-M3.1-Flash",
+    "author": "SemiAnalysis",
+    "publisher": "SemiAnalysis InferenceX",
+    "date_published": null,
+    "date_accessed": "2026-10-29",
+    "source_type": "benchmark",
+    "notes": "Public JSON API behind the InferenceX dashboard. Rows with benchmark_type agentic_traces replay recorded coding-agent sessions for about one hour per concurrency level. Each row links its GitHub Actions run in run_url."
+  },
+  {
+    "source_id": "inferencex-api-availability",
+    "title": "InferenceX availability API",
+    "url": "https://inferencex.semianalysis.com/api/v1/availability",
+    "author": "SemiAnalysis",
+    "publisher": "SemiAnalysis InferenceX",
+    "date_published": null,
+    "date_accessed": "2026-10-29",
+    "source_type": "benchmark",
+    "notes": "Lists every model, hardware, framework, precision and benchmark type InferenceX has published. Names devices only; no specifications."
   }
 ]

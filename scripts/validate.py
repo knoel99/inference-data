@@ -92,6 +92,8 @@ def main() -> int:
             required_names = {"model_id", "name", "source_id"}
         if name == "measurements":
             required_names = {"measurement_id", "source_id", "evidence", "notes"}
+        if name == "agentic":
+            required_names = {"agentic_id", "concurrency", "source_id", "evidence", "notes"}
         pk = schema["primaryKey"]
         seen: set[str] = set()
         for i, row in enumerate(rows, start=2):
@@ -131,6 +133,7 @@ def main() -> int:
         "hardware": index("hardware", "hardware_id"),
         "models": index("models", "model_id"),
         "measurements": index("measurements", "measurement_id"),
+        "agentic": index("agentic", "agentic_id"),
     }
 
     for resource in package["resources"]:
@@ -177,6 +180,19 @@ def main() -> int:
         )
         if not metric and "empty" not in notes.lower() and "not stored" not in notes.lower() and "range" not in notes.lower():
             fail(errors, f"measurements:{i} {mid} has no numeric result and does not explain why")
+
+    for i, row in enumerate(tables.get("agentic", []), start=2):
+        aid = row["agentic_id"]
+        src = lookups["sources"].get(row["source_id"])
+        if src is not None and not src.get("url", "").startswith("https://"):
+            fail(errors, f"agentic:{i} {aid} source has no https URL")
+        if src is not None and not src.get("date_accessed"):
+            fail(errors, f"agentic:{i} {aid} source has no date_accessed")
+        for col in ("cache_hit_rate", "theoretical_cache_hit_rate"):
+            if row[col] and not 0 <= float(row[col]) <= 1:
+                fail(errors, f"agentic:{i} {aid} {col} is not between 0 and 1")
+        if not any(row[c] for c in ("input_tok_s", "output_tok_s", "decode_tok_s_per_user", "ttft_ms")):
+            fail(errors, f"agentic:{i} {aid} has no numeric result")
 
     if errors:
         print(f"{len(errors)} error(s):", file=sys.stderr)

@@ -9,7 +9,7 @@ from pathlib import Path
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-TABLES = ("sources", "hardware", "models", "measurements")
+TABLES = ("sources", "hardware", "models", "measurements", "agentic")
 
 
 def main() -> int:

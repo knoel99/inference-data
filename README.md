@@ -15,6 +15,9 @@ erDiagram
     sources ||--o{ measurements : cites
     hardware ||--o{ measurements : "runs on"
     models ||--o{ measurements : serves
+    sources ||--o{ agentic : cites
+    hardware ||--o{ agentic : "runs on"
+    models ||--o{ agentic : serves
 ```
 
 | File | One row is |
@@ -23,10 +26,17 @@ erDiagram
 | `data/hardware.csv` | A device: memory, bandwidth, dense 16-bit TFLOPS, FP4 TFLOPS, watts, prices |
 | `data/models.csv` | A checkpoint: total and active parameters, architecture, license |
 | `data/measurements.csv` | One result: device count, quant, engine, token lengths, concurrency, prefill and decode tok/s, TTFT, power, task time, evidence |
+| `data/agentic.csv` | One concurrency level of an agentic-trace run: recorded coding-agent sessions replayed at once, with mean prompt length, prefix-cache hit rate, aggregate input and output tok/s, per-user decode, and TTFT |
 
 `datapackage.json` is a [Frictionless Data Package](https://specs.frictionlessdata.io/data-package/) with types, units, and foreign keys. `data/json/` is the same tables as JSON. Column units are in the name (`decode_tok_s`, `ttft_ms`, `bandwidth_gb_s`) and in the package field descriptions.
 
 `source_type` is `benchmark`, `vendor`, `video`, or `post`.
+
+### Agentic traces
+
+A coding agent resends its whole conversation on every call, but almost all of it is a prefix the server already holds in its KV cache. `agentic.csv` keeps the two quantities apart. `input_tok_s` is every prompt token per second, cache hits included: the total the model ingests. The uncached (cache-miss) prefill, the part the GPUs actually compute, is `input_tok_s * (1 - cache_hit_rate)`; it is not stored as a column because the source does not publish it. With hit rates of 90 to 99 %, the two differ by one to two orders of magnitude. `input_tok_s` and `output_tok_s` are aggregates over the whole run; divide by `concurrency` for a per-session average. `decode_tok_s_per_user` is the published median per-request generation speed, a different quantity from `output_tok_s / concurrency`, which includes the time each session spends waiting.
+
+`data/sessions/` holds token counts from the owner's Claude Code sessions for comparison. They are outside the contract (see its README).
 
 `evidence` is:
 
@@ -49,7 +59,7 @@ df = pd.read_csv(
 )
 ```
 
-A small loader joins the four tables. `pandas` is the only dependency.
+A small loader joins the four main tables; `load(joined=False)` also returns `agentic`. `pandas` is the only dependency.
 
 ```python
 from inference_data import load

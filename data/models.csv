@@ -34,3 +34,6 @@ qwen3-235b,Qwen3-235B,,,,,conselara-spark,GPTQ-Int4 on 2x Spark. Parameter field
 mimo-v2.5-omni,MiMo V2.5 Omni,,,,,forum-mimo-3x,Multimodal omni model in the 3x Spark thread. Parameter count not quoted.
 kolibri-1,Kolibri-1,,,,,x-0xbakeer,Named in the X post. No parameter count in the citation.
 qwen3-30b-a3b-vl,Qwen3 MoE about 30B-A3B vision-language,,,moe,,joshua8-30b,The citation says MoE ~30B-A3B (VL) and does not give a more precise checkpoint name. Not merged with the text-only Qwen3-30B-A3B row.
+glm-5.2,GLM-5.2,,,,,inferencex-api-glm-5.2,"Named by InferenceX. Parameter counts, architecture and license are not in the API response, so they are empty."
+kimi-k3,Kimi-K3,,,,,inferencex-api-kimi-k3,"Named by InferenceX. Parameter counts, architecture and license are not in the API response, so they are empty."
+minimax-m3.1-flash,MiniMax-M3.1-Flash,,,,,inferencex-api-minimax-m3.1-flash,"Named by InferenceX. Parameter counts, architecture and license are not in the API response, so they are empty."

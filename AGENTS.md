@@ -7,7 +7,10 @@ This repository is a sourced table of LLM inference measurements. CSV is the sou
 - `data/sources.csv` — public URL, author, publisher, `date_published`, `date_accessed`, `source_type` (`benchmark`, `vendor`, `video`, `post`).
 - `data/hardware.csv` — `memory_gb`, `bandwidth_gb_s`, `dense_bf16_fp16_tflops`, `fp4_tflops`, `tdp_w`, `launch_price_usd`, `market_price_usd`, `market_price_date`.
 - `data/models.csv` — `params_total_b`, `params_active_b` (billions), `architecture`, `license`.
+- `data/agentic.csv` — one concurrency level of an agentic-trace run: `concurrency`, `mean_input_tokens`, `cache_hit_rate` and `theoretical_cache_hit_rate` (0 to 1), aggregate `input_tok_s` (cache hits included) and `output_tok_s`, `decode_tok_s_per_user`, `ttft_ms`, `kv_offload`, `run_date`. Uncached prefill is `input_tok_s * (1 - cache_hit_rate)`; do not store it as a measured column.
 - `data/measurements.csv` — one result: `hardware_id`, `hw_count`, `model_id`, `quantization`, `engine`, `engine_version`, `context_tokens`, `input_tokens`, `output_tokens`, `concurrency`, `prefill_tok_s`, `decode_tok_s`, `decode_tok_s_per_user`, `ttft_ms`, `power_w`, `task_time_s`, `source_id`, `evidence`, `notes`.
+
+`data/sessions/` holds token counts from the owner's private Claude Code sessions, outside the contract and without source URLs.
 
 `data/atlas/` holds tables compiled for the explorer's hardware charts. They are outside `datapackage.json` and carry no per-row source URL: do not cite them as measurements.
 
