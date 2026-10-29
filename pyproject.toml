@@ -1,0 +1,15 @@
+[project]
+name = "inference-data"
+version = "0.1.0"
+description = "Load the inference-data CSV tables, joined, with pandas."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = ["pandas>=2.0"]
+
+[project.optional-dependencies]
+parquet = ["pyarrow>=14"]
+
+[tool.setuptools.packages.find]
+include = ["inference_data*"]
