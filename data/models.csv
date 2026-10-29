@@ -1,0 +1,36 @@
+model_id,name,params_total_b,params_active_b,architecture,license,source_id,notes
+qwen3.8-27b,Qwen3.8-27B,27,27,dense,,aa-agentperf-article,"AA: dense, 27B parameters, featured at 4-bit. The video transcript renders the name as 'Quen 3.827B' / 'dense Quen'; the leaderboard spelling Qwen3.8-27B is used. License not stated in the fetched article."
+qwen3.6-35b-a3b,Qwen3.6-35B-A3B,,3,moe,,aa-agentperf-article,"AA prose: 3B active, and 2.5 to 3.3 times faster than dense Qwen3.8-27B. The leaderboard label says '36B, 3B active' while the product name says 35B. params_total_b is empty because those two public wordings disagree. License not stated."
+qwen3.5-9b,Qwen3.5-9B,,,dense,,aa-agentperf-article,"Named as a launch model for AA-AgentPerf-Local. The article does not print a parameter count separate from the name, so the numeric fields are empty. Treated as dense because AA contrasts it with MoE active-parameter counts. No completion times for it were in the fetched leaderboard text."
+ling-3.0-flash,Ling 3.0 Flash,124,5.1,moe,,aa-workstations,"Leaderboard label: 124B, 5.1B active. The article prose also says 5B active. The 5.1 figure from the leaderboard label is stored. License not stated."
+qwen3.8-flash-next,Qwen3.8-Flash-Next,125,6,moe,,bruno-vega-video,"Transcript, attributing Alibaba: 125 billion parameters, 6 billion active, plus a 51 billion-parameter engram table that can sit in system RAM. Not re-checked against a model card. The 51B engram is not a second params field."
+deepseek-v4.1-flash-1017,DeepSeek V4.1 Flash 1017,,,,,x-ivan-fioravanti,"Name printed on the Fioravanti chart. 1017 is a build tag on the chart, not a parameter count. Total and active parameters and the license were not printed. Architecture cell left empty rather than copied from a different DeepSeek checkpoint."
+deepseek-v4-flash,DeepSeek-V4-Flash,284,13,moe,,elsung-dgx-spark,"Citing survey of the elsung table: MoE, 284B total, 13B active. License not stated. Not the same row as DeepSeek V4.1 Flash 1017."
+deepseek-v4.1-flash,DeepSeek-V4.1-Flash,,,,,miaai-v41-sparks,"Checkpoint used in the MiaAI Spark recipes. A resident size of about 305 GiB was cited for the native weights; that is a memory footprint, not a parameter count, so params are empty. Not merged with the 1017 chart tag."
+deepseek-unspecified,DeepSeek (variant not stated),,,,,x-0xsero,"The post says DeepSeek and does not name the checkpoint, parameter count, or license."
+nemotron-3-super,Nemotron3-Super-120B-A12B,,,moe,,sth-gigabyte-w775,"ServeTheHome writes 'Nemotron3-Super-A12B' and 'NVFP4/FP8'. The 120B-A12B form is the name used for this seed and was not printed as a counted parameter total on the page, so params_total_b and params_active_b are empty. Called a larger MoE in the article."
+gpt-oss-120b,gpt-oss-120b,,,,,millstone-gpt-oss,"120B is part of the name. A counted parameter total was not quoted, so params_total_b is empty. License not stated in the citation."
+qwen3-30b-a3b,Qwen3-30B-A3B,,,moe,,reddit-qwen3-30b,MoE in the benchmark citation. 30B and 3B are in the name only and are not stored as counted parameters.
+qwen3-32b,Qwen3-32B,,,dense,,jarvislabs-qwen32,Used as a dense 32B proxy in the citing survey. Parameter fields left empty because only the name states the size.
+qwen3-coder-next,Qwen3-Coder-Next,,,,,forum-dgx-spark-harness,Name as printed in the single-Spark harness thread. Parameter count not quoted.
+qwen3.6-27b,Qwen3.6-27B,,,dense,,elsung-dgx-spark,elsung table calls the IQ4_XS GGUF a dense 27B. The numeric parameter field is left empty because 27 is the name. Not the same id as Qwen3.8-27B.
+gemma4-26b-a4b,Gemma4-26B-A4B,,4,moe,,elsung-dgx-spark,"elsung table: MoE, 4B active. 26B remains only in the name."
+gemma4-12b,Gemma4-12B,,,dense,,elsung-dgx-spark,elsung table: dense 12B. Numeric params left empty (size is the name).
+gemma3-27b,Gemma3-27B,,,dense,,elsung-dgx-spark,elsung table: dense 27B QAT Q4_0.
+gemma4-31b,Gemma4-31B,,,dense,,elsung-dgx-spark,elsung table: dense 31B.
+llama-3.3-70b,Llama 3.3 70B,,,dense,,nvidia-trtllm-perf,TensorRT-LLM overview names Llama 3.3 70B. 70B is the name; params_total_b left empty. Treated as dense. License not copied from memory.
+llama-3.1-405b,Llama 3.1 405B,,,dense,,linkedin-myers-405b,Named in the LinkedIn article. Parameter field left empty (405 is the name).
+glm-5.3-flash,GLM-5.3-Flash,320,18,moe,,catid-glm-flash,"Fact-check of the catid results: 320B total, 18B active. License not stated."
+glm-5.3,GLM-5.3,,,,,x-miaai-glm-full,"Full GLM-5.3, as opposed to GLM-5.3-Flash. Parameter count not quoted in the citation."
+glm-5,GLM-5,,,,,omlx,4-bit GLM-5 in the oMLX table. Parameter count not quoted.
+weight-footprint-70gb,70 GB weight footprint (roofline placeholder),70,,unspecified,,nvidia-rtx-blackwell-whitepaper,Not a released checkpoint. Used only for derived roofline rows. Decode assumes a 70 GB weight read. Prefill assumes 70 billion parameters and 2 FLOPs per parameter per token. A 70B model in FP8 is the usual story for that pair of assumptions; the rows do not claim a specific Llama file was loaded.
+qwen3-coder-30b-a3b,Qwen3-Coder 30B-A3B,,,moe,,gpuwerk-benchmarks,GPUwerk fleet model name. Size is in the name only.
+nemotron-super-49b,Nemotron Super 49B,,,,,gpuwerk-benchmarks,GPUwerk name. 49B is in the name only. Not the same id as Nemotron3-Super on the Gigabyte system.
+qwen3.5-122b-a10b,Qwen3.5-122B-A10B,,,moe,,omlx,oMLX 4-bit row. Size is in the name only.
+minimax-m2.5,MiniMax-M2.5,,,,,omlx,Named in oMLX and in a 3-node SGLang note. Parameter count not quoted.
+minimax-m3,MiniMax-M3,,,,,tonyd2wild-minimax,NVFP4 recipes on Spark clusters. Parameter count not quoted.
+qwen3.5-397b,Qwen3.5-397B,,,moe,,lil-rtx6kpro-397b,The 4-GPU README says Qwen3.5-397B. A 3-node whitepaper says Qwen3.5-397B-A17B. 397 and 17 are not stored as counted parameters. Recorded as one model id.
+qwen3-235b,Qwen3-235B,,,,,conselara-spark,GPTQ-Int4 on 2x Spark. Parameter field left empty.
+mimo-v2.5-omni,MiMo V2.5 Omni,,,,,forum-mimo-3x,Multimodal omni model in the 3x Spark thread. Parameter count not quoted.
+kolibri-1,Kolibri-1,,,,,x-0xbakeer,Named in the X post. No parameter count in the citation.
+qwen3-30b-a3b-vl,Qwen3 MoE about 30B-A3B vision-language,,,moe,,joshua8-30b,The citation says MoE ~30B-A3B (VL) and does not give a more precise checkpoint name. Not merged with the text-only Qwen3-30B-A3B row.

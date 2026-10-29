@@ -1,0 +1,135 @@
+{
+  "name": "inference-data",
+  "title": "LLM inference measurements",
+  "description": "Normalized, sourced measurements of LLM inference throughput, latency, and power, with the hardware, models, and publications they depend on. Empty cells mean unknown. Rates in tok/s are never invented.",
+  "homepage": "https://github.com/knoel99/inference-data",
+  "version": "0.1.0",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0",
+      "title": "Creative Commons Attribution 4.0 International",
+      "path": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  ],
+  "keywords": ["llm", "inference", "benchmark", "tokens", "hardware"],
+  "resources": [
+    {
+      "name": "sources",
+      "path": "data/sources.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "dialect": {"delimiter": ",", "quoteChar": "\"", "lineTerminator": "\n"},
+      "schema": {
+        "missingValues": [""],
+        "primaryKey": "source_id",
+        "fields": [
+          {"name": "source_id", "type": "string", "description": "Stable id. Pattern: lowercase words and hyphens."},
+          {"name": "title", "type": "string"},
+          {"name": "url", "type": "string", "description": "Public https URL. Required.", "format": "uri"},
+          {"name": "author", "type": "string"},
+          {"name": "publisher", "type": "string"},
+          {"name": "date_published", "type": "date", "description": "Publication date, YYYY-MM-DD. Empty if the page does not state a day.", "format": "any"},
+          {"name": "date_accessed", "type": "date", "description": "Date this dataset recorded the page, YYYY-MM-DD. Required.", "format": "any"},
+          {"name": "source_type", "type": "string", "description": "benchmark, vendor, video, or post.", "constraints": {"enum": ["benchmark", "vendor", "video", "post"]}},
+          {"name": "notes", "type": "string"}
+        ],
+        "foreignKeys": []
+      }
+    },
+    {
+      "name": "hardware",
+      "path": "data/hardware.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "dialect": {"delimiter": ",", "quoteChar": "\"", "lineTerminator": "\n"},
+      "schema": {
+        "missingValues": [""],
+        "primaryKey": "hardware_id",
+        "fields": [
+          {"name": "hardware_id", "type": "string"},
+          {"name": "name", "type": "string"},
+          {"name": "vendor", "type": "string"},
+          {"name": "memory_gb", "type": "number", "description": "Memory capacity. Unit: GB. GPU memory when the device has a separate GPU pool; see notes.", "unit": "GB"},
+          {"name": "bandwidth_gb_s", "type": "number", "description": "Memory bandwidth. Unit: GB/s.", "unit": "GB/s"},
+          {"name": "dense_bf16_fp16_tflops", "type": "number", "description": "Dense BF16 or FP16 tensor throughput. Unit: TFLOPS. Notes say which format.", "unit": "TFLOPS"},
+          {"name": "fp4_tflops", "type": "number", "description": "FP4 throughput. Unit: TFLOPS. Often the sparse headline; notes say if so.", "unit": "TFLOPS"},
+          {"name": "tdp_w", "type": "number", "description": "Thermal design power or total graphics/system power as stated. Unit: W.", "unit": "W"},
+          {"name": "launch_price_usd", "type": "number", "description": "Launch price. Unit: USD.", "unit": "USD"},
+          {"name": "market_price_usd", "type": "number", "description": "Market or list price observed on market_price_date. Unit: USD.", "unit": "USD"},
+          {"name": "market_price_date", "type": "date", "description": "Date of market_price_usd, YYYY-MM-DD.", "format": "any"},
+          {"name": "source_id", "type": "string"},
+          {"name": "notes", "type": "string"}
+        ],
+        "foreignKeys": [
+          {"fields": ["source_id"], "reference": {"resource": "sources", "fields": ["source_id"]}}
+        ]
+      }
+    },
+    {
+      "name": "models",
+      "path": "data/models.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "dialect": {"delimiter": ",", "quoteChar": "\"", "lineTerminator": "\n"},
+      "schema": {
+        "missingValues": [""],
+        "primaryKey": "model_id",
+        "fields": [
+          {"name": "model_id", "type": "string"},
+          {"name": "name", "type": "string"},
+          {"name": "params_total_b", "type": "number", "description": "Total parameters. Unit: billions.", "unit": "billion parameters"},
+          {"name": "params_active_b", "type": "number", "description": "Active parameters per token. Unit: billions. Equal to total for a dense model when both are stated.", "unit": "billion parameters"},
+          {"name": "architecture", "type": "string", "description": "dense, moe, unspecified, or empty if not stated."},
+          {"name": "license", "type": "string", "description": " SPDX or common license name. Empty if the cited source did not state it."},
+          {"name": "source_id", "type": "string"},
+          {"name": "notes", "type": "string"}
+        ],
+        "foreignKeys": [
+          {"fields": ["source_id"], "reference": {"resource": "sources", "fields": ["source_id"]}}
+        ]
+      }
+    },
+    {
+      "name": "measurements",
+      "path": "data/measurements.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "dialect": {"delimiter": ",", "quoteChar": "\"", "lineTerminator": "\n"},
+      "schema": {
+        "missingValues": [""],
+        "primaryKey": "measurement_id",
+        "fields": [
+          {"name": "measurement_id", "type": "string"},
+          {"name": "hardware_id", "type": "string", "description": "Empty if the device was not identified."},
+          {"name": "hw_count", "type": "integer", "description": "How many of hardware_id were used. Empty if unknown."},
+          {"name": "model_id", "type": "string", "description": "Empty if the checkpoint was not identified."},
+          {"name": "quantization", "type": "string"},
+          {"name": "engine", "type": "string"},
+          {"name": "engine_version", "type": "string"},
+          {"name": "context_tokens", "type": "integer", "description": "Configured context window. Unit: tokens. Empty when the source only said a K-suffix or a range.", "unit": "tokens"},
+          {"name": "input_tokens", "type": "integer", "description": "Prompt or ISL. Unit: tokens.", "unit": "tokens"},
+          {"name": "output_tokens", "type": "integer", "description": "Generated or OSL length. Unit: tokens.", "unit": "tokens"},
+          {"name": "concurrency", "type": "integer", "description": "Requests in flight."},
+          {"name": "prefill_tok_s", "type": "number", "description": "Prompt processing throughput. Unit: tok/s.", "unit": "tok/s"},
+          {"name": "decode_tok_s", "type": "number", "description": "Aggregate decode throughput. Unit: tok/s.", "unit": "tok/s"},
+          {"name": "decode_tok_s_per_user", "type": "number", "description": "Decode throughput per in-flight request, only when the source published it. Unit: tok/s.", "unit": "tok/s"},
+          {"name": "ttft_ms", "type": "integer", "description": "Time to first token. Unit: ms.", "unit": "ms"},
+          {"name": "power_w", "type": "number", "description": "Measured power. Unit: W. Notes say GPU, socket, or wall.", "unit": "W"},
+          {"name": "task_time_s", "type": "number", "description": "Wall-clock time for a fixed workload such as AA-AgentPerf-Local. Unit: s. Empty for token-rate rows.", "unit": "s"},
+          {"name": "source_id", "type": "string"},
+          {"name": "evidence", "type": "string", "constraints": {"enum": ["measured_by_source", "vendor_claim", "unverified_claim", "derived"]}},
+          {"name": "notes", "type": "string", "description": "Required. Ranges, approximations, and anything left empty are explained here."}
+        ],
+        "foreignKeys": [
+          {"fields": ["hardware_id"], "reference": {"resource": "hardware", "fields": ["hardware_id"]}},
+          {"fields": ["model_id"], "reference": {"resource": "models", "fields": ["model_id"]}},
+          {"fields": ["source_id"], "reference": {"resource": "sources", "fields": ["source_id"]}}
+        ]
+      }
+    }
+  ]
+}
