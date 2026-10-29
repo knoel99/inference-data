@@ -3,6 +3,8 @@ Ryzen AI Max+ 395,AMD,unified,1,128,256,,,3449,120,complete Framework system,
 DGX Spark,NVIDIA,unified,1,128,273,125,derived,6950,140,"list price, October 2026",
 8× DGX Spark (cluster),NVIDIA,unified,8,1024,2184,1000,derived,55600,1120,8 × list price; switch and cables not counted,cluster officially supported since 2026-10-21
 1× RTX 5090,NVIDIA,single,1,32,1792,209.5,published,1999,575,"card only, host not counted",
+1× Radeon AI PRO R9700,AMD,single,1,32,640,191,published,1700,300,"card only, host not counted",
+1× Radeon PRO W7900,AMD,single,1,48,864,122.6,published,3839,295,"card only, host not counted",
 WRX90 1× PRO 6000 Max-Q,NVIDIA,single,1,96,1792,438.9,published,25538,550,"supplier quote, €22,802 excl. VAT",
 WRX90 2× PRO 6000 Max-Q,NVIDIA,pcie,2,192,3584,877.8,published,45835,800,"supplier quote, €40,924 excl. VAT",
 WRX90 3× PRO 6000 Max-Q,NVIDIA,pcie,3,288,5376,1316.7,published,66208,1100,"supplier quote, €59,114 excl. VAT",
@@ -14,6 +16,7 @@ DGX Station GB300,NVIDIA,station,1,252,7100,2500,published,102499,1600,"market e
 HGX 8× H200,NVIDIA,server,8,1128,38400,7912,published,,10200,,
 HGX 8× B200,NVIDIA,server,8,1536,64000,18000,published,380000,14300,"8 × GPU price, floor",
 HGX 8× B300,NVIDIA,server,8,2304,64000,18000,published,424000,14300,"8 × GPU price, floor",
+8× MI350X,AMD,server,8,2304,64000,18400,published,200000,,"8 × analyst estimate, floor",air-cooled sibling of the MI355X; no published system power
 8× MI355X,AMD,server,8,2304,64000,20000,published,200000,14000,"8 × analyst estimate, floor",
 GB200 NVL72,NVIDIA,rack,72,13392,576000,180000,published,3100000,132000,"market estimate, bare rack; $2.8M to $3.9M quoted",13.4 TB HBM3e; dense BF16 is half the 360 PFLOPS sparse figure
 GB300 NVL72,NVIDIA,rack,72,20088,576000,180000,published,5000000,140000,"market estimate from 2026 purchase orders; $3.7M to $6.5M quoted",20 TB HBM3e; dense BF16 is half the 360 PFLOPS sparse figure
