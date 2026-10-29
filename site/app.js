@@ -260,7 +260,6 @@ function renderCapability(cap) {
       }));
       scatter(`${scale}-${xk}`, items, {
         xLabel, yLabel: C.label, xMoney: xk === "price", ratio: RATIOS[`${xk}-${cap}`],
-        missingText: (names) => `Not drawn, no value: ${names.join(", ")}.`,
       });
     }
   }
@@ -315,7 +314,6 @@ function renderMeasured(cap) {
     xLabel: bw ? "Memory bandwidth of the machine (GB/s)" : "Dense 16-bit TFLOPS of the machine",
     yLabel: bw ? "Generation per user (tok/s)" : "Prefill per user (tok/s)",
     ratio: RATIOS[bw ? "decode" : "prefill"],
-    missingText: (names) => `Not drawn, no value: ${[...new Set(names)].join(", ")}.`,
   });
 }
 
@@ -395,7 +393,7 @@ function scatter(id, items, opt) {
   const lgx = state.x === "log", lgy = state.y === "log";
   const pts = items.filter((p) => p.x > 0 && p.y > 0);
   const miss = items.filter((p) => !(p.x > 0 && p.y > 0)).map((p) => p.label);
-  missBox.textContent = miss.length ? opt.missingText(miss) : "";
+  missBox.textContent = miss.length && opt.missingText ? opt.missingText(miss) : "";
   box.replaceChildren();
   if (!pts.length) return box.append(el("p", "empty", "No point has both values yet."));
 
