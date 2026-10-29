@@ -52,12 +52,12 @@
   {
     "model_id": "deepseek-v4.1-flash-1017",
     "name": "DeepSeek V4.1 Flash 1017",
-    "params_total_b": null,
+    "params_total_b": 552,
     "params_active_b": null,
-    "architecture": null,
+    "architecture": "moe",
     "license": null,
     "source_id": "x-ivan-fioravanti",
-    "notes": "Name printed on the Fioravanti chart. 1017 is a build tag on the chart, not a parameter count. Total and active parameters and the license were not printed. Architecture cell left empty rather than copied from a different DeepSeek checkpoint."
+    "notes": "Name printed on the Fioravanti chart. 1017 is a build tag, not a parameter count, and that chart did not state size, architecture, or license. The J-M-Recipes sidecar README names this same 1017 checkpoint as a MoE with 384 routed experts plus Engram, 552B total, 8B active in prefill and 16B active in decode, checkpoint 510.3 GB. params_active_b stays empty because prefill and decode use different active counts. License is still unstated."
   },
   {
     "model_id": "deepseek-v4-flash",
