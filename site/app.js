@@ -33,6 +33,7 @@ const SYS_FAMILIES = [
   {k: "pcie", label: "Multi-GPU PCIe workstation or server", symbol: d3.symbolTriangle},
   {k: "station", label: "DGX Station GB300", symbol: d3.symbolDiamond},
   {k: "server", label: "8-GPU HBM server", symbol: d3.symbolSquare},
+  {k: "rack", label: "72-GPU rack (NVL72, Helios)", symbol: d3.symbolCross},
 ];
 const MODEL_FAMILIES = [
   {k: "gptoss", label: "gpt-oss-120b", symbol: d3.symbolCircle},
@@ -403,7 +404,7 @@ function scatter(id, items, opt) {
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
   const [lo, hi] = opt.yPad || [1.6, 1.6];
   const xs = pts.map((p) => p.x), ys = [...pts.map((p) => p.y), ...(opt.extraY || [])];
-  const x = (lgx ? d3.scaleLog().domain([d3.min(xs) / 1.6, d3.max(xs) * 1.6]) : d3.scaleLinear().domain([0, d3.max(xs) * 1.1]).nice()).range([0, iw]);
+  const x = (lgx ? d3.scaleLog().domain([d3.min(xs) / 1.6, d3.max(xs) * 2.5]) : d3.scaleLinear().domain([0, d3.max(xs) * 1.1]).nice()).range([0, iw]);
   const y = (lgy ? d3.scaleLog().domain([d3.min(ys) / lo, d3.max(ys) * hi]) : d3.scaleLinear().domain([0, d3.max(ys) * 1.1]).nice()).range([ih, 0]);
   const muted = css("--text-secondary"), surface = css("--surface-1");
 
@@ -488,7 +489,9 @@ function scatter(id, items, opt) {
     const t = labels.append("text").attr("fill", p.quiet ? muted : css("--text-primary")).attr("stroke", surface)
       .attr("stroke-width", 3).attr("paint-order", "stroke").style("font-size", "11px").text(p.label);
     const w = t.node().getComputedTextLength(), h = 11;
-    const spots = [[8, 4, "start"], [-8, 4, "end"], [8, -6, "start"], [-8, -6, "end"], [8, 14, "start"], [-8, 14, "end"], [0, -10, "middle"], [0, 20, "middle"]];
+    const spots = [[8, 4, "start"], [-8, 4, "end"], [8, -6, "start"], [-8, -6, "end"], [8, 14, "start"], [-8, 14, "end"], [0, -10, "middle"], [0, 20, "middle"],
+      [-8, -16, "end"], [8, -16, "start"], [-8, 24, "end"], [8, 24, "start"], [0, -20, "middle"], [0, 30, "middle"],
+      [-8, -28, "end"], [8, -28, "start"], [-8, 36, "end"], [8, 36, "start"]];
     const fit = spots.find(([dx, dy, anchor]) => {
       const lx = p.px + dx, ly = p.py + dy;
       const bx0 = anchor === "start" ? lx : anchor === "end" ? lx - w : lx - w / 2;
