@@ -3,3 +3,4 @@
 {"run_id":"grok-4.7-ctx2k_long","model_pinned":"grok-4.7","cell":"ctx2k_long","step":2,"t_before":"1793313036.204135360","t_after":"1793313036.208732998","read_bytes":7938,"read_tokens_est":1984,"write_bytes":0,"write_tokens_est":0}
 {"run_id":"grok-4.7-ctx2k_long","model_pinned":"grok-4.7","cell":"ctx2k_long","step":3,"t_before":"1793313270.158694763","t_after":"1793313270.171096153","read_bytes":0,"read_tokens_est":0,"write_bytes":94863,"write_tokens_est":23715}
 {"run_id":"grok-4.7-ctx2k_long","model_pinned":"grok-4.7","cell":"ctx2k_long","step":4,"t_before":"1793313408.060062442","t_after":"1793313408.062319997","read_bytes":0,"read_tokens_est":0,"write_bytes":94863,"write_tokens_est":23715}
+{"run_id":"grok-4.7-ctx2k_long","model_pinned":"grok-4.7","cell":"ctx2k_long","step":5,"t_before":"1793313474.397463195","t_after":"1793313474.409941259","read_bytes":0,"read_tokens_est":0,"write_bytes":94863,"write_tokens_est":23715}
