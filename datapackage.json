@@ -120,6 +120,13 @@
           {"name": "ttft_ms", "type": "integer", "description": "Time to first token. Unit: ms.", "unit": "ms"},
           {"name": "power_w", "type": "number", "description": "Measured power. Unit: W. Notes say GPU, socket, or wall.", "unit": "W"},
           {"name": "task_time_s", "type": "number", "description": "Wall-clock time for a fixed workload such as AA-AgentPerf-Local. Unit: s. Empty for token-rate rows.", "unit": "s"},
+          {"name": "cache_state", "type": "string", "description": "warm, cold, uncached, or mixed. Empty when the source did not separate cache state. warm is a prefix or KV hit. cold is a miss or cache off. uncached is a prompt-processing rate with caching off or not used. mixed is one figure that combines hits and misses.", "constraints": {"enum": ["warm", "cold", "uncached", "mixed"]}},
+          {"name": "cache_setup", "type": "string", "description": "How the cache was configured: prefix cache, RAM or disk tier, engine flags. Empty if not stated."},
+          {"name": "spec_decoding", "type": "string", "description": "Speculative decoding method when stated, such as MTP, DSpark, or DFlash2. Empty if not stated or off."},
+          {"name": "kv_pool_tokens", "type": "integer", "description": "KV cache pool capacity. Unit: tokens. Empty if not stated.", "unit": "tokens"},
+          {"name": "cache_hit_ratio", "type": "number", "description": "Share of prompt tokens served from cache, as a fraction from 0 to 1. 99% is stored as 0.99. Empty for a range or when only a recompute fraction was stated.", "unit": "fraction"},
+          {"name": "cached_input_tokens", "type": "integer", "description": "Prompt tokens the source counted as cache reads. A cumulative counter when the note says so, not always one request. Unit: tokens.", "unit": "tokens"},
+          {"name": "uncached_input_tokens", "type": "integer", "description": "Prompt tokens the source counted as processed without a cache hit. Unit: tokens.", "unit": "tokens"},
           {"name": "source_id", "type": "string"},
           {"name": "evidence", "type": "string", "constraints": {"enum": ["measured_by_source", "vendor_claim", "unverified_claim", "derived"]}},
           {"name": "notes", "type": "string", "description": "Required. Ranges, approximations, and anything left empty are explained here."}

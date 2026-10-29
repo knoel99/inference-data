@@ -358,5 +358,20 @@
     "market_price_date": null,
     "source_id": "r9700-stack",
     "notes": "Named by the r9700-stack benchmark, which power-limits the cards to 210 W in that run. That 210 W is a test cap, not stored as tdp_w. A private spec sheet's 32 GB, 640 GB/s, 300 W, INT4 TOPS, and FP16 TFLOPS were not copied."
+  },
+  {
+    "hardware_id": "apple-mac-unspecified",
+    "name": "Apple Mac (model not stated)",
+    "vendor": "Apple",
+    "memory_gb": null,
+    "bandwidth_gb_s": null,
+    "dense_bf16_fp16_tflops": null,
+    "fp4_tflops": null,
+    "tdp_w": null,
+    "launch_price_usd": null,
+    "market_price_usd": null,
+    "market_price_date": null,
+    "source_id": "x-sympathylabs-20261023",
+    "notes": "A Mac running Claude Code. The post does not say MacBook, Studio, or which chip. Memory, bandwidth, compute, power, and price were not stated."
   }
 ]

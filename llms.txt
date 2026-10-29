@@ -5,7 +5,9 @@ Sourced LLM inference measurements. CSV (UTF-8, comma, dot decimal) is canonical
 Tables, joined by string ids: data/sources.csv, data/hardware.csv, data/models.csv, data/measurements.csv.
 Contract: datapackage.json (Frictionless). Same rows as JSON: data/json/.
 
-measurements.csv columns: measurement_id, hardware_id, hw_count, model_id, quantization, engine, engine_version, context_tokens, input_tokens, output_tokens, concurrency, prefill_tok_s, decode_tok_s, decode_tok_s_per_user, ttft_ms, power_w, task_time_s, source_id, evidence, notes.
+measurements.csv columns: measurement_id, hardware_id, hw_count, model_id, quantization, engine, engine_version, context_tokens, input_tokens, output_tokens, concurrency, prefill_tok_s, decode_tok_s, decode_tok_s_per_user, ttft_ms, power_w, task_time_s, cache_state, cache_setup, spec_decoding, kv_pool_tokens, cache_hit_ratio, cached_input_tokens, uncached_input_tokens, source_id, evidence, notes.
+
+cache_state: warm | cold | uncached | mixed, or empty. cache_hit_ratio is a fraction from 0 to 1 (99% is 0.99). Do not compute a hit ratio from other columns. Do not store a researcher's calculated tok/s. ttft_ms is warm or cold according to cache_state. prefill_tok_s with cache_state uncached is uncached prompt processing.
 
 evidence: measured_by_source | vendor_claim | unverified_claim | derived.
 derived = formula on a spec (bandwidth / 70 GB, dense TFLOPS / (2 * 70e9 params)), not a timer.

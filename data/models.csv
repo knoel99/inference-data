@@ -34,3 +34,7 @@ qwen3-235b,Qwen3-235B,,,,,conselara-spark,GPTQ-Int4 on 2x Spark. Parameter field
 mimo-v2.5-omni,MiMo V2.5 Omni,,,,,forum-mimo-3x,Multimodal omni model in the 3x Spark thread. Parameter count not quoted.
 kolibri-1,Kolibri-1,,,,,x-0xbakeer,Named in the X post. No parameter count in the citation.
 qwen3-30b-a3b-vl,Qwen3 MoE about 30B-A3B vision-language,,,moe,,joshua8-30b,The citation says MoE ~30B-A3B (VL) and does not give a more precise checkpoint name. Not merged with the text-only Qwen3-30B-A3B row.
+glm-unspecified,GLM (variant not stated),,,,,x-smartprogrammer-20260903,"The post says GLM and does not name the version, size, or license."
+model-481b-unspecified,Unidentified 481B model,481,,,,x-michalmajzlik-20260620,"The author wrote the 481B and did not name the checkpoint. 481 is that stated size, not a parameter dump. License was not stated."
+step-3.7-flash,Step-3.7-Flash,,,,,x-alvinlai-20260609,Named in a vLLM log line. Parameter count and license were not stated. 3.7 is the version in the name.
+nemotron-unspecified,Nemotron (variant not stated),,,,,x-0xsero-20260606,The post says Nemotron NVFP4 and does not name the size. Not the same row as Nemotron3-Super.

@@ -23,3 +23,4 @@ nvidia-b200,NVIDIA B200,NVIDIA,,,,,,,,,nvidia-trtllm-perf,"Named by the TensorRT
 nvidia-gb200,NVIDIA GB200,NVIDIA,,,,,,,,,nvidia-trtllm-perf,"Named by the TensorRT-LLM performance table as a per-GPU GB200 point. Rack share, bandwidth, and price from a private spec sheet were not copied."
 nvidia-h100-nvl,NVIDIA H100 NVL,NVIDIA,,,,,,,,,arxiv-yuan,Named as 2x H100 NVL in Yuan et al. Spec fields were not in the citation extract.
 amd-radeon-ai-pro-r9700,AMD Radeon AI PRO R9700,AMD,,,,,,,,,r9700-stack,"Named by the r9700-stack benchmark, which power-limits the cards to 210 W in that run. That 210 W is a test cap, not stored as tdp_w. A private spec sheet's 32 GB, 640 GB/s, 300 W, INT4 TOPS, and FP16 TFLOPS were not copied."
+apple-mac-unspecified,Apple Mac (model not stated),Apple,,,,,,,,,x-sympathylabs-20261023,"A Mac running Claude Code. The post does not say MacBook, Studio, or which chip. Memory, bandwidth, compute, power, and price were not stated."

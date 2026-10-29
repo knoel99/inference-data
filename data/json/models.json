@@ -348,5 +348,45 @@
     "license": null,
     "source_id": "joshua8-30b",
     "notes": "The citation says MoE ~30B-A3B (VL) and does not give a more precise checkpoint name. Not merged with the text-only Qwen3-30B-A3B row."
+  },
+  {
+    "model_id": "glm-unspecified",
+    "name": "GLM (variant not stated)",
+    "params_total_b": null,
+    "params_active_b": null,
+    "architecture": null,
+    "license": null,
+    "source_id": "x-smartprogrammer-20260903",
+    "notes": "The post says GLM and does not name the version, size, or license."
+  },
+  {
+    "model_id": "model-481b-unspecified",
+    "name": "Unidentified 481B model",
+    "params_total_b": 481,
+    "params_active_b": null,
+    "architecture": null,
+    "license": null,
+    "source_id": "x-michalmajzlik-20260620",
+    "notes": "The author wrote the 481B and did not name the checkpoint. 481 is that stated size, not a parameter dump. License was not stated."
+  },
+  {
+    "model_id": "step-3.7-flash",
+    "name": "Step-3.7-Flash",
+    "params_total_b": null,
+    "params_active_b": null,
+    "architecture": null,
+    "license": null,
+    "source_id": "x-alvinlai-20260609",
+    "notes": "Named in a vLLM log line. Parameter count and license were not stated. 3.7 is the version in the name."
+  },
+  {
+    "model_id": "nemotron-unspecified",
+    "name": "Nemotron (variant not stated)",
+    "params_total_b": null,
+    "params_active_b": null,
+    "architecture": null,
+    "license": null,
+    "source_id": "x-0xsero-20260606",
+    "notes": "The post says Nemotron NVFP4 and does not name the size. Not the same row as Nemotron3-Super."
   }
 ]
