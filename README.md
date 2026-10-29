@@ -66,6 +66,16 @@ python scripts/validate.py
 python examples/quickstart.py
 ```
 
+## Explorer
+
+[knoel99.github.io/inference-data](https://knoel99.github.io/inference-data/) charts decode throughput against concurrency, single-user decode by device, and device memory and bandwidth, with a filterable table and a CSV download of the current selection. Filters are in the URL, so a view can be linked. `derived` rows are hidden unless the evidence filter includes them.
+
+The page is `site/`, a static page with no build step that reads the same CSVs and `datapackage.json`. `.github/workflows/pages.yml` validates the data, assembles `_site/` with `scripts/build_site.py`, and deploys it on every push to `main`. To preview locally:
+
+```bash
+python scripts/build_site.py && python -m http.server -d _site
+```
+
 ## Add a row
 
 1. Add a `sources.csv` row if the URL is new. `url` and `date_accessed` (`YYYY-MM-DD`) are required. `source_type` is one of the four values above. The page must be public.
