@@ -5,6 +5,9 @@
 "use strict";
 
 const TABLES = ["sources", "hardware", "models", "measurements"];
+const ATLAS = ["gpus", "systems", "measures", "models"];
+const ATLAS_NUMERIC = new Set(["price_usd", "memory_gb", "bandwidth_gbs", "tflops_bf16", "power_w", "gpus", "users",
+  "decode_tps", "prefill_tps", "prefill_tokens", "aa_index", "weights_gb", "total_params_b", "active_params_b"]);
 const SUBS = {memory: "hardware", bandwidth: "hardware", compute: "hardware", "hardware-data": "hardware", "inference-data": "inference"};
 const EVIDENCE_LABEL = {
   measured_by_source: "measured",
@@ -13,33 +16,40 @@ const EVIDENCE_LABEL = {
   derived: "derived",
 };
 
-// Families are a display grouping for shape and colour. hardware.csv has no
-// family column yet, so the grouping is read from the stable hardware ids.
-const FAMILIES = [
-  {k: "geforce", scale: "gpu", label: "GeForce RTX", test: /^nvidia-rtx-\d/},
-  {k: "rtxpro", scale: "gpu", label: "RTX PRO Blackwell", test: /^nvidia-rtx-pro-/},
-  {k: "radeonpro", scale: "gpu", label: "Radeon AI PRO", test: /^amd-radeon-ai-pro/},
-  {k: "nvhbm", scale: "gpu", label: "NVIDIA HBM datacenter", test: /^nvidia-(b\d|gb\d|h\d)/},
-  {k: "unified", scale: "sys", label: "Unified-memory mini PC or laptop", test: /^(nvidia-dgx-spark|nvidia-rtx-spark|amd-ryzen-ai)/},
-  {k: "apple", scale: "sys", label: "Apple silicon", test: /^apple-/},
-  {k: "station", scale: "sys", label: "DGX Station GB300", test: /^nvidia-dgx-station/},
-  {k: "othergpu", scale: "gpu", label: "Other GPU", test: /./},
+// Colour is the brand, shape the family, so each family reads without colour.
+const BRANDS = [{k: "NVIDIA", token: "--brand-nvidia"}, {k: "AMD", token: "--brand-amd"}];
+const GPU_FAMILIES = [
+  {k: "geforce", label: "GeForce RTX 50", symbol: d3.symbolCircle},
+  {k: "radeon", label: "Radeon RX 9000", symbol: d3.symbolDiamond},
+  {k: "rtxpro", label: "RTX PRO Blackwell", symbol: d3.symbolTriangle},
+  {k: "radeonpro", label: "Radeon AI PRO", symbol: d3.symbolWye},
+  {k: "nvhbm", label: "NVIDIA HBM (datacenter, DGX Station)", symbol: d3.symbolSquare},
+  {k: "instinct", label: "AMD Instinct HBM", symbol: d3.symbolCross},
+  {k: "unified", label: "Unified memory (Spark, Ryzen AI Max)", symbol: d3.symbolStar},
 ];
-const SYMBOLS = [d3.symbolCircle, d3.symbolTriangle, d3.symbolDiamond, d3.symbolSquare, d3.symbolCross, d3.symbolWye, d3.symbolStar];
+const SYS_FAMILIES = [
+  {k: "unified", label: "Unified-memory mini PC", symbol: d3.symbolStar},
+  {k: "single", label: "Single-GPU workstation", symbol: d3.symbolCircle},
+  {k: "pcie", label: "Multi-GPU PCIe workstation or server", symbol: d3.symbolTriangle},
+  {k: "station", label: "DGX Station GB300", symbol: d3.symbolDiamond},
+  {k: "server", label: "8-GPU HBM server", symbol: d3.symbolSquare},
+];
+const MODEL_FAMILIES = [
+  {k: "gptoss", label: "gpt-oss-120b", symbol: d3.symbolCircle},
+  {k: "qwen", label: "Qwen3.8-27B", symbol: d3.symbolTriangle},
+  {k: "ds", label: "DeepSeek V4 and V4.1 Flash", symbol: d3.symbolDiamond},
+  {k: "glm", label: "GLM-5.3 and GLM-5.3-Flash", symbol: d3.symbolSquare},
+  {k: "kimi", label: "Kimi K2.6", symbol: d3.symbolCross},
+];
+const familyOf = (list, k) => list.find((f) => f.k === (k === "station" && list === GPU_FAMILIES ? "nvhbm" : k)) || list[0];
 
 const CAPS = {
-  memory: {
-    col: "memory_gb", label: "Memory (GB)", unit: "GB", title: "Memory",
-    note: "GB of memory, summed over the machine at computer scale. Diagonals give the price per GB or the GB per kW.",
-  },
-  bandwidth: {
-    col: "bandwidth_gb_s", label: "Memory bandwidth (GB/s)", unit: "GB/s", title: "Bandwidth",
-    note: "GB/s of memory bandwidth. Diagonals give the price per GB/s or the GB/s per watt.",
-  },
-  compute: {
-    col: "dense_bf16_fp16_tflops", label: "Dense 16-bit TFLOPS", unit: "TFLOPS", title: "Compute",
-    note: "Dense BF16 or FP16 tensor TFLOPS as the vendor states them. Diagonals give the price per TFLOPS or the TFLOPS per kW.",
-  },
+  memory: {col: "memory_gb", label: "Memory (GB)", unit: "GB", title: "Memory",
+    note: "GB of memory, summed over the machine at computer scale. Diagonals give the price per GB or the GB per kW."},
+  bandwidth: {col: "bandwidth_gbs", label: "Memory bandwidth (GB/s)", unit: "GB/s", title: "Bandwidth",
+    note: "GB/s of memory bandwidth. Diagonals give the price per GB/s or the GB/s per watt."},
+  compute: {col: "tflops_bf16", label: "Dense 16-bit TFLOPS", unit: "TFLOPS", title: "Compute",
+    note: "Dense BF16 or FP16 tensor TFLOPS as vendors publish them. Diagonals give the price per TFLOPS or the TFLOPS per kW."},
 };
 
 // Diagonals of a constant ratio y / x, keyed by "<x>-<capability>".
@@ -48,14 +58,14 @@ const RATIOS = {
   "price-bandwidth": {at: (x, b) => x / b, base: [0.1, 1, 10, 100], label: (b) => `$${num(b)} per GB/s`},
   "price-compute": {at: (x, b) => x / b, base: [1, 10, 100, 1000], label: (b) => `$${num(b)} per TFLOPS`},
   "power-memory": {at: (x, b) => (x * b) / 1000, base: [10, 100, 1000], label: (b) => `${num(b)} GB per kW`},
-  "power-bandwidth": {at: (x, b) => x * b, base: [1, 3, 10], label: (b) => `${num(b)} GB/s per W`},
+  "power-bandwidth": {at: (x, b) => x * b, base: [1, 10], label: (b) => `${num(b)} GB/s per W`},
   "power-compute": {at: (x, b) => (x * b) / 1000, base: [100, 1000], label: (b) => `${num(b)} TFLOPS per kW`},
   decode: {at: (x, b) => x / b, base: [1, 3, 10, 30, 100], label: (b) => `${num(b)} GB read per token`},
   prefill: {at: (x, b) => x * b, base: [1, 10, 100], label: (b) => `${num(b)} tok/s per TFLOPS`},
 };
 
 const state = {sub: "memory", lastHardware: "memory", x: "log", y: "log", q: "", derived: false};
-const sorts = {hw: {key: "bandwidth_gb_s", dir: -1}, m: {key: null, dir: 1}};
+const sorts = {hw: {key: "bandwidth_gb_s", dir: -1}, m: {key: null, dir: 1}, gpus: {key: null, dir: 1}, systems: {key: null, dir: 1}, measures: {key: null, dir: 1}, models: {key: "aa_index", dir: -1}};
 let db;
 
 main().catch((err) => {
@@ -71,7 +81,11 @@ async function main() {
     const types = Object.fromEntries(resource.schema.fields.map((f) => [f.name, f.type]));
     tables[name] = await d3.csv(resource.path, (row) => typed(row, types));
   }));
-  db = index(tables);
+  const atlas = {};
+  await Promise.all(ATLAS.map(async (name) => {
+    atlas[name] = await d3.csv(`data/atlas/${name}.csv`, (row) => typed(row, (k) => ATLAS_NUMERIC.has(k)));
+  }));
+  db = index(tables, atlas);
   readLegacyQuery();
   readHash();
   wire();
@@ -84,33 +98,25 @@ async function main() {
   });
 }
 
+// `types` maps a column to its datapackage type, or is a predicate saying
+// whether a column is numeric.
 function typed(row, types) {
+  const numeric = typeof types === "function" ? types : (k) => types[k] === "integer" || types[k] === "number";
   const out = {};
   for (const [key, raw] of Object.entries(row)) {
     if (raw === "") out[key] = null;
-    else if (types[key] === "integer" || types[key] === "number") out[key] = +raw;
+    else if (numeric(key)) out[key] = +raw;
     else out[key] = raw;
   }
   return out;
 }
 
-function index(t) {
+function index(t, atlas) {
   const sources = new Map(t.sources.map((s) => [s.source_id, s]));
   const models = new Map(t.models.map((m) => [m.model_id, m]));
-  for (const scale of ["gpu", "sys"]) {
-    FAMILIES.filter((f) => f.scale === scale).forEach((f, i) => { f.slot = i; f.symbol = SYMBOLS[i]; });
-  }
   const devices = t.hardware.map((h) => {
     const src = sources.get(h.source_id);
-    return {
-      ...h,
-      fam: FAMILIES.find((f) => f.test.test(h.hardware_id)),
-      short: shortName(h.name),
-      price: h.market_price_usd ?? h.launch_price_usd,
-      priceBasis: h.market_price_usd != null ? `market price${h.market_price_date ? " on " + h.market_price_date : ""}` : h.launch_price_usd != null ? "launch price" : null,
-      sourceTitle: src ? src.title : h.source_id,
-      sourceUrl: src ? src.url : null,
-    };
+    return {...h, short: shortName(h.name), sourceTitle: src ? src.title : h.source_id, sourceUrl: src ? src.url : null};
   });
   const hardware = new Map(devices.map((d) => [d.hardware_id, d]));
   const rows = t.measurements.map((m) => {
@@ -118,7 +124,7 @@ function index(t) {
     const model = models.get(m.model_id);
     const src = sources.get(m.source_id);
     return {
-      ...m, hw,
+      ...m,
       device: hw ? (m.hw_count > 1 ? `${hw.short} ×${m.hw_count}` : hw.short) : "Unidentified device",
       modelName: model ? model.name : "Unidentified model",
       sourceTitle: src ? src.title : m.source_id,
@@ -126,7 +132,7 @@ function index(t) {
       sourceDate: src ? src.date_published : null,
     };
   });
-  return {sources, models, devices, hardware, rows};
+  return {devices, rows, atlas};
 }
 
 function shortName(name) {
@@ -224,102 +230,161 @@ function setTheme(theme) {
 function render() {
   syncNav();
   if (CAPS[state.sub]) renderCapability(state.sub);
-  else if (state.sub === "hardware-data") renderDeviceTable();
+  else if (state.sub === "hardware-data") renderHardwareData();
   else renderMeasurements();
 }
 
 /* ---------- capability tabs ---------- */
 
+function brandColor(vendor) {
+  const b = BRANDS.find((x) => x.k === vendor);
+  return css(b ? b.token : "--series-other");
+}
+
 function renderCapability(cap) {
   const C = CAPS[cap];
   document.getElementById("cap-note").textContent = C.note;
-  drawFamilyLegend(document.getElementById("leg-gpu"), "gpu");
-  drawFamilyLegend(document.getElementById("leg-sys"), "sys");
-  for (const scale of ["gpu", "sys"]) {
-    const devices = db.devices.filter((d) => d.fam.scale === scale);
-    const what = scale === "gpu" ? "a GPU" : "a computer";
-    for (const [xk, xLabel, xget] of [["price", "Price (US dollars)", (d) => d.price], ["power", "Power (W)", (d) => d.tdp_w]]) {
+  const {gpus, systems} = db.atlas;
+  const present = new Set([...gpus, ...systems].map((d) => d.vendor));
+  document.getElementById("leg-brand").replaceChildren(...BRANDS.filter((b) => present.has(b.k)).map((b) => legendKey(b.k, d3.symbolCircle, css(b.token))));
+  document.getElementById("leg-gpu").replaceChildren(...shapeLegend(GPU_FAMILIES, gpus.map((d) => familyOf(GPU_FAMILIES, d.family))));
+  document.getElementById("leg-sys").replaceChildren(...shapeLegend(SYS_FAMILIES, systems.map((d) => familyOf(SYS_FAMILIES, d.family))));
+  for (const [scale, rows, fams, what] of [["gpu", gpus, GPU_FAMILIES, "a GPU"], ["sys", systems, SYS_FAMILIES, "a computer"]]) {
+    for (const [xk, xLabel, col] of [["price", "Price (US dollars)", "price_usd"], ["power", "Power (W)", "power_w"]]) {
       document.getElementById(`t-${scale}-${xk}`).textContent = `${C.title} of ${what} against its ${xk}`;
-      const items = devices.map((d) => ({x: xget(d), y: d[C.col], label: d.short, fam: d.fam, tip: deviceTip(d)}));
+      const items = rows.map((d) => ({
+        x: d[col], y: d[C.col],
+        label: d.name + (cap === "compute" && d.tflops_basis === "derived" ? " ≈" : ""),
+        symbol: familyOf(fams, d.family).symbol, color: brandColor(d.vendor),
+        tip: hardwareTip(d, familyOf(fams, d.family)),
+      }));
       scatter(`${scale}-${xk}`, items, {
         xLabel, yLabel: C.label, xMoney: xk === "price", ratio: RATIOS[`${xk}-${cap}`],
-        missingText: (names) => `Not drawn, no stated ${xk} or ${C.title.toLowerCase()}: ${names.join(", ")}.`,
+        missingText: (names) => `Not drawn, no value: ${names.join(", ")}.`,
       });
     }
   }
-  renderYield(cap);
+  if (cap === "memory") renderModelReach();
+  else renderMeasured(cap);
 }
 
-function deviceTip(d) {
-  const rows = [["t", d.name], ["s", d.fam.label]];
-  if (d.price != null) rows.push(["r", "Price", `$${num(d.price)}`]);
+function hardwareTip(d, fam) {
+  const rows = [["t", d.name], ["s", `${d.vendor} · ${fam.label}`]];
+  if (d.price_usd != null) rows.push(["r", "Price", `$${num(d.price_usd)}`]);
   if (d.memory_gb != null) rows.push(["r", "Memory", `${num(d.memory_gb)} GB`]);
-  if (d.bandwidth_gb_s != null) rows.push(["r", "Bandwidth", `${num(d.bandwidth_gb_s)} GB/s`]);
-  if (d.dense_bf16_fp16_tflops != null) rows.push(["r", "Dense 16-bit", `${num(d.dense_bf16_fp16_tflops)} TFLOPS`]);
-  if (d.tdp_w != null) rows.push(["r", "Power", `${num(d.tdp_w)} W`]);
-  if (d.priceBasis) rows.push(["s", `Price: ${d.priceBasis}`]);
-  rows.push(["s", `Source: ${d.sourceTitle}`]);
+  if (d.bandwidth_gbs != null) rows.push(["r", "Bandwidth", `${num(d.bandwidth_gbs)} GB/s`]);
+  if (d.tflops_bf16 != null) rows.push(["r", "Dense 16-bit", `${num(d.tflops_bf16)} TFLOPS${d.tflops_basis === "derived" ? " (derived)" : ""}`]);
+  if (d.power_w != null) rows.push(["r", "Power", `${num(d.power_w)} W`]);
+  if (d.gpus != null) rows.push(["r", "GPUs", String(d.gpus)]);
+  if (d.price_basis) rows.push(["s", `Price: ${d.price_basis}`]);
+  if (d.note) rows.push(["s", d.note]);
   return rows;
 }
 
-// What the capability buys, from measurements.csv. Memory has no such chart
-// yet: it needs model weight sizes, which models.csv does not hold.
-function renderYield(cap) {
-  const block = document.getElementById("yield-block");
-  block.hidden = cap === "memory";
-  if (cap === "memory") return;
+function renderMeasured(cap) {
   const bw = cap === "bandwidth";
-  const metric = bw ? "decode_tok_s" : "prefill_tok_s";
   document.getElementById("yield-group").textContent = bw ? "What bandwidth buys: generation speed" : "What compute buys: prefill speed";
   document.getElementById("t-yield").textContent = bw ? "Measured generation against bandwidth" : "Measured prefill against compute";
   document.getElementById("n-yield").textContent = bw
-    ? "Single-request decode (concurrency 1) from measurements.csv, against the summed bandwidth of the devices used. To produce each token the machine rereads the active weights: the diagonals give the GB read per token that each point implies, so one model should follow one diagonal. Speculative decoding validates several tokens per read and can beat that limit; the row notes say when it was on."
-    : "Single-request prefill (concurrency 1) from measurements.csv, against the summed dense 16-bit TFLOPS of the devices used. Prefill processes the whole prompt at once and is bound by compute. Diagonals give tokens per second per TFLOPS; FP8 or FP4 models beat what the 16-bit figure suggests, and long prompts cost more per token.";
-  const rows = db.rows.filter((r) => r.evidence !== "derived" && r.concurrency === 1 && r[metric] != null);
-  const used = (r) => (r.hw && r.hw[CAPS[cap].col] != null ? r.hw[CAPS[cap].col] * (r.hw_count || 1) : null);
-  // Colour follows the model: the most frequent drawn models take the slots.
-  const ranked = d3.groupSort(rows.filter((r) => used(r) != null && r.model_id), (v) => -v.length, (r) => r.model_id);
-  const fams = new Map(ranked.slice(0, 7).map((id, i) => [id, {label: db.models.get(id).name, slot: i, symbol: SYMBOLS[i]}]));
-  const other = {label: "Other models", slot: -1, symbol: d3.symbolCircle};
-  const items = rows.map((r) => ({
-    x: used(r), y: r[metric], label: r.device, fam: fams.get(r.model_id) || other,
+    ? "Generation for one user, or four for datacenter GPUs, the smallest published level. To produce each token the machine rereads the model's active weights: the diagonals give the amount read per token that each point implies, and one model should follow one diagonal. Hollow points: speculative decoding, which validates several tokens per read and so beats that limit."
+    : "Prefill for one user, or four for datacenter GPUs, on prompts of 0.5k to 32k tokens. Prefill processes every prompt token at once: it is bound by compute. Diagonals give tokens ingested per second per 16-bit TFLOPS; a model quantized to FP4 or FP8 beats what the 16-bit figure suggests, and a long prompt costs more per token because of attention.";
+  const legend = [
+    ...MODEL_FAMILIES.filter((f) => db.atlas.measures.some((m) => m.model_family === f.k)).map((f) => legendKey(f.label, f.symbol, css("--text-secondary"))),
+    legendKey("Speculative decoding", d3.symbolCircle, css("--text-secondary"), true),
+  ];
+  document.getElementById("leg-yield").replaceChildren(...legend);
+  const items = db.atlas.measures.map((m) => ({
+    x: bw ? m.bandwidth_gbs : m.tflops_bf16,
+    y: bw ? m.decode_tps : m.prefill_tps,
+    label: m.machine,
+    symbol: familyOf(MODEL_FAMILIES, m.model_family).symbol,
+    color: brandColor(m.machine_vendor),
+    hollow: m.speculative === "yes",
     tip: [
-      ["t", r.device],
-      ["s", [r.modelName, r.quantization, r.engine].filter(Boolean).join(" · ")],
-      ["r", bw ? "Bandwidth used" : "TFLOPS used", used(r) == null ? "not stated" : `${num(used(r))} ${CAPS[cap].unit}`],
-      ["r", bw ? "Decode" : "Prefill", `${num(r[metric])} tok/s`],
-      ...(r.input_tokens != null ? [["r", "Prompt", `${num(r.input_tokens)} tokens`]] : []),
-      ["s", `Evidence: ${EVIDENCE_LABEL[r.evidence]}`],
-      ["s", `Source: ${r.sourceTitle}`],
+      ["t", m.machine],
+      ["s", [m.model, m.quant, m.engine].filter(Boolean).join(" · ")],
+      ["r", "Concurrent users", String(m.users)],
+      ...(m.decode_tps != null ? [["r", "Generation per user", `${num(m.decode_tps)} tok/s${m.decode_context && m.decode_context !== "empty" ? ` (context ${m.decode_context})` : ""}`]] : []),
+      ...(m.prefill_tps != null ? [["r", "Prefill per user", `${num(m.prefill_tps)} tok/s${m.prefill_tokens ? ` (${num(m.prefill_tokens)}-token prompt)` : ""}`]] : []),
+      ...(m.speculative === "yes" ? [["s", "Speculative decoding"]] : []),
+      ...(m.note ? [["s", m.note]] : []),
+      ["s", `Source: ${m.source}`],
     ],
   }));
-  const keys = [...fams.values()];
-  if (items.some((i) => i.fam === other && i.x != null)) keys.push(other);
-  document.getElementById("leg-yield").replaceChildren(...keys.map(legendKey));
   scatter("yield", items, {
-    xLabel: bw ? "Summed memory bandwidth of the devices used (GB/s)" : "Summed dense 16-bit TFLOPS of the devices used",
-    yLabel: bw ? "Decode for one request (tok/s)" : "Prefill for one request (tok/s)",
+    xLabel: bw ? "Memory bandwidth of the machine (GB/s)" : "Dense 16-bit TFLOPS of the machine",
+    yLabel: bw ? "Generation per user (tok/s)" : "Prefill per user (tok/s)",
     ratio: RATIOS[bw ? "decode" : "prefill"],
-    labelOnce: true,
-    missingText: (names) => `${names.length} result${names.length > 1 ? "s" : ""} not drawn because hardware.csv states no ${bw ? "bandwidth" : "dense TFLOPS"} for the device: ${[...new Set(names)].join(", ")}.`,
+    missingText: (names) => `Not drawn, no value: ${[...new Set(names)].join(", ")}.`,
   });
 }
 
-function drawFamilyLegend(box, scale) {
-  const present = new Set(db.devices.filter((d) => d.fam.scale === scale).map((d) => d.fam));
-  box.replaceChildren(...FAMILIES.filter((f) => present.has(f)).map(legendKey));
+// The best open model whose official weights plus 10% fit in each machine's
+// GPU memory, against the Artificial Analysis index.
+function renderModelReach() {
+  document.getElementById("yield-group").textContent = "What memory buys: the intelligence you can load";
+  document.getElementById("t-yield").textContent = "Best open model that fits, against memory";
+  document.getElementById("n-yield").textContent = "Hollow circles: the ten best open models on Artificial Analysis, placed at the memory their official weights need plus a 10% margin. The step line gives the best index reachable for a given memory, and each machine sits on it. Stronger quantization or offloading to RAM lowers these thresholds: DeepSeek V4.1 Flash already runs on 4× RTX PRO 6000. Memory also sets the room left for agent context, which this chart ignores.";
+  const {models, systems} = db.atlas;
+  const open = models.filter((m) => m.weights_gb > 0).map((m) => ({...m, need: m.weights_gb * 1.1})).sort((a, b) => a.need - b.need);
+  const closed = models.filter((m) => !(m.weights_gb > 0) && m.aa_index > 0);
+  const best = (mem) => open.filter((m) => m.need <= mem).sort((a, b) => b.aa_index - a.aa_index)[0];
+  const muted = css("--text-secondary");
+  document.getElementById("leg-yield").replaceChildren(legendKey("Open model, at the memory its weights need", d3.symbolCircle, muted, true));
+  const items = [
+    ...open.map((m) => ({
+      x: m.need, y: m.aa_index, label: m.name, symbol: d3.symbolCircle, color: muted, hollow: true, quiet: true,
+      tip: [["t", m.name], ["s", `Open model · ${m.licence}`], ["r", "AA index", String(m.aa_index)],
+        ["r", "Weights", `${num(m.weights_gb)} GB (${m.weights_basis}, ${m.format})`], ["r", "Memory with 10% margin", `${num(m.need)} GB`],
+        ["r", "Parameters", `${num(m.total_params_b)}B, ${num(m.active_params_b)}B active`]],
+    })),
+    ...systems.map((s) => {
+      const fit = best(s.memory_gb);
+      return {
+        x: s.memory_gb, y: fit ? fit.aa_index : null, label: s.name,
+        symbol: familyOf(SYS_FAMILIES, s.family).symbol, color: brandColor(s.vendor),
+        tip: [["t", s.name], ["s", `${s.vendor} · ${familyOf(SYS_FAMILIES, s.family).label}`], ["r", "GPU memory", `${num(s.memory_gb)} GB`],
+          ["r", "Best model that fits", fit ? fit.name : "none"], ...(fit ? [["r", "AA index", String(fit.aa_index)]] : [])],
+      };
+    }),
+  ];
+  scatter("yield", items, {
+    xLabel: "GPU memory of the machine, or memory the model needs (GB)",
+    yLabel: "Artificial Analysis intelligence index",
+    missingText: (names) => `No listed model fits in: ${names.join(", ")}.`,
+    extraY: closed.map((m) => m.aa_index),
+    yPad: [1.25, 1.12],
+    overlay: (g, x, y, iw) => {
+      const [x0, x1] = x.domain();
+      const cuts = [x0, ...open.map((m) => m.need).filter((v) => v > x0 && v < x1), x1];
+      const steps = [];
+      for (let i = 0; i < cuts.length - 1; i++) {
+        const m = best(cuts[i] * 1.000001);
+        if (m) steps.push([x(cuts[i]), y(m.aa_index)], [x(cuts[i + 1]), y(m.aa_index)]);
+      }
+      if (steps.length) g.append("path").attr("d", d3.line()(steps)).attr("fill", "none").attr("stroke", css("--reference")).attr("stroke-width", 1.5);
+      for (const m of closed) {
+        const yy = y(m.aa_index);
+        g.append("line").attr("x1", 0).attr("x2", iw).attr("y1", yy).attr("y2", yy).attr("stroke", css("--reference")).attr("stroke-dasharray", "5 4");
+        g.append("text").attr("x", iw - 4).attr("y", yy - 6).attr("text-anchor", "end").attr("fill", css("--text-secondary"))
+          .style("font-size", "11px").text(`${m.name}: ${m.aa_index} (API, weights not public)`);
+      }
+    },
+  });
 }
 
-function legendKey(f) {
+function shapeLegend(families, used) {
+  const present = new Set(used);
+  return families.filter((f) => present.has(f)).map((f) => legendKey(f.label, f.symbol, css("--text-secondary")));
+}
+
+function legendKey(label, symbol, fill, hollow = false) {
   const s = el("span");
   const svg = d3.create("svg").attr("width", 14).attr("height", 14).attr("viewBox", "-7 -7 14 14").attr("aria-hidden", "true");
-  svg.append("path").attr("d", d3.symbol(f.symbol, 64)()).attr("fill", color(f));
-  s.append(svg.node(), document.createTextNode(f.label));
+  svg.append("path").attr("d", d3.symbol(symbol, 64)())
+    .attr("fill", hollow ? "none" : fill).attr("stroke", hollow ? fill : "none").attr("stroke-width", 1.6);
+  s.append(svg.node(), document.createTextNode(label));
   return s;
-}
-
-function color(f) {
-  return f.slot >= 0 && f.slot < 7 ? css(`--series-${f.slot + 1}`) : css("--series-other");
 }
 
 /* ---------- the scatter ---------- */
@@ -335,14 +400,13 @@ function scatter(id, items, opt) {
   if (!pts.length) return box.append(el("p", "empty", "No point has both values yet."));
 
   const W = Math.max(300, box.clientWidth || 800);
-  const H = Math.round(Math.min(520, Math.max(320, W * 0.62)));
+  const H = Math.round(Math.min(520, Math.max(340, W * 0.6)));
   const m = {t: 22, r: 16, b: 44, l: 58};
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
-  const dom = (vals, lg) => (lg ? [d3.min(vals) / 1.6, d3.max(vals) * 1.6] : [0, d3.max(vals) * 1.1]);
-  const x = (lgx ? d3.scaleLog() : d3.scaleLinear()).domain(dom(pts.map((p) => p.x), lgx)).range([0, iw]);
-  const y = (lgy ? d3.scaleLog() : d3.scaleLinear()).domain(dom(pts.map((p) => p.y), lgy)).range([ih, 0]);
-  if (!lgx) x.nice();
-  if (!lgy) y.nice();
+  const [lo, hi] = opt.yPad || [1.6, 1.6];
+  const xs = pts.map((p) => p.x), ys = [...pts.map((p) => p.y), ...(opt.extraY || [])];
+  const x = (lgx ? d3.scaleLog().domain([d3.min(xs) / 1.6, d3.max(xs) * 1.6]) : d3.scaleLinear().domain([0, d3.max(xs) * 1.1]).nice()).range([0, iw]);
+  const y = (lgy ? d3.scaleLog().domain([d3.min(ys) / lo, d3.max(ys) * hi]) : d3.scaleLinear().domain([0, d3.max(ys) * 1.1]).nice()).range([ih, 0]);
   const muted = css("--text-secondary"), surface = css("--surface-1");
 
   const svg = d3.select(box).append("svg").attr("width", "100%").attr("viewBox", `0 0 ${W} ${H}`)
@@ -369,7 +433,6 @@ function scatter(id, items, opt) {
   // Diagonals of a constant ratio, labelled at their last visible point.
   const R = opt.ratio;
   const dg = g.append("g").attr("clip-path", `url(#${clipId})`);
-  const labels = g.append("g").attr("pointer-events", "none");
   if (R) {
     const [x0, x1] = x.domain();
     for (const b of R.base) {
@@ -383,12 +446,13 @@ function scatter(id, items, opt) {
       const pB = inside[inside.length - 1], pA = inside[Math.max(0, inside.length - 4)];
       if (pB[0] < 80) continue;
       const angle = (Math.atan2(pB[1] - pA[1], pB[0] - pA[0]) * 180) / Math.PI;
-      labels.append("text").attr("transform", `translate(${pB[0] - 4},${pB[1] + 12}) rotate(${angle})`)
+      dg.append("text").attr("transform", `translate(${pB[0] - 4},${pB[1] + 12}) rotate(${angle})`)
         .attr("text-anchor", "end").attr("fill", muted).style("font-size", "10px").text(R.label(b));
     }
   }
+  if (opt.overlay) opt.overlay(dg, x, y, iw, ih);
 
-  // Points, one size; shape and colour give the family.
+  // Points, one size; colour is the brand, shape the family.
   const tip = document.getElementById("tip");
   const occupied = [];
   pts.forEach((p) => {
@@ -401,31 +465,29 @@ function scatter(id, items, opt) {
     .attr("tabindex", 0).attr("role", "img").attr("aria-label", (p) => `${p.label}: ${short(p.x)}, ${short(p.y)}`)
     .style("outline", "none");
   nodes.append("circle").attr("r", 12).attr("fill", "transparent");
-  nodes.append("path").attr("d", (p) => d3.symbol(p.fam.symbol, 72)())
-    .attr("fill", (p) => color(p.fam)).attr("stroke", surface).attr("stroke-width", 1.5);
+  nodes.append("path").attr("d", (p) => d3.symbol(p.symbol, 72)())
+    .attr("fill", (p) => (p.hollow ? surface : p.color))
+    .attr("stroke", (p) => (p.hollow ? p.color : surface))
+    .attr("stroke-width", (p) => (p.hollow ? 1.8 : 1.5));
   const show = (event, p) => {
     fillTip(tip, p.tip);
     const r = event.currentTarget.getBoundingClientRect();
     placeTip(tip, r.x + r.width / 2, r.y);
     d3.select(event.currentTarget).select("path").attr("stroke", css("--text-primary"));
   };
-  const hide = (event) => {
+  const hide = (event, p) => {
     tip.hidden = true;
-    d3.select(event.currentTarget).select("path").attr("stroke", surface);
+    d3.select(event.currentTarget).select("path").attr("stroke", p.hollow ? p.color : surface);
   };
   nodes.on("pointerenter", show).on("pointerleave", hide).on("focus", show).on("blur", hide);
 
   // Labels without overlap, isolated points first. A label that does not fit
-  // is dropped; the point keeps its tooltip and its table row. With labelOnce,
-  // a device measured many times is named at one of its points only.
+  // is dropped; the point keeps its tooltip and its table row.
+  const labels = g.append("g").attr("pointer-events", "none");
   const over = (a, b) => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
   const crowd = (p) => d3.sum(pts, (q) => Math.hypot(q.px - p.px, q.py - p.py) < 40);
-  const seen = new Set();
   for (const p of pts.slice().sort((a, b) => crowd(a) - crowd(b))) {
-    const key = opt.labelOnce ? p.label : `${Math.round(p.px)}|${Math.round(p.py)}|${p.label}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    const t = labels.append("text").attr("fill", css("--text-primary")).attr("stroke", surface)
+    const t = labels.append("text").attr("fill", p.quiet ? muted : css("--text-primary")).attr("stroke", surface)
       .attr("stroke-width", 3).attr("paint-order", "stroke").style("font-size", "11px").text(p.label);
     const w = t.node().getComputedTextLength(), h = 11;
     const spots = [[8, 4, "start"], [-8, 4, "end"], [8, -6, "start"], [-8, -6, "end"], [8, 14, "start"], [-8, 14, "end"], [0, -10, "middle"], [0, 20, "middle"]];
@@ -451,7 +513,9 @@ function logTicks(lo, hi) {
       if (v >= lo * 0.999 && v <= hi * 1.001) out.push(v);
     }
   }
-  return out.length > 9 ? out.filter((v) => String(v).startsWith("1")) : out;
+  if (out.length > 9) return out.filter((v) => String(v).startsWith("1"));
+  // A range under a decade (an index from 20 to 60) gets plain ticks.
+  return out.length < 3 ? d3.ticks(lo, hi, 5) : out;
 }
 
 function fillTip(tip, rows) {
@@ -475,10 +539,38 @@ function placeTip(tip, cx, cy) {
 
 /* ---------- tables ---------- */
 
+const ATLAS_COLUMNS = {
+  gpus: [
+    {key: "name", label: "GPU"}, {key: "vendor", label: "Vendor"},
+    {key: "family", label: "Family", get: (d) => familyOf(GPU_FAMILIES, d.family).label},
+    {key: "price_usd", label: "Price (USD)", num: true}, {key: "price_basis", label: "Price basis"},
+    {key: "memory_gb", label: "Memory (GB)", num: true}, {key: "bandwidth_gbs", label: "Bandwidth (GB/s)", num: true},
+    {key: "tflops_bf16", label: "Dense 16-bit TFLOPS", num: true}, {key: "tflops_basis", label: "TFLOPS basis"},
+    {key: "power_w", label: "Power (W)", num: true}, {key: "note", label: "Note"},
+  ],
+  systems: [
+    {key: "name", label: "Computer"}, {key: "vendor", label: "Vendor"},
+    {key: "family", label: "Family", get: (d) => familyOf(SYS_FAMILIES, d.family).label},
+    {key: "gpus", label: "GPUs", num: true}, {key: "price_usd", label: "Price (USD)", num: true}, {key: "price_basis", label: "Price basis"},
+    {key: "memory_gb", label: "Memory (GB)", num: true}, {key: "bandwidth_gbs", label: "Bandwidth (GB/s)", num: true},
+    {key: "tflops_bf16", label: "Dense 16-bit TFLOPS", num: true}, {key: "power_w", label: "Power (W)", num: true}, {key: "note", label: "Note"},
+  ],
+  measures: [
+    {key: "machine", label: "Machine"}, {key: "model", label: "Model"}, {key: "quant", label: "Quant"}, {key: "engine", label: "Engine"},
+    {key: "users", label: "Users", num: true}, {key: "decode_tps", label: "Decode tok/s", num: true}, {key: "decode_context", label: "Decode context"},
+    {key: "prefill_tps", label: "Prefill tok/s", num: true}, {key: "prefill_tokens", label: "Prompt tokens", num: true},
+    {key: "speculative", label: "Speculative"}, {key: "note", label: "Note"}, {key: "source", label: "Source", link: "url"},
+  ],
+  models: [
+    {key: "name", label: "Model"}, {key: "aa_index", label: "AA index", num: true}, {key: "weights_gb", label: "Weights (GB)", num: true},
+    {key: "weights_basis", label: "Weights basis"}, {key: "format", label: "Format"}, {key: "licence", label: "Licence"},
+    {key: "total_params_b", label: "Total params (B)", num: true}, {key: "active_params_b", label: "Active params (B)", num: true},
+  ],
+};
+
 const HW_COLUMNS = [
   {key: "name", label: "Device"},
   {key: "vendor", label: "Vendor"},
-  {key: "family", label: "Family", get: (d) => d.fam.label},
   {key: "memory_gb", label: "Memory (GB)", num: true},
   {key: "bandwidth_gb_s", label: "Bandwidth (GB/s)", num: true},
   {key: "dense_bf16_fp16_tflops", label: "Dense 16-bit TFLOPS", num: true},
@@ -514,8 +606,13 @@ const M_COLUMNS = [
   {key: "notes", label: "Notes", notes: true},
 ];
 
-function renderDeviceTable() {
-  drawTable(document.getElementById("hw-table"), db.devices, HW_COLUMNS, sorts.hw, renderDeviceTable);
+function renderHardwareData() {
+  for (const name of ATLAS) {
+    const redraw = () => drawTable(document.getElementById(`t-atlas-${name}`), db.atlas[name], ATLAS_COLUMNS[name], sorts[name], redraw);
+    redraw();
+  }
+  const hw = () => drawTable(document.getElementById("hw-table"), db.devices, HW_COLUMNS, sorts.hw, hw);
+  hw();
 }
 
 function measurementRows() {

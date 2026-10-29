@@ -1,0 +1,42 @@
+name,vendor,family,price_usd,memory_gb,bandwidth_gbs,tflops_bf16,tflops_basis,power_w,price_basis,note
+RTX 5090,NVIDIA,geforce,1999,32,1792,209.5,published,575,"MSRP, October 2026",
+RTX 5080,NVIDIA,geforce,999,16,960,112.6,published,360,"MSRP, October 2026",
+RTX 5070 Ti,NVIDIA,geforce,749,16,896,87.9,published,300,"MSRP, October 2026",
+RTX 5070,NVIDIA,geforce,549,12,672,61.7,published,250,"MSRP, October 2026",
+RTX 5060 Ti 16 GB,NVIDIA,geforce,429,16,448,47.4,derived,180,"MSRP, October 2026",
+RTX 5060 Ti 8 GB,NVIDIA,geforce,378,8,448,47.4,derived,180,"MSRP, October 2026",
+RTX 5060,NVIDIA,geforce,299,8,448,38.4,derived,145,"MSRP, October 2026",
+RTX 5050,NVIDIA,geforce,249,8,320,26.3,derived,130,"MSRP, October 2026",GDDR6
+RTX PRO 6000 WS,NVIDIA,rtxpro,16000,96,1792,503.8,published,600,price observed in October 2026,"$8,565 at launch"
+RTX PRO 6000 Max-Q,NVIDIA,rtxpro,16499,96,1792,438.9,published,300,price observed in October 2026,
+RTX PRO 5000 72 GB,NVIDIA,rtxpro,9999,72,1344,258.0,derived,300,price observed in October 2026,
+RTX PRO 5000 48 GB,NVIDIA,rtxpro,7849,48,1344,258.0,derived,300,price observed in October 2026,
+RTX PRO 4500,NVIDIA,rtxpro,4699,32,896,202.1,derived,200,price observed in October 2026,
+RTX PRO 4000,NVIDIA,rtxpro,3049,24,672,161.2,derived,145,price observed in October 2026,
+RTX PRO 2000,NVIDIA,rtxpro,1800,16,288,68.1,derived,70,price observed in October 2026,
+RTX PRO 6000 Server,NVIDIA,rtxpro,,96,1597,,,600,,"about $8,500 cited by HelixML, not used"
+RX 9070 XT,AMD,radeon,800,16,640,195,published,304,"street price, October 2026",MSRP $599
+RX 9070,AMD,radeon,680,16,640,145,published,220,"street price, October 2026",
+RX 9070 GRE,AMD,radeon,550,12,432,137,published,220,"street price, October 2026",
+RX 9060 XT 16 GB,AMD,radeon,500,16,320,103,published,160,"street price, October 2026",
+RX 9060 XT 8 GB,AMD,radeon,390,8,320,103,published,150,"street price, October 2026",
+RX 9060,AMD,radeon,420,8,288,86,published,132,"street price, October 2026",
+RX 9050,AMD,radeon,279,8,288,43,published,92,reported launch price,
+Radeon AI PRO R9700,AMD,radeonpro,1700,32,640,191,published,300,"street price, October 2026","MSRP $1,299"
+Radeon AI PRO R9700S,AMD,radeonpro,,32,640,191,published,300,,
+Radeon AI PRO R9600,AMD,radeonpro,,32,640,99,published,150,,R9600D identical
+B100,NVIDIA,nvhbm,32000,192,8000,1750,published,700,market estimate,
+B200,NVIDIA,nvhbm,47501,192,8000,2250,published,1000,market estimate,
+B300,NVIDIA,nvhbm,53000,288,8000,2250,published,1000,market estimate,
+GB200 (per GPU),NVIDIA,nvhbm,34722,186,8000,2500,published,1000,per-GPU share of an NVL72 rack,
+GB300 (per GPU),NVIDIA,nvhbm,48611,279,8000,2500,published,1000,per-GPU share of an NVL72 rack,
+H100 SXM,NVIDIA,nvhbm,,80,3350,989,published,700,,
+H200,NVIDIA,nvhbm,,141,4800,989,published,700,,
+MI350X,AMD,instinct,25000,288,8000,2300,published,1000,analyst estimate,
+MI355X,AMD,instinct,25000,288,8000,2500,published,1400,analyst estimate,
+MI455X,AMD,instinct,50000,432,23300,5000,published,,analyst estimate (CLSA),other estimates at $28-30k
+MI300X,AMD,instinct,,192,5300,1307,published,750,,
+MI325X,AMD,instinct,,256,6000,1307,published,1000,,
+DGX Spark (GB10),NVIDIA,unified,6950,128,273,125,derived,140,"list price, October 2026",complete system
+Ryzen AI Max+ 395,AMD,unified,3449,128,256,,,120,complete Framework system,no published 16-bit figure for the iGPU
+DGX Station GB300,NVIDIA,station,102499,252,7100,2500,published,1600,market estimate,252 GB HBM3e + 496 GB LPDDR5X; system power

@@ -9,6 +9,8 @@ This repository is a sourced table of LLM inference measurements. CSV is the sou
 - `data/models.csv` — `params_total_b`, `params_active_b` (billions), `architecture`, `license`.
 - `data/measurements.csv` — one result: `hardware_id`, `hw_count`, `model_id`, `quantization`, `engine`, `engine_version`, `context_tokens`, `input_tokens`, `output_tokens`, `concurrency`, `prefill_tok_s`, `decode_tok_s`, `decode_tok_s_per_user`, `ttft_ms`, `power_w`, `task_time_s`, `source_id`, `evidence`, `notes`.
 
+`data/atlas/` holds tables compiled for the explorer's hardware charts. They are outside `datapackage.json` and carry no per-row source URL: do not cite them as measurements.
+
 Ids are stable lowercase slugs (`a-z`, `0-9`, `.`, `-`). Empty cell means unknown. Do not write `NA`, `0`, or a midpoint for a range.
 
 ## Evidence

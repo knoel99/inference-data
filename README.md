@@ -68,7 +68,7 @@ python examples/quickstart.py
 
 ## Explorer
 
-[knoel99.github.io/inference-data](https://knoel99.github.io/inference-data/) has two tabs. **Hardware specs** puts memory, bandwidth, and compute against price and power, per GPU and per computer, with diagonals of constant price per unit or units per watt, then shows what each buys from `measurements.csv` (decode against bandwidth, prefill against compute); its Data sub-tab lists `hardware.csv`. **Inference** is one searchable, sortable table of `measurements.csv` with a CSV download. A device with a blank spec is listed under the chart, not drawn. Views are linkable by hash, for example `#bandwidth` or `#inference-data`.
+[knoel99.github.io/inference-data](https://knoel99.github.io/inference-data/) has two tabs. **Hardware specs** puts memory, bandwidth, and compute against price and power, per GPU and per computer, with diagonals of constant price per unit or units per watt, then shows what each buys: the best open model that fits, single-user generation against bandwidth, prefill against compute. Color is the brand and shape the family. Its charts read the compiled tables in `data/atlas/` (see its README: unverified, no per-row URL); its Data sub-tab lists them next to the sourced `hardware.csv`. **Inference** is one searchable, sortable table of `measurements.csv` with a CSV download. Views are linkable by hash, for example `#bandwidth` or `#inference-data`.
 
 The page is `site/`, a static page with no build step that reads the same CSVs and `datapackage.json`. `.github/workflows/pages.yml` validates the data, assembles `_site/` with `scripts/build_site.py`, and deploys it on every push to `main`. To preview locally:
 
