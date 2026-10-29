@@ -768,5 +768,27 @@
     "date_accessed": "2026-10-07",
     "source_type": "post",
     "notes": "Idle wall power after the ConnectX hot-plug update, as cited on 2026-10-07. The page was not re-fetched on 2026-10-29."
+  },
+  {
+    "source_id": "x-james-meadlock-dsv41",
+    "title": "Deepseek-V4.1-Flash for 1 x DGX Station GB300 + RTX Pro 6000",
+    "url": "https://x.com/JamesMeadlock/status/2115590326215639076",
+    "author": "James Meadlock",
+    "publisher": "X",
+    "date_published": "2026-10-28",
+    "date_accessed": "2026-10-29",
+    "source_type": "post",
+    "notes": "Post time 2026-10-28T23:43:34Z. The post text is the title above. Its results card summarizes the linked recipe. Measurement rows cite the recipe, which has the unrounded cells."
+  },
+  {
+    "source_id": "jm-recipes-dsv41-sidecar",
+    "title": "DeepSeek-V4.1-Flash on DGX Station GB300 with an RTX PRO 6000 sidecar",
+    "url": "https://github.com/J-M-Recipes/recipes/tree/main/recipes/dgx-station-gb300/deepseek-v4.1-flash-vllm-uva-dspark-sidecar",
+    "author": "James Meadlock",
+    "publisher": "GitHub",
+    "date_published": "2026-10-28",
+    "date_accessed": "2026-10-29",
+    "source_type": "benchmark",
+    "notes": "README status on 2026-10-28: experimental. h2-REF is the serving release promoted that day. Numbers below come from the README and from results/2026-10-28-h2-splitkv-ap2/throughput.csv, plus power-by-phase.csv for the v25 power row and card.yaml for the BFCL scores."
   }
 ]
