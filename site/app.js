@@ -72,6 +72,7 @@ async function main() {
     tables[name] = await d3.csv(resource.path, (row) => typed(row, types));
   }));
   db = index(tables);
+  readLegacyQuery();
   readHash();
   wire();
   render();
@@ -139,6 +140,21 @@ function shortName(name) {
 }
 
 /* ---------- navigation ---------- */
+
+// Links from the earlier explorer used query parameters (?tab=hardware&hv=
+// compute&hxs=lin). Map them onto the current views once, then drop them.
+function readLegacyQuery() {
+  const q = new URLSearchParams(location.search);
+  if (!q.toString()) return;
+  if (!location.hash) {
+    const view = {compute: "compute", price: "memory", power: "bandwidth"}[q.get("hv")] || "memory";
+    const sub = q.get("tab") === "hardware" ? view : q.has("model") ? "inference-data" : null;
+    if (sub) history.replaceState(null, "", `${location.pathname}#${sub}`);
+  }
+  if (q.get("hxs") === "lin") state.x = "lin";
+  if (q.get("hys") === "lin") state.y = "lin";
+  if (location.search) history.replaceState(null, "", location.pathname + location.hash);
+}
 
 function readHash() {
   const h = location.hash.slice(1);
