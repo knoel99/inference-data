@@ -15,3 +15,7 @@ HGX 8× H200,NVIDIA,server,8,1128,38400,7912,published,,10200,,
 HGX 8× B200,NVIDIA,server,8,1536,64000,18000,published,380000,14300,"8 × GPU price, floor",
 HGX 8× B300,NVIDIA,server,8,2304,64000,18000,published,424000,14300,"8 × GPU price, floor",
 8× MI355X,AMD,server,8,2304,64000,20000,published,200000,14000,"8 × analyst estimate, floor",
+GB200 NVL72,NVIDIA,rack,72,13392,576000,180000,published,3100000,132000,"market estimate, bare rack; $2.8M to $3.9M quoted",13.4 TB HBM3e; dense BF16 is half the 360 PFLOPS sparse figure
+GB300 NVL72,NVIDIA,rack,72,20088,576000,180000,published,5000000,140000,"market estimate from 2026 purchase orders; $3.7M to $6.5M quoted",20 TB HBM3e; dense BF16 is half the 360 PFLOPS sparse figure
+Vera Rubin NVL72,NVIDIA,rack,72,20736,1400000,288000,published,7800000,190000,"analyst estimate (Morgan Stanley); $3.5M to $8.8M quoted","20.7 TB HBM4; 190 kW Max-Q, about 230 kW Max-P"
+Helios (72× MI455X),AMD,rack,72,31104,1677600,360000,published,5250000,246000,"analyst estimate (Futurum), $5M to $5.5M","31 TB HBM4; AMD publishes no rack power, 246 kW is the AMD and Schneider reference design ceiling"

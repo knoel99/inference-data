@@ -30,6 +30,7 @@ B200,NVIDIA,nvhbm,47501,192,8000,2250,published,1000,market estimate,
 B300,NVIDIA,nvhbm,53000,288,8000,2250,published,1000,market estimate,
 GB200 (per GPU),NVIDIA,nvhbm,34722,186,8000,2500,published,1000,per-GPU share of an NVL72 rack,
 GB300 (per GPU),NVIDIA,nvhbm,48611,279,8000,2500,published,1000,per-GPU share of an NVL72 rack,
+Rubin (per GPU),NVIDIA,nvhbm,108333,288,19444,4000,published,1800,per-GPU share of a Vera Rubin NVL72 rack,"HBM4; rack figures divided by 72, Max-Q power"
 H100 SXM,NVIDIA,nvhbm,,80,3350,989,published,700,,
 H200,NVIDIA,nvhbm,,141,4800,989,published,700,,
 MI350X,AMD,instinct,25000,288,8000,2300,published,1000,analyst estimate,
