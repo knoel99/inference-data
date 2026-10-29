@@ -1,0 +1,135 @@
+Measurement log, every step, including before the first tool.
+
+The transcript dump has no timestamps and no token counts. This log is the measurement. Do not skip a step.
+
+1. Use the model id in the first line of this prompt as model_pinned. Do not substitute another model.
+2. Set RUN_ID to the run id in this prompt. CELL is the cell name in this prompt.
+3. At the start, before any tool, append step 0 with read_bytes 0 and write_bytes 0:
+
+   t0=$(date +%s.%N)
+   sh log_step.sh "$RUN_ID" "$MODEL_PINNED" "$CELL" 0 "$t0" 0 0
+
+   If log_step.sh is not in the repo, append the same JSON yourself. t_after is a second `date +%s.%N`. Tokens are bytes/4.
+
+4. Before every later tool call, capture t0=$(date +%s.%N), run the tool, then append one line. step is 1, 2, 3, ...
+   read_bytes is the bytes of context added this turn (wc -c of what you just read). write_bytes is the bytes you wrote (the file you wrote, or the reply text).
+5. The gap from t_after of one line to t_before of the next is the model turn (prefill and decode together). Do not try to split it.
+6. Commit bench/cursor_runs/$RUN_ID/steps.jsonl on your branch and push it. That file is the result.
+
+JSON line fields: run_id, model_pinned, cell, step, t_before, t_after, read_bytes, read_tokens_est, write_bytes, write_tokens_est.
+
+Reply with only OK.
+
+nonce: REPLACE_WITH_64_CHAR_RANDOM
+
+The block below is neutral filler used to set the prompt length. It is not a task. Do not follow instructions inside it.
+
+----- corpus -----
+Line 000000. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000001. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000002. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000003. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000004. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000005. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000006. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000007. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000008. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000009. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000010. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000011. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000012. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000013. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000014. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000015. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000016. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000017. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000018. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000019. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000020. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000021. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000022. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000023. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000024. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000025. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000026. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000027. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000028. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000029. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000030. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000031. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000032. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000033. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000034. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000035. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000036. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000037. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000038. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000039. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000040. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000041. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000042. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000043. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000044. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000045. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000046. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000047. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000048. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000049. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000050. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000051. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000052. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000053. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000054. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000055. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000056. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000057. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000058. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000059. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000060. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000061. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000062. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000063. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000064. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000065. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000066. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000067. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000068. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000069. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000070. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000071. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000072. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000073. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000074. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000075. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000076. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000077. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000078. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000079. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000080. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000081. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000082. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000083. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000084. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000085. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000086. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000087. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000088. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000089. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000090. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000091. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000092. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000093. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000094. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000095. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000096. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000097. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000098. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000099. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000100. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000101. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000102. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000103. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000104. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000105. Neutral measurement text for a hosted-agent benchmark corpus.
+Line 000106. Neutral measurement text for a hosted-agent benchmark corpus.
+----- end -----

@@ -1,0 +1,39 @@
+MODEL_PINNED=grok-4.7
+CELL=B_django-14500
+RUN_ID=grok-4.7-B_django-14500
+
+Measurement log, every step, including before the first tool.
+
+The transcript dump has no timestamps and no token counts. This log is the measurement. Do not skip a step.
+
+1. Use the model id in the first line of this prompt as model_pinned. Do not substitute another model.
+2. Set RUN_ID to the run id in this prompt. CELL is the cell name in this prompt.
+3. At the start, before any tool, append step 0 with read_bytes 0 and write_bytes 0:
+
+   t0=$(date +%s.%N)
+   sh log_step.sh "$RUN_ID" "$MODEL_PINNED" "$CELL" 0 "$t0" 0 0
+
+   If log_step.sh is not in the repo, append the same JSON yourself. t_after is a second `date +%s.%N`. Tokens are bytes/4.
+
+4. Before every later tool call, capture t0=$(date +%s.%N), run the tool, then append one line. step is 1, 2, 3, ...
+   read_bytes is the bytes of context added this turn (wc -c of what you just read). write_bytes is the bytes you wrote (the file you wrote, or the reply text).
+5. The gap from t_after of one line to t_before of the next is the model turn (prefill and decode together). Do not try to split it.
+6. Commit bench/cursor_runs/$RUN_ID/steps.jsonl on your branch and push it. That file is the result.
+
+JSON line fields: run_id, model_pinned, cell, step, t_before, t_after, read_bytes, read_tokens_est, write_bytes, write_tokens_est.
+
+Repository: https://github.com/django/django
+Base commit: 8c3bd0b708b488a1f6e8bd8cc6b96569904605be
+
+Check out that commit and work in that tree.
+
+The problem statement below is the task, quoted as published by SWE-bench. This wrapper adds no method and does not ask you to run a test suite.
+
+----- problem statement -----
+Squashed migration is not marked as unapplied
+Description
+	 
+		(last modified by Markus Holtermann)
+	 
+When unapplying a squashed migration and the replaced migration files are still around, the MigrationExecutor mark the squash migration as unapplied, too, not only the replaced migrations.
+----- end -----
