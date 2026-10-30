@@ -118,6 +118,7 @@
         <nav class="subtabs" role="tablist" aria-label="Agentic view">
           <button type="button" role="tab" data-sub="agentic-cloud" aria-selected="true">Cloud agents (self-timed)</button>
           <button type="button" role="tab" data-sub="agentic-box" aria-selected="false">Claude Code on box (proxy-measured)</button>
+          <button type="button" role="tab" data-sub="agentic-dvp" aria-selected="false">Decode vs prefill</button>
           <button type="button" role="tab" data-sub="agentic-data" aria-selected="false">Data</button>
         </nav>
         <div class="axes" id="ag-axis-ctl">
@@ -167,6 +168,29 @@
           <div class="legend" id="ag-box-legend"></div>
           <div class="small-multiples" id="ag-box-grid"></div>
           <p class="note" id="ag-box-axis"></p>
+        </section>
+      </div>
+
+      <div id="agentic-dvp" class="agentic-view" hidden>
+        <section class="card">
+          <h3>Method</h3>
+          <ul class="method">
+            <li><strong>Decode vs prefill.</strong> For each model and context size, decode speed comes from the long-decode (D) cells and prefill speed from the cache-miss (C0) and cache-hit (C2) cells of the box runs. Points are medians; bars span p25 to p75.</li>
+            <li>Prefill speed is end to end: prompt tokens (the prompt_tokens column: input + cache creation + cache read tokens) divided by time to first token. TTFT includes network, queueing and API overhead, so it is a lower bound on true prefill throughput. For a cache hit the effective prefill counts the cached tokens as processed.</li>
+            <li>Decode is decode_tps from the D cells; the same decode value is used for both series of a model and context.</li>
+          </ul>
+        </section>
+        <section class="card">
+          <div class="controls">
+            <label class="check"><input type="checkbox" id="ag-dvp-excluded"> Include excluded rows</label>
+            <span>Prefill axis <span class="seg" id="ag-dvp-y" role="group" aria-label="Prefill axis scale"><button type="button" data-v="log" aria-pressed="true">log</button><button type="button" data-v="lin" aria-pressed="false">linear</button></span></span>
+            <span class="note" id="ag-dvp-count"></span>
+          </div>
+          <p class="note" id="ag-dvp-missing"></p>
+          <div class="legend" id="ag-dvp-legend"></div>
+          <div class="chart" id="ag-dvp-chart"></div>
+          <p class="note" id="ag-dvp-note"></p>
+          <div class="table-wrap"><table class="narrow" id="t-ag-dvp"></table></div>
         </section>
       </div>
 
