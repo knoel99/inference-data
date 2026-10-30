@@ -3,7 +3,8 @@
 
 Checks encoding, headers, types, enums, unique ids, foreign keys, and that
 every measurement cites a source with an https URL and a date. Empty cells
-are missing values, not failures. Standard library only.
+are missing values, not failures. data/agentic/ tables have no key or
+source: they get header, type, and enum checks only. Standard library only.
 """
 
 from __future__ import annotations
@@ -55,6 +56,10 @@ def check_type(value: str, field: dict) -> str | None:
         if not NUM.match(value):
             return f"expected number with a dot decimal, got {value!r}"
         return None
+    if kind == "boolean":
+        if value not in {"True", "False"}:
+            return f"expected True or False, got {value!r}"
+        return None
     if kind == "date":
         if not DATE.match(value):
             return f"expected YYYY-MM-DD, got {value!r}"
@@ -92,17 +97,18 @@ def main() -> int:
             required_names = {"model_id", "name", "source_id"}
         if name == "measurements":
             required_names = {"measurement_id", "source_id", "evidence", "notes"}
-        pk = schema["primaryKey"]
+        # Tables without a primaryKey (data/agentic/) get types and enums only.
+        pk = schema.get("primaryKey")
         seen: set[str] = set()
         for i, row in enumerate(rows, start=2):
-            pk_val = row.get(pk, "")
-            if pk_val == "" or pk_val in missing:
+            pk_val = row.get(pk, "") if pk else f"row {i}"
+            if pk and (pk_val == "" or pk_val in missing):
                 fail(errors, f"{name}:{i} empty primary key {pk}")
-            elif pk_val in seen:
+            elif pk and pk_val in seen:
                 fail(errors, f"{name}:{i} duplicate {pk} {pk_val}")
-            else:
+            elif pk:
                 seen.add(pk_val)
-            if not re.fullmatch(r"[a-z0-9][a-z0-9.-]*", pk_val or ""):
+            if pk and not re.fullmatch(r"[a-z0-9][a-z0-9.-]*", pk_val or ""):
                 fail(errors, f"{name}:{i} id {pk_val!r} is not a stable lowercase slug")
             for field in schema["fields"]:
                 fname = field["name"]

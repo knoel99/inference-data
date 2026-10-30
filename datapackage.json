@@ -137,6 +137,298 @@
           {"fields": ["source_id"], "reference": {"resource": "sources", "fields": ["source_id"]}}
         ]
       }
+    },
+    {
+      "name": "agentic_selftimed_steps",
+      "path": "data/agentic/agentic_selftimed_steps.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "description": "Per-step timings that cloud coding agents took themselves (estimated, self-timed, including thinking and tool overhead). Not part of the sourced measurements table: no per-row source URL.",
+      "dialect": {
+        "delimiter": ",",
+        "quoteChar": "\"",
+        "lineTerminator": "\n"
+      },
+      "schema": {
+        "missingValues": [
+          ""
+        ],
+        "fields": [
+          {
+            "name": "platform",
+            "type": "string",
+            "description": "Agent platform that ran the cell.",
+            "constraints": {
+              "enum": [
+                "cursor_cloud_agent",
+                "claude_code_cloud"
+              ]
+            }
+          },
+          {
+            "name": "model",
+            "type": "string",
+            "description": "Model name as the platform reported it."
+          },
+          {
+            "name": "effort",
+            "type": "string",
+            "description": "Effort setting of the session; default when the platform has none."
+          },
+          {
+            "name": "cell",
+            "type": "string",
+            "description": "Benchmark cell: context size and output length."
+          },
+          {
+            "name": "context",
+            "type": "string",
+            "description": "Context size label of the cell."
+          },
+          {
+            "name": "output",
+            "type": "string",
+            "description": "Output length label of the cell: short or long."
+          },
+          {
+            "name": "run_id",
+            "type": "string",
+            "description": "One agent run (one model on one cell)."
+          },
+          {
+            "name": "branch",
+            "type": "string",
+            "description": "Git branch the agent pushed to. Empty if none was recorded."
+          },
+          {
+            "name": "step",
+            "type": "string",
+            "description": "Step number in the protocol; a repeated step is flagged by dup_step."
+          },
+          {
+            "name": "step_kind",
+            "type": "string",
+            "description": "What the step did.",
+            "constraints": {
+              "enum": [
+                "log",
+                "corpus",
+                "read",
+                "read_part",
+                "write_1",
+                "ping_1",
+                "ping_2",
+                "write_2",
+                "commit_push",
+                "other"
+              ]
+            }
+          },
+          {
+            "name": "t_before",
+            "type": "number",
+            "description": "Unix time the agent took before the step. Unit: s. Self-timed."
+          },
+          {
+            "name": "t_after",
+            "type": "number",
+            "description": "Unix time the agent took after the step. Unit: s. Self-timed."
+          },
+          {
+            "name": "duration_s",
+            "type": "number",
+            "description": "t_after minus t_before. Unit: s. Includes model thinking and tool overhead; estimated, self-timed."
+          },
+          {
+            "name": "read_bytes",
+            "type": "number",
+            "description": "Bytes read in the step. Unit: bytes."
+          },
+          {
+            "name": "read_tokens_est",
+            "type": "number",
+            "description": "read_bytes / 4. Unit: tokens. An estimate, not a tokenizer count."
+          },
+          {
+            "name": "write_bytes",
+            "type": "number",
+            "description": "Bytes written in the step. Unit: bytes."
+          },
+          {
+            "name": "write_tokens_est",
+            "type": "number",
+            "description": "write_bytes / 4. Unit: tokens. An estimate, not a tokenizer count."
+          },
+          {
+            "name": "dup_step",
+            "type": "boolean",
+            "description": "True if the agent repeated this step number."
+          }
+        ]
+      }
+    },
+    {
+      "name": "claude_code_box_requests",
+      "path": "data/agentic/claude_code_box_requests.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "description": "Per-request timings of Claude Code on a box, measured by a proxy with API token counts. Not part of the sourced measurements table: no per-row source URL.",
+      "dialect": {
+        "delimiter": ",",
+        "quoteChar": "\"",
+        "lineTerminator": "\n"
+      },
+      "schema": {
+        "missingValues": [
+          ""
+        ],
+        "fields": [
+          {
+            "name": "model_pinned",
+            "type": "string",
+            "description": "Model the request pinned."
+          },
+          {
+            "name": "model_served",
+            "type": "string",
+            "description": "Model the API reported serving. Empty on failed requests."
+          },
+          {
+            "name": "effort",
+            "type": "string"
+          },
+          {
+            "name": "phase",
+            "type": "string"
+          },
+          {
+            "name": "cell",
+            "type": "string",
+            "description": "Cell: C0 to C3 are context-reuse cells, D is long decode; the suffix is the context size. Empty on one failed request."
+          },
+          {
+            "name": "block",
+            "type": "string"
+          },
+          {
+            "name": "rep",
+            "type": "number"
+          },
+          {
+            "name": "session_id",
+            "type": "string"
+          },
+          {
+            "name": "turn_index",
+            "type": "number",
+            "description": "Turn within the session, from 1."
+          },
+          {
+            "name": "attempt",
+            "type": "number"
+          },
+          {
+            "name": "http_status",
+            "type": "number"
+          },
+          {
+            "name": "input_tokens",
+            "type": "number",
+            "description": "Uncached input tokens from the API usage. Unit: tokens."
+          },
+          {
+            "name": "cache_creation_tokens",
+            "type": "number",
+            "description": "Tokens written to the prompt cache. Unit: tokens."
+          },
+          {
+            "name": "cache_read_tokens",
+            "type": "number",
+            "description": "Tokens read from the prompt cache. Unit: tokens."
+          },
+          {
+            "name": "output_tokens",
+            "type": "number",
+            "description": "Output tokens from the API usage. Unit: tokens."
+          },
+          {
+            "name": "prompt_tokens",
+            "type": "number",
+            "description": "Total prompt tokens. Unit: tokens."
+          },
+          {
+            "name": "new_tokens",
+            "type": "number",
+            "description": "Prompt tokens not read from cache. Unit: tokens."
+          },
+          {
+            "name": "cache_ratio",
+            "type": "number",
+            "description": "Fraction of prompt tokens read from cache, 0 to 1."
+          },
+          {
+            "name": "stop_reason",
+            "type": "string"
+          },
+          {
+            "name": "n_tool_calls",
+            "type": "number"
+          },
+          {
+            "name": "failure_class",
+            "type": "string",
+            "description": "Failure class of the request; empty if it succeeded."
+          },
+          {
+            "name": "ttft_ms",
+            "type": "number",
+            "description": "Time to first token seen by the proxy. Unit: ms."
+          },
+          {
+            "name": "ttft_text_ms",
+            "type": "number",
+            "description": "Time to first text token seen by the proxy. Unit: ms."
+          },
+          {
+            "name": "decode_window_ms",
+            "type": "number",
+            "description": "Time between first and last token. Unit: ms."
+          },
+          {
+            "name": "decode_tps",
+            "type": "number",
+            "description": "Decode rate of the request, set only on long-decode cells. Unit: tok/s."
+          },
+          {
+            "name": "turn_ms",
+            "type": "number",
+            "description": "Whole request time. Unit: ms."
+          },
+          {
+            "name": "off_thread",
+            "type": "number"
+          },
+          {
+            "name": "t_send",
+            "type": "number",
+            "description": "Send time since the start of the run. Unit: ms."
+          },
+          {
+            "name": "excluded_reason",
+            "type": "string",
+            "description": "Empty means the row is included in the analysis.",
+            "constraints": {
+              "enum": [
+                "box_freeze_over_60s",
+                "failure_E3",
+                "refused_long_output"
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }
