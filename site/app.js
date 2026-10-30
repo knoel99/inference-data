@@ -6,9 +6,12 @@
 
 const TABLES = ["sources", "hardware", "models", "measurements"];
 const ATLAS = ["gpus", "systems", "measures", "models"];
+// Agentic tables are declared in datapackage.json but are not sourced measurements.
+const AGENTIC = {cloud: "agentic_selftimed_steps", box: "claude_code_box_requests"};
 const ATLAS_NUMERIC = new Set(["price_usd", "memory_gb", "bandwidth_gbs", "tflops_bf16", "power_w", "gpus", "users",
   "decode_tps", "prefill_tps", "prefill_tokens", "aa_index", "weights_gb", "total_params_b", "active_params_b"]);
-const SUBS = {memory: "hardware", bandwidth: "hardware", compute: "hardware", "hardware-data": "hardware", "inference-data": "inference"};
+const SUBS = {memory: "hardware", bandwidth: "hardware", compute: "hardware", "hardware-data": "hardware", "inference-data": "inference",
+  "agentic-cloud": "agentic", "agentic-box": "agentic", "agentic-data": "agentic"};
 const EVIDENCE_LABEL = {
   measured_by_source: "measured",
   vendor_claim: "vendor claim",
@@ -65,8 +68,9 @@ const RATIOS = {
   prefill: {at: (x, b) => x * b, base: [1, 10, 100], label: (b) => `${num(b)} tok/s per TFLOPS`},
 };
 
-const state = {sub: "memory", lastHardware: "memory", x: "log", y: "log", q: "", derived: false};
-const sorts = {hw: {key: "bandwidth_gb_s", dir: -1}, m: {key: null, dir: 1}, gpus: {key: null, dir: 1}, systems: {key: null, dir: 1}, measures: {key: null, dir: 1}, models: {key: "aa_index", dir: -1}};
+const state = {sub: "memory", lastHardware: "memory", lastAgentic: "agentic-cloud", x: "log", y: "log", q: "", derived: false,
+  ag: {measure: null, platform: "all", split: "cell", dup: false, boxMeasure: null, excluded: false, axis: "shared"}};
+const sorts = {agCloud: {key: null, dir: 1}, agBox: {key: null, dir: 1}, hw: {key: "bandwidth_gb_s", dir: -1}, m: {key: null, dir: 1}, gpus: {key: null, dir: 1}, systems: {key: null, dir: 1}, measures: {key: null, dir: 1}, models: {key: "aa_index", dir: -1}};
 let db;
 
 main().catch((err) => {
@@ -87,6 +91,13 @@ async function main() {
     atlas[name] = await d3.csv(`data/atlas/${name}.csv`, (row) => typed(row, (k) => ATLAS_NUMERIC.has(k)));
   }));
   db = index(tables, atlas);
+  db.agentic = {};
+  await Promise.all(Object.entries(AGENTIC).map(async ([key, name]) => {
+    const resource = pkg.resources.find((r) => r.name === name);
+    const types = Object.fromEntries(resource.schema.fields.map((f) => [f.name, f.type]));
+    const rows = await d3.csv(resource.path, (row) => typed(row, types));
+    db.agentic[key] = {rows, fields: resource.schema.fields, types};
+  }));
   readLegacyQuery();
   readHash();
   wire();
@@ -167,6 +178,7 @@ function readHash() {
   const h = location.hash.slice(1);
   if (SUBS[h]) state.sub = h;
   if (SUBS[state.sub] === "hardware") state.lastHardware = state.sub;
+  if (SUBS[state.sub] === "agentic") state.lastAgentic = state.sub;
 }
 
 function go(sub) {
@@ -176,7 +188,7 @@ function go(sub) {
 
 function wire() {
   for (const b of document.querySelectorAll(".tabs button")) {
-    b.addEventListener("click", () => go(b.dataset.tab === "inference" ? "inference-data" : state.lastHardware));
+    b.addEventListener("click", () => go({inference: "inference-data", agentic: state.lastAgentic}[b.dataset.tab] || state.lastHardware));
   }
   for (const b of document.querySelectorAll(".subtabs button")) b.addEventListener("click", () => go(b.dataset.sub));
   for (const seg of document.querySelectorAll(".seg[data-axis]")) {
@@ -190,6 +202,7 @@ function wire() {
   const derived = document.getElementById("with-derived");
   derived.addEventListener("change", () => { state.derived = derived.checked; renderMeasurements(); });
   document.getElementById("download").addEventListener("click", download);
+  wireAgentic();
 }
 
 function syncNav() {
@@ -210,6 +223,12 @@ function syncNav() {
   document.getElementById("capability").hidden = !isCap;
   document.getElementById("axes").hidden = !isCap;
   document.getElementById("hardware-data").hidden = state.sub !== "hardware-data";
+  for (const v of document.querySelectorAll(".agentic-view")) v.hidden = v.id !== state.sub;
+  document.getElementById("ag-axis-ctl").hidden = state.sub === "agentic-data";
+  for (const id of ["ag-split", "ag-axis"]) {
+    const key = id === "ag-split" ? "split" : "axis";
+    for (const b of document.querySelectorAll(`#${id} button`)) b.setAttribute("aria-pressed", String(b.dataset.v === state.ag[key]));
+  }
 }
 
 // Auto follows the system setting; Light and Dark override it and are
@@ -232,6 +251,9 @@ function render() {
   syncNav();
   if (CAPS[state.sub]) renderCapability(state.sub);
   else if (state.sub === "hardware-data") renderHardwareData();
+  else if (state.sub === "agentic-cloud") renderCloud();
+  else if (state.sub === "agentic-box") renderBox();
+  else if (state.sub === "agentic-data") renderAgenticData();
   else renderMeasurements();
 }
 
@@ -673,7 +695,7 @@ function drawTable(table, rows, columns, sort, redraw) {
         const details = el("details");
         details.append(el("summary", "", truncate(v ?? "", 80)), el("div", "", v ?? ""));
         td.append(details);
-      } else td.textContent = v == null ? "" : c.num ? num(v) : v;
+      } else td.textContent = v == null ? "" : c.num && !c.raw ? num(v) : String(v);
       tr.append(td);
     }
     return tr;
@@ -695,6 +717,229 @@ function download() {
   a.download = "inference-data-measurements.csv";
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+/* ---------- agentic tab ---------- */
+
+// The cloud measures are step durations by step_kind, plus the token rate of
+// the read and write steps (estimated tokens / self-timed seconds).
+const CLOUD_MEASURES = [
+  {key: "read", label: "Read time", unit: "s", kinds: ["read"], value: (r) => r.duration_s},
+  {key: "write_1", label: "Write time, step 3 (write_1)", unit: "s", kinds: ["write_1"], value: (r) => r.duration_s},
+  {key: "write_2", label: "Write time, step 6 (write_2)", unit: "s", kinds: ["write_2"], value: (r) => r.duration_s},
+  {key: "ping_1", label: "Ping time, step 4 (ping_1)", unit: "s", kinds: ["ping_1"], value: (r) => r.duration_s},
+  {key: "ping_2", label: "Ping time, step 5 (ping_2)", unit: "s", kinds: ["ping_2"], value: (r) => r.duration_s},
+  {key: "corpus", label: "Corpus step time", unit: "s", kinds: ["corpus"], value: (r) => r.duration_s},
+  {key: "write_rate", label: "Write throughput", unit: "tokens/s", kinds: ["write_1", "write_2"],
+    value: (r) => (r.write_tokens_est > 0 && r.duration_s > 0 ? r.write_tokens_est / r.duration_s : null),
+    note: "Estimated tokens written (bytes / 4) divided by the self-timed duration of the write steps, so it includes thinking and tool overhead."},
+  {key: "read_rate", label: "Read throughput", unit: "tokens/s", kinds: ["read"],
+    value: (r) => (r.read_tokens_est > 0 && r.duration_s > 0 ? r.read_tokens_est / r.duration_s : null),
+    note: "Estimated tokens read (bytes / 4) divided by the self-timed duration of the read steps."},
+];
+
+// D is the long-decode cell group of the box runs, the only one with a decode rate.
+const DECODE_GROUP = "D";
+const BOX_MEASURES = [
+  {key: "ttft_ms", label: "Time to first token", unit: "ms", value: (r) => r.ttft_ms, note: "Time to first token seen by the proxy."},
+  {key: "decode_tps", label: "Decode rate", unit: "tok/s", value: (r) => (cellGroup(r.cell) === DECODE_GROUP ? r.decode_tps : null),
+    note: "Output tokens per second between the first and last token, on the long-decode (D) cells only."},
+  {key: "turn_ms", label: "Request time", unit: "ms", value: (r) => r.turn_ms, note: "Whole request, from send to the last token."},
+  {key: "cache_ratio", label: "Cache ratio", unit: "fraction of prompt", domain: [0, 1], value: (r) => r.cache_ratio,
+    note: "Share of the prompt tokens read from the prompt cache, from the API usage counts."},
+];
+
+const natural = (a, b) => String(a).localeCompare(String(b), "en", {numeric: true});
+const cellGroup = (cell) => String(cell).split("_")[0];
+// Orange is kept for excluded rows.
+const MODEL_COLORS = ["--series-1", "--series-3", "--series-4", "--series-7", "--series-5", "--series-6"];
+const modelColor = (models, model) => css(MODEL_COLORS[models.indexOf(model) % MODEL_COLORS.length]);
+const platformName = (p) => p.replaceAll("_", " ");
+
+function fillSelect(select, options) {
+  select.replaceChildren(...options.map(([value, label]) => {
+    const o = el("option", "", label);
+    o.value = value;
+    return o;
+  }));
+}
+
+function wireAgentic() {
+  const a = state.ag;
+  const cloud = document.getElementById("ag-measure"), box = document.getElementById("ag-box-measure"), platform = document.getElementById("ag-platform");
+  fillSelect(cloud, CLOUD_MEASURES.map((m) => [m.key, `${m.label} (${m.unit})`]));
+  fillSelect(box, BOX_MEASURES.map((m) => [m.key, `${m.label} (${m.unit})`]));
+  fillSelect(platform, [["all", "All platforms"], ...[...new Set(db.agentic.cloud.rows.map((r) => r.platform))].sort().map((p) => [p, platformName(p)])]);
+  a.measure = CLOUD_MEASURES[0].key;
+  a.boxMeasure = BOX_MEASURES[0].key;
+  cloud.addEventListener("change", () => { a.measure = cloud.value; render(); });
+  box.addEventListener("change", () => { a.boxMeasure = box.value; render(); });
+  platform.addEventListener("change", () => { a.platform = platform.value; render(); });
+  document.getElementById("ag-dup").addEventListener("change", (e) => { a.dup = e.target.checked; render(); });
+  document.getElementById("ag-excluded").addEventListener("change", (e) => { a.excluded = e.target.checked; render(); });
+  for (const [id, key] of [["ag-split", "split"], ["ag-axis", "axis"]]) {
+    for (const b of document.querySelectorAll(`#${id} button`)) b.addEventListener("click", () => { a[key] = b.dataset.v; render(); });
+  }
+}
+
+function renderCloud() {
+  const a = state.ag, all = db.agentic.cloud.rows;
+  const M = CLOUD_MEASURES.find((m) => m.key === a.measure);
+  const models = [...new Set(all.map((r) => r.model))].sort(natural);
+  // Cells run from the smallest context to the largest, the shorter output first.
+  const outputSize = new Map(d3.rollups(all, (v) => d3.mean(v, (r) => r.write_bytes), (r) => r.output));
+  const cellInfo = new Map(all.map((r) => [r.cell, r]));
+  const cells = [...cellInfo.keys()].sort((x, y) => parseFloat(cellInfo.get(x).context) - parseFloat(cellInfo.get(y).context) ||
+    outputSize.get(cellInfo.get(x).output) - outputSize.get(cellInfo.get(y).output));
+  const rows = all.filter((r) => (a.platform === "all" || r.platform === a.platform) && !(a.dup && r.dup_step === "True") && M.kinds.includes(r.step_kind));
+  const shown = [...d3.group(rows, (r) => r.model).keys()].sort((x, y) => d3.ascending(rows.find((r) => r.model === x).platform, rows.find((r) => r.model === y).platform) || natural(x, y));
+  const pooled = a.split === "all";
+  const cols = pooled ? [{key: null, label: "All cells pooled"}] : cells.map((c) => ({key: c, label: c}));
+  const rowDefs = shown.map((m) => {
+    const sample = rows.find((r) => r.model === m);
+    return {key: m, label: m, sub: `${platformName(sample.platform)} · effort ${sample.effort}`};
+  });
+  document.getElementById("ag-cloud-note").textContent =
+    `${M.label}, estimated and self-timed. ${M.note || "Duration the agent measured around the step, including model thinking and tool overhead."} One value per step: ${rows.length} steps in view.`;
+  document.getElementById("ag-cloud-axis").textContent = `Horizontal axis: ${M.label.toLowerCase()} (${M.unit}), ${a.axis === "shared" ? "on the same scale in every chart" : "on its own scale in each chart"}. Vertical axis: number of steps. n is the number of steps in the chart, med its median.`;
+  smallMultiples(document.getElementById("ag-cloud-grid"), {
+    rows: rowDefs, cols, M, unit: M.unit, rowHead: "Model", axis: a.axis,
+    series: (r, c) => {
+      const vals = rows.filter((x) => x.model === r.key && (c.key == null || x.cell === c.key))
+        .map((x) => ({v: M.value(x), tag: x.run_id})).filter((d) => Number.isFinite(d.v) && d.v >= 0);
+      return [{name: "Steps", color: modelColor(models, r.key), items: vals}];
+    },
+  });
+}
+
+function renderBox() {
+  const a = state.ag, all = db.agentic.box.rows.filter((r) => r.cell != null);
+  const M = BOX_MEASURES.find((m) => m.key === a.boxMeasure);
+  const models = [...new Set(all.map((r) => r.model_pinned))].sort(natural);
+  const cells = [...new Set(all.filter((r) => Number.isFinite(M.value(r))).map((r) => r.cell))].sort(natural);
+  const excluded = db.agentic.box.rows.filter((r) => r.excluded_reason != null);
+  const why = d3.rollups(excluded, (v) => v.length, (r) => r.excluded_reason).sort((x, y) => y[1] - x[1]);
+  document.getElementById("ag-excluded-count").textContent =
+    `${excluded.length} of ${db.agentic.box.rows.length} rows excluded (${why.map(([k, n]) => `${n} ${k}`).join(", ")}): ${a.excluded ? "shown in orange" : "hidden"}.`;
+  document.getElementById("ag-box-legend").replaceChildren(...[
+    legendKey("Included rows", d3.symbolSquare, css(MODEL_COLORS[0])),
+    ...(a.excluded ? [legendKey("Excluded rows", d3.symbolSquare, css("--series-2"))] : []),
+  ]);
+  document.getElementById("ag-box-note").textContent = `${M.label}, proxy-measured. ${M.note}`;
+  document.getElementById("ag-box-axis").textContent = `Horizontal axis: ${M.label.toLowerCase()} (${M.unit}), ${a.axis === "shared" ? "on the same scale in every chart" : "on its own scale in each chart"}. Vertical axis: number of requests. n is the number of requests in the chart, med its median.`;
+  smallMultiples(document.getElementById("ag-box-grid"), {
+    rows: cells.map((c) => ({key: c, label: c, sub: ""})), cols: models.map((m) => ({key: m, label: m})), M, unit: M.unit, rowHead: "Cell", axis: a.axis,
+    series: (r, c) => {
+      const mine = all.filter((x) => x.cell === r.key && x.model_pinned === c.key);
+      const pick = (list) => list.map((x) => ({v: M.value(x), tag: `${x.session_id} turn ${x.turn_index}`})).filter((d) => Number.isFinite(d.v));
+      return [
+        {name: "Included", color: modelColor(models, c.key), items: pick(mine.filter((x) => x.excluded_reason == null))},
+        ...(a.excluded ? [{name: "Excluded", color: css("--series-2"), items: pick(mine.filter((x) => x.excluded_reason != null))}] : []),
+      ];
+    },
+  });
+}
+
+// Rows by columns of small histograms. Each cell asks `series(row, col)` for
+// stacked series of {v, tag} items; the horizontal scale is shared or per chart.
+function smallMultiples(host, spec) {
+  const {rows, cols, M} = spec;
+  const cell = rows.map((r) => cols.map((c) => spec.series(r, c)));
+  const pooled = cell.flat(2).flatMap((s) => s.items.map((d) => d.v));
+  const hi = M.domain ? M.domain[1] : d3.max(pooled) ?? 1;
+  const colW = cols.length > 7 ? 150 : cols.length > 3 ? 120 : 240;
+  const grid = el("div", "sm-grid");
+  grid.style.gridTemplateColumns = `9.5rem repeat(${cols.length}, minmax(${colW}px, 1fr))`;
+  grid.append(el("div", "sm-head", spec.rowHead), ...cols.map((c) => el("div", "sm-head", c.label)));
+  const boxes = [];
+  rows.forEach((r, i) => {
+    const label = el("div", "sm-row");
+    label.append(el("strong", "", r.label));
+    if (r.sub) label.append(document.createTextNode(r.sub));
+    grid.append(label);
+    cols.forEach((c, j) => {
+      const box = el("div", "sm-cell");
+      grid.append(box);
+      boxes.push([box, cell[i][j]]);
+    });
+  });
+  host.replaceChildren(grid);
+  if (!rows.length) return host.replaceChildren(el("p", "empty", "No rows for this selection."));
+  for (const [box, series] of boxes) {
+    const own = d3.max(series.flatMap((s) => s.items.map((d) => d.v))) ?? 1;
+    drawHist(box, series, {domain: spec.axis === "shared" ? [0, hi] : [0, M.domain ? M.domain[1] : own], unit: spec.unit, fixed: M.domain});
+  }
+}
+
+const tickFormat = (v) => (Math.abs(v) >= 1000 ? d3.format("~s")(v) : d3.format("~g")(v));
+
+function drawHist(box, series, opt) {
+  box.replaceChildren();
+  const all = series.flatMap((s) => s.items.map((d) => d.v));
+  if (!all.length) return box.append(el("p", "empty", "n = 0"));
+  const W = Math.max(100, box.clientWidth), H = 96;
+  const m = {t: 14, r: 6, b: 20, l: 24};
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const hi = opt.domain[1] > 0 ? opt.domain[1] : 1;
+  const step = opt.fixed ? hi / 10 : d3.tickStep(0, hi, 10);
+  const edges = d3.range(0, hi + step * 0.999, step).map((v) => +v.toPrecision(12));
+  const bin = d3.bin().domain([0, edges[edges.length - 1]]).thresholds(edges.slice(1, -1));
+  const binned = series.map((s) => bin(s.items.map((d) => d.v)));
+  const itemsOf = (s, b) => s.items.filter((d) => d.v >= b.x0 && (b.x1 === edges[edges.length - 1] ? d.v <= b.x1 : d.v < b.x1));
+  const x = d3.scaleLinear().domain([0, edges[edges.length - 1]]).range([m.l, m.l + iw]);
+  const total = binned[0].map((_, k) => d3.sum(binned, (b) => b[k].length));
+  const ymax = Math.max(1, d3.max(total));
+  const y = d3.scaleLinear().domain([0, ymax]).range([ih, 0]);
+  const muted = css("--text-secondary");
+  const svg = d3.select(box).append("svg").attr("width", "100%").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img")
+    .attr("aria-label", `Histogram of ${all.length} values`).style("font", "11px system-ui, -apple-system, 'Segoe UI', sans-serif");
+  const g = svg.append("g").attr("transform", `translate(0,${m.t})`);
+  const yt = d3.ticks(0, ymax, 3).filter(Number.isInteger);
+  g.selectAll("line.grid").data(yt).join("line").attr("x1", m.l).attr("x2", m.l + iw).attr("y1", y).attr("y2", y).attr("stroke", css("--grid"));
+  g.selectAll("text.yt").data(yt).join("text").attr("x", m.l - 4).attr("y", (d) => y(d) + 4).attr("text-anchor", "end").attr("fill", muted).text(String);
+  g.append("line").attr("x1", m.l).attr("x2", m.l + iw).attr("y1", ih).attr("y2", ih).attr("stroke", css("--axis"));
+  const xt = x.ticks(iw < 150 ? 3 : 5);
+  g.selectAll("text.xt").data(xt).join("text").attr("x", x).attr("y", ih + 14).attr("text-anchor", "middle").attr("fill", muted).text(tickFormat);
+  const tip = document.getElementById("tip");
+  const surface = css("--surface-1");
+  total.forEach((n, k) => {
+    if (!n) return;
+    const x0 = edges[k], x1 = edges[k + 1];
+    let acc = 0;
+    const bar = g.append("g").attr("tabindex", 0).attr("role", "img").style("outline", "none")
+      .attr("aria-label", `${tickFormat(x0)} to ${tickFormat(x1)} ${opt.unit}: ${n}`);
+    series.forEach((s, si) => {
+      const c = binned[si][k].length;
+      if (!c) return;
+      bar.append("rect").attr("x", x(x0) + 0.5).attr("width", Math.max(1, x(x1) - x(x0) - 1))
+        .attr("y", y(acc + c)).attr("height", y(acc) - y(acc + c)).attr("fill", s.color).attr("stroke", surface).attr("stroke-width", 0.5);
+      acc += c;
+    });
+    const rowsTip = () => [
+      ["t", `${num(x0)} to ${num(x1)} ${opt.unit}`],
+      ...series.map((s) => ["r", s.name, String(binned[series.indexOf(s)][k].length)]).filter((r) => r[2] !== "0"),
+      ...series.flatMap((s) => itemsOf(s, {x0, x1}).slice(0, 5).map((d) => ["s", `${num(d.v)} · ${d.tag}`])),
+    ];
+    const show = (event) => {
+      fillTip(tip, rowsTip());
+      const r = event.currentTarget.getBoundingClientRect();
+      placeTip(tip, r.x + r.width / 2, r.y);
+    };
+    bar.on("pointerenter", show).on("pointerleave", () => { tip.hidden = true; }).on("focus", show).on("blur", () => { tip.hidden = true; });
+  });
+  const med = d3.median(all);
+  g.append("text").attr("x", m.l + iw).attr("y", -3).attr("text-anchor", "end").attr("fill", muted)
+    .text(`n = ${all.length}${all.length > 1 ? ` · med ${num(med)}` : ""} ${opt.unit}`);
+}
+
+function renderAgenticData() {
+  for (const [key, id, sortKey, counter] of [["cloud", "t-ag-cloud", "agCloud", "ag-rows-cloud"], ["box", "t-ag-box", "agBox", "ag-rows-box"]]) {
+    const t = db.agentic[key];
+    const columns = t.fields.map((f) => ({key: f.name, label: f.name, num: f.type === "number" || f.type === "integer", raw: true}));
+    document.getElementById(counter).textContent = `${t.rows.length} rows.`;
+    const redraw = () => drawTable(document.getElementById(id), t.rows, columns, sorts[sortKey], redraw);
+    redraw();
+  }
 }
 
 /* ---------- helpers ---------- */

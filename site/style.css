@@ -134,7 +134,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--series-1); 
 .seg button + button { border-left: 1px solid var(--axis); }
 .seg button[aria-pressed="true"] { background: var(--text-primary); color: var(--page); }
 
-#capability, #hardware-data { display: flex; flex-direction: column; gap: 14px; }
+#capability, #hardware-data, .agentic-view { display: flex; flex-direction: column; gap: 14px; }
 .legends {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
@@ -252,3 +252,29 @@ td.notes summary { cursor: pointer; }
 .tip .r span:first-child { color: var(--text-secondary); }
 
 .page-foot { color: var(--text-secondary); font-size: 14px; margin-top: 32px; }
+
+/* agentic tab */
+.method { margin: 0; padding-left: 18px; font-size: 14px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 4px; max-width: 90ch; }
+.method strong { color: var(--text-primary); }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; font-size: 14px; color: var(--text-secondary); }
+.controls label, .controls > span { display: inline-flex; align-items: center; gap: 8px; }
+select {
+  font: inherit;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--surface-1);
+  border: 1px solid var(--axis);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+select:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+.small-multiples { overflow-x: auto; }
+.sm-grid { display: grid; gap: 6px 10px; align-items: end; min-width: min-content; }
+.sm-head { font-size: 12px; color: var(--text-secondary); font-weight: 600; padding-left: 24px; }
+.sm-row { font-size: 12px; color: var(--text-secondary); align-self: center; line-height: 1.3; }
+.sm-row strong { display: block; color: var(--text-primary); font-size: 13px; }
+.sm-cell { min-width: 0; border-top: 1px solid var(--grid); }
+.sm-cell svg { display: block; overflow: visible; }
+.sm-cell .empty { padding: 8px 0 0 24px; font-size: 12px; }
+table.narrow { width: auto; font-size: 12px; }
+table.narrow th, table.narrow td { padding: 3px 7px; }

@@ -12,6 +12,7 @@
       if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
     } catch (e) {}
   </script>
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
 </head>
@@ -28,6 +29,7 @@
     <nav class="tabs" role="tablist" aria-label="Section">
       <button type="button" role="tab" id="tab-hardware" data-tab="hardware" aria-controls="panel-hardware" aria-selected="true">Hardware specs</button>
       <button type="button" role="tab" id="tab-inference" data-tab="inference" aria-controls="panel-inference" aria-selected="false">Inference</button>
+      <button type="button" role="tab" id="tab-agentic" data-tab="agentic" aria-controls="panel-agentic" aria-selected="false">Agentic</button>
     </nav>
 
     <section id="panel-hardware" role="tabpanel" aria-labelledby="tab-hardware">
@@ -111,8 +113,79 @@
       </section>
     </section>
 
+    <section id="panel-agentic" role="tabpanel" aria-labelledby="tab-agentic" hidden>
+      <div class="bar">
+        <nav class="subtabs" role="tablist" aria-label="Agentic view">
+          <button type="button" role="tab" data-sub="agentic-cloud" aria-selected="true">Cloud agents (self-timed)</button>
+          <button type="button" role="tab" data-sub="agentic-box" aria-selected="false">Claude Code on box (proxy-measured)</button>
+          <button type="button" role="tab" data-sub="agentic-data" aria-selected="false">Data</button>
+        </nav>
+        <div class="axes" id="ag-axis-ctl">
+          <span>Horizontal axis <span class="seg" id="ag-axis" role="group" aria-label="Horizontal axis range"><button type="button" data-v="shared" aria-pressed="true">shared</button><button type="button" data-v="own" aria-pressed="false">per chart</button></span></span>
+        </div>
+      </div>
+
+      <div id="agentic-cloud" class="agentic-view">
+        <section class="card">
+          <h3>Method</h3>
+          <ul class="method">
+            <li><strong>Estimated, self-timed.</strong> Each coding agent ran the v2 protocol and took its own timestamps around every step: 0 log, 1 corpus, 2 read, 3 write, 4 and 5 ping, 6 write, 7 commit. The durations therefore include model thinking and tool overhead, not only generation. Token counts are bytes / 4, an estimate, not a tokenizer count.</li>
+            <li>Claude Code cloud sessions ran at max effort on Oct 30 2026. Haiku 5.5 is missing three cells because its sessions refused to push files containing model IDs.</li>
+            <li>Cursor composer-2.5 and grok-4.7 runs were launched simultaneously on Oct 29 2026.</li>
+            <li>Each histogram counts steps, so most model and cell pairs hold only a handful of values: read the shape with the count (n) in mind. Hover a bar for its values.</li>
+          </ul>
+        </section>
+        <section class="card">
+          <div class="controls">
+            <label>Measure <select id="ag-measure"></select></label>
+            <label>Platform <select id="ag-platform"></select></label>
+            <span>Columns <span class="seg" id="ag-split" role="group" aria-label="Columns"><button type="button" data-v="cell" aria-pressed="true">per cell</button><button type="button" data-v="all" aria-pressed="false">all cells pooled</button></span></span>
+            <label class="check"><input type="checkbox" id="ag-dup"> Leave out repeated steps (dup_step)</label>
+          </div>
+          <p class="note" id="ag-cloud-note"></p>
+          <div class="small-multiples" id="ag-cloud-grid"></div>
+          <p class="note" id="ag-cloud-axis"></p>
+        </section>
+      </div>
+
+      <div id="agentic-box" class="agentic-view" hidden>
+        <section class="card">
+          <h3>Method</h3>
+          <ul class="method">
+            <li><strong>Proxy-measured.</strong> Claude Code ran on a box and every API request went through a proxy that timed it and kept the API token counts. Time to first token, decode rate, and cache use come from those requests.</li>
+            <li>The box runs were at effort low on Oct 29 to 30 2026. Cells C0 to C3 reuse the prompt cache to different degrees; D is the long-decode cell, the only one where a decode rate is stored.</li>
+            <li>Excluded rows are hidden by default: a box freeze over 60 s, failed requests (class E3), and long outputs the model refused. Switch them on to see them in orange.</li>
+          </ul>
+        </section>
+        <section class="card">
+          <div class="controls">
+            <label>Measure <select id="ag-box-measure"></select></label>
+            <label class="check"><input type="checkbox" id="ag-excluded"> Show excluded rows</label>
+            <span class="note" id="ag-excluded-count"></span>
+          </div>
+          <p class="note" id="ag-box-note"></p>
+          <div class="legend" id="ag-box-legend"></div>
+          <div class="small-multiples" id="ag-box-grid"></div>
+          <p class="note" id="ag-box-axis"></p>
+        </section>
+      </div>
+
+      <div id="agentic-data" class="agentic-view" hidden>
+        <section class="card">
+          <div class="card-head"><h3>Cloud agents, self-timed steps</h3><a class="button" href="data/agentic/agentic_selftimed_steps.csv" download>agentic_selftimed_steps.csv</a></div>
+          <p class="note">Estimated, self-timed: durations include thinking and tool overhead. Times are unix seconds. <span id="ag-rows-cloud"></span></p>
+          <div class="table-wrap tall"><table class="narrow" id="t-ag-cloud"></table></div>
+        </section>
+        <section class="card">
+          <div class="card-head"><h3>Claude Code on box, requests</h3><a class="button" href="data/agentic/claude_code_box_requests.csv" download>claude_code_box_requests.csv</a></div>
+          <p class="note">Proxy-measured with API token counts. Blank means unknown; a non-blank excluded_reason marks a row left out of the charts by default. <span id="ag-rows-box"></span></p>
+          <div class="table-wrap tall"><table class="narrow" id="t-ag-box"></table></div>
+        </section>
+      </div>
+    </section>
+
     <footer class="page-foot">
-      <p>Data: <a href="data/measurements.csv">measurements.csv</a> · <a href="data/hardware.csv">hardware.csv</a> · <a href="data/models.csv">models.csv</a> · <a href="data/sources.csv">sources.csv</a> · <a href="datapackage.json">datapackage.json</a> · <a href="llms.txt">llms.txt</a> · <a href="data/atlas/README.md">atlas tables</a></p>
+      <p>Data: <a href="data/measurements.csv">measurements.csv</a> · <a href="data/hardware.csv">hardware.csv</a> · <a href="data/models.csv">models.csv</a> · <a href="data/sources.csv">sources.csv</a> · <a href="datapackage.json">datapackage.json</a> · <a href="llms.txt">llms.txt</a> · <a href="data/atlas/README.md">atlas tables</a> · <a href="data/agentic/agentic_selftimed_steps.csv">agentic_selftimed_steps.csv</a> · <a href="data/agentic/claude_code_box_requests.csv">claude_code_box_requests.csv</a></p>
       <p>CC BY 4.0 data, MIT code. Source and contribution guide: <a href="https://github.com/knoel99/inference-data">github.com/knoel99/inference-data</a></p>
     </footer>
   </main>
