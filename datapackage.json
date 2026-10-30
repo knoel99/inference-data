@@ -429,6 +429,118 @@
           }
         ]
       }
+    },
+    {
+      "name": "inferencex_reference_points",
+      "path": "data/agentic/inferencex_reference_points.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "encoding": "utf-8",
+      "description": "InferenceX agentic-coding reference points: DeepSeek V4.1 Flash on 4x H200 (vLLM v0.32.0, FP4, MTP), run 39960029311, one row per concurrent session count.",
+      "schema": {
+        "fields": [
+          {
+            "name": "model",
+            "type": "string"
+          },
+          {
+            "name": "hardware",
+            "type": "string"
+          },
+          {
+            "name": "num_gpus",
+            "type": "integer"
+          },
+          {
+            "name": "framework",
+            "type": "string"
+          },
+          {
+            "name": "precision",
+            "type": "string"
+          },
+          {
+            "name": "spec_decoding",
+            "type": "string"
+          },
+          {
+            "name": "sessions",
+            "type": "integer"
+          },
+          {
+            "name": "gen_per_session_tps",
+            "type": "number",
+            "description": "output tok/s / sessions"
+          },
+          {
+            "name": "new_prefill_per_session_tps",
+            "type": "number",
+            "description": "input tok/s x (1 - cache_rate) / sessions"
+          },
+          {
+            "name": "ingest_per_session_tps",
+            "type": "number",
+            "description": "input tok/s / sessions"
+          },
+          {
+            "name": "inst_gen_median_tps",
+            "type": "number",
+            "description": "per-request interactivity p50 (tok/s)"
+          },
+          {
+            "name": "inst_gen_p90_tps",
+            "type": "number",
+            "description": "per-request interactivity at the p90 latency point (tok/s)"
+          },
+          {
+            "name": "cache_rate",
+            "type": "number",
+            "description": "vLLM server overall prefix cache hit rate (server_metrics.cache.overall_cache_hit_rate)"
+          },
+          {
+            "name": "avg_context_k",
+            "type": "number",
+            "description": "mean input tokens per request / 1000"
+          },
+          {
+            "name": "ttft_median_ms",
+            "type": "number"
+          },
+          {
+            "name": "ttft_p90_ms",
+            "type": "number"
+          },
+          {
+            "name": "requests_profiled",
+            "type": "integer"
+          },
+          {
+            "name": "requests_total",
+            "type": "integer"
+          },
+          {
+            "name": "saturated",
+            "type": "boolean",
+            "description": "True when the server is past saturation (N=128: cache hit collapses, median TTFT about 683 s, half the requests dropped as warmup). Kept in the overlay, drawn differently."
+          },
+          {
+            "name": "run_id",
+            "type": "string"
+          },
+          {
+            "name": "run_date",
+            "type": "date"
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "GitHub Actions run; values from its bmk_agentic_dsv41flash_tp4_* artifacts"
+          }
+        ],
+        "missingValues": [
+          ""
+        ]
+      }
     }
   ]
 }
