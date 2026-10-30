@@ -429,6 +429,406 @@
           }
         ]
       }
+    },
+    {
+      "name": "inferencex_reference_points",
+      "path": "data/agentic/inferencex_reference_points.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "encoding": "utf-8",
+      "description": "InferenceX agentic-coding reference points: DeepSeek V4.1 Flash on 4x H200 (vLLM v0.32.0, FP4, MTP), run 39960029311, one row per concurrent session count.",
+      "schema": {
+        "fields": [
+          {
+            "name": "model",
+            "type": "string"
+          },
+          {
+            "name": "hardware",
+            "type": "string"
+          },
+          {
+            "name": "num_gpus",
+            "type": "integer"
+          },
+          {
+            "name": "framework",
+            "type": "string"
+          },
+          {
+            "name": "precision",
+            "type": "string"
+          },
+          {
+            "name": "spec_decoding",
+            "type": "string"
+          },
+          {
+            "name": "sessions",
+            "type": "integer"
+          },
+          {
+            "name": "gen_per_session_tps",
+            "type": "number",
+            "description": "output tok/s / sessions"
+          },
+          {
+            "name": "new_prefill_per_session_tps",
+            "type": "number",
+            "description": "input tok/s x (1 - cache_rate) / sessions"
+          },
+          {
+            "name": "ingest_per_session_tps",
+            "type": "number",
+            "description": "input tok/s / sessions"
+          },
+          {
+            "name": "inst_gen_median_tps",
+            "type": "number",
+            "description": "per-request interactivity p50 (tok/s)"
+          },
+          {
+            "name": "inst_gen_p90_tps",
+            "type": "number",
+            "description": "per-request interactivity at the p90 latency point (tok/s)"
+          },
+          {
+            "name": "cache_rate",
+            "type": "number",
+            "description": "vLLM server overall prefix cache hit rate (server_metrics.cache.overall_cache_hit_rate)"
+          },
+          {
+            "name": "avg_context_k",
+            "type": "number",
+            "description": "mean input tokens per request / 1000"
+          },
+          {
+            "name": "ttft_median_ms",
+            "type": "number"
+          },
+          {
+            "name": "ttft_p90_ms",
+            "type": "number"
+          },
+          {
+            "name": "requests_profiled",
+            "type": "integer"
+          },
+          {
+            "name": "requests_total",
+            "type": "integer"
+          },
+          {
+            "name": "saturated",
+            "type": "boolean",
+            "description": "True when the server is past saturation (N=128: cache hit collapses, median TTFT about 683 s, half the requests dropped as warmup). Kept in the overlay, drawn differently."
+          },
+          {
+            "name": "run_id",
+            "type": "string"
+          },
+          {
+            "name": "run_date",
+            "type": "date"
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "GitHub Actions run; values from its bmk_agentic_dsv41flash_tp4_* artifacts"
+          }
+        ],
+        "missingValues": [
+          ""
+        ]
+      }
+    },
+    {
+      "name": "sonnet_concurrency_tiers",
+      "path": "data/agentic/sonnet_concurrency_tiers.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "encoding": "utf-8",
+      "description": "Claude Sonnet 5.5 via the Anthropic Messages API, long-context agentic-style sessions, one row per concurrency tier (N concurrent sessions). Client-observed from a cloud box in Paris.",
+      "schema": {
+        "fields": [
+          {
+            "name": "model",
+            "type": "string"
+          },
+          {
+            "name": "provider",
+            "type": "string"
+          },
+          {
+            "name": "sessions",
+            "type": "integer",
+            "description": "concurrent sessions in the tier (N)"
+          },
+          {
+            "name": "gen_per_session_tps",
+            "type": "number",
+            "description": "output tok/s over the tier window / sessions (output includes thinking tokens)"
+          },
+          {
+            "name": "new_prefill_per_session_tps",
+            "type": "number",
+            "description": "(uncached input + cache-write) tok/s over the tier window / sessions"
+          },
+          {
+            "name": "ingest_per_session_tps",
+            "type": "number",
+            "description": "all prompt tok/s (input + cache-write + cache-read) over the tier window / sessions"
+          },
+          {
+            "name": "inst_gen_median_tps",
+            "type": "number",
+            "description": "median of per-call decode tok/s (output tokens / (last delta - first delta))"
+          },
+          {
+            "name": "inst_gen_p90_tps",
+            "type": "number",
+            "description": "10th percentile of per-call decode tok/s, i.e. the slow tail"
+          },
+          {
+            "name": "cache_rate",
+            "type": "number",
+            "description": "cache-read tokens / all prompt tokens"
+          },
+          {
+            "name": "avg_context_k",
+            "type": "number",
+            "description": "mean prompt tokens per request / 1000"
+          },
+          {
+            "name": "ttft_median_ms",
+            "type": "number",
+            "description": "median time to first streamed content delta (includes thinking)"
+          },
+          {
+            "name": "ttft_p90_ms",
+            "type": "number",
+            "description": "90th percentile of time to first streamed content delta"
+          },
+          {
+            "name": "requests_ok",
+            "type": "integer"
+          },
+          {
+            "name": "requests_attempted",
+            "type": "integer"
+          },
+          {
+            "name": "http_429",
+            "type": "integer",
+            "description": "HTTP 429 responses received"
+          },
+          {
+            "name": "http_other_errors",
+            "type": "integer",
+            "description": "Attempts that failed without an HTTP status (dropped stream or connection) and were retried with backoff."
+          },
+          {
+            "name": "sessions_completed",
+            "type": "integer"
+          },
+          {
+            "name": "output_tokens",
+            "type": "integer",
+            "description": "includes thinking tokens"
+          },
+          {
+            "name": "thinking_tokens",
+            "type": "integer"
+          },
+          {
+            "name": "window_s",
+            "type": "number",
+            "description": "first request sent to last response finished"
+          },
+          {
+            "name": "cost_usd",
+            "type": "number"
+          },
+          {
+            "name": "cost_eur",
+            "type": "number"
+          },
+          {
+            "name": "start_paris",
+            "type": "string",
+            "description": "ISO 8601 timestamp, Europe/Paris offset"
+          },
+          {
+            "name": "end_paris",
+            "type": "string",
+            "description": "ISO 8601 timestamp, Europe/Paris offset"
+          },
+          {
+            "name": "run_date",
+            "type": "date"
+          },
+          {
+            "name": "saturated",
+            "type": "boolean",
+            "description": "True when the tier hit persistent 429s and was stopped early"
+          }
+        ],
+        "missingValues": [
+          ""
+        ]
+      }
+    },
+    {
+      "name": "sonnet_concurrency_calls",
+      "path": "data/agentic/sonnet_concurrency_calls.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "encoding": "utf-8",
+      "description": "Claude Sonnet 5.5 concurrency sweep, one row per API call (including retried attempts), with timings, token counts and cost.",
+      "schema": {
+        "fields": [
+          {
+            "name": "model",
+            "type": "string"
+          },
+          {
+            "name": "tier",
+            "type": "integer",
+            "description": "concurrent sessions in the tier (N)"
+          },
+          {
+            "name": "session_id",
+            "type": "string"
+          },
+          {
+            "name": "turn",
+            "type": "integer"
+          },
+          {
+            "name": "attempt",
+            "type": "integer",
+            "description": "retry index, 0 for the first try"
+          },
+          {
+            "name": "http_status",
+            "type": "integer"
+          },
+          {
+            "name": "request_id",
+            "type": "string"
+          },
+          {
+            "name": "t_send_unix",
+            "type": "number",
+            "description": "unix seconds"
+          },
+          {
+            "name": "t_first_event_unix",
+            "type": "number",
+            "description": "unix seconds"
+          },
+          {
+            "name": "t_first_text_unix",
+            "type": "number",
+            "description": "unix seconds"
+          },
+          {
+            "name": "t_last_delta_unix",
+            "type": "number",
+            "description": "unix seconds"
+          },
+          {
+            "name": "t_done_unix",
+            "type": "number",
+            "description": "unix seconds"
+          },
+          {
+            "name": "ttft_ms",
+            "type": "number",
+            "description": "send to first streamed content delta (includes thinking)"
+          },
+          {
+            "name": "ttft_text_ms",
+            "type": "number",
+            "description": "send to first text delta"
+          },
+          {
+            "name": "decode_window_ms",
+            "type": "number",
+            "description": "last delta - first delta"
+          },
+          {
+            "name": "inst_gen_tps",
+            "type": "number",
+            "description": "output_tokens / decode window, tok/s"
+          },
+          {
+            "name": "input_tokens",
+            "type": "integer",
+            "description": "uncached input tokens"
+          },
+          {
+            "name": "cache_creation_tokens",
+            "type": "integer"
+          },
+          {
+            "name": "cache_read_tokens",
+            "type": "integer"
+          },
+          {
+            "name": "output_tokens",
+            "type": "integer",
+            "description": "includes thinking tokens"
+          },
+          {
+            "name": "thinking_tokens",
+            "type": "integer"
+          },
+          {
+            "name": "prompt_tokens",
+            "type": "integer",
+            "description": "input + cache-creation + cache-read tokens"
+          },
+          {
+            "name": "new_prefill_tokens",
+            "type": "integer",
+            "description": "input + cache-creation tokens"
+          },
+          {
+            "name": "text_chars",
+            "type": "integer"
+          },
+          {
+            "name": "thinking_chars",
+            "type": "integer"
+          },
+          {
+            "name": "stop_reason",
+            "type": "string"
+          },
+          {
+            "name": "cost_usd",
+            "type": "number"
+          },
+          {
+            "name": "itpm_remaining",
+            "type": "integer",
+            "description": "rate-limit header: input tokens per minute remaining"
+          },
+          {
+            "name": "otpm_remaining",
+            "type": "integer",
+            "description": "rate-limit header: output tokens per minute remaining"
+          },
+          {
+            "name": "error",
+            "type": "string"
+          }
+        ],
+        "missingValues": [
+          ""
+        ]
+      }
     }
   ]
 }
