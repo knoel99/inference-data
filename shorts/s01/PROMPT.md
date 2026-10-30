@@ -1,0 +1,23 @@
+# Short 01 — animation task (Claude Code cloud session)
+
+You are building the animation for "Short 01" of a daily YouTube Shorts series on LLM inference engineering. Work inside this repository, on branch `shorts/s01` (already checked out). All inputs live in `shorts/s01/`; all outputs go to `shorts/s01/anim/`.
+
+## Save your work early and often
+- Write a first working `shorts/s01/anim/index.html` (even with only the first scenes) and `shorts/s01/anim/scenes.json` within your first few steps, then **commit and push to `shorts/s01` after every scene or major change** (`git add shorts/s01 && git commit -m "..." && git push origin shorts/s01`). A session cut must never lose more than one scene of work.
+- Never push to `main`, never merge, never open a PR. Only touch files under `shorts/s01/`.
+- Commit messages and all files in English.
+
+## Steps
+1. Read `shorts/s01/script.en.md` fully: it is the **authoritative** English script (8 scenes incl. 1b MoE and 5b recall question, ~2:55, timings, on-screen text and voice-over line per scene). Follow its scene timings exactly and reproduce every on-screen figure and text EXACTLY as written there. `shorts/s01/brief.md` and `shorts/s01/pedago.md` are context only; where they differ, the script wins. Invent no figure.
+2. Style reference: https://github.com/yihui-dev/awesome-opus5-5-videos (explainer videos written as code: HTML/SVG/Canvas). If you can reach it, look at the README and 2-3 prompts in `prompts/` from the "Explainers" section for the visual language: dark background, bold kinetic typography, clean diagrams, smooth motion, one idea per scene, instant hook in the first 2 seconds, one accent colour, clean sans-serif. Avoid cheap effects (particle explosions, RGB split, camera shake, lens flares, neon, bouncy easing, fake HUD numbers). If the repo is unreachable, proceed with that visual language.
+3. Write `shorts/s01/anim/index.html`: a single self-contained file, **NO network dependencies** (inline everything; write your own tweening, no CDN, no web fonts that need fetching — use a system sans-serif stack). Canvas **1080x1920** (9:16). All on-screen text in ENGLISH. Keep the **bottom 380 px EMPTY** (reserved for burned-in subtitles). Show the calculations step by step (bytes per token, memory bandwidth, tokens/s ceiling). Diagrams of the data path (weights from NVMe/host RAM over PCIe into HBM/VRAM, then to compute units).
+4. The timeline must be **deterministic and seekable**: expose `window.__duration` (seconds) and `window.__seek(t)` that draws the exact frame for time t with no dependence on wall clock (also alias `window.DURATION` and `window.renderAt`). One master timeline, paused by default for capture; **NO setTimeout/setInterval-driven animation and NO free-running CSS animations or transitions**; no unseeded randomness. A small inline requestAnimationFrame play loop for normal browser preview is fine as long as it only calls `__seek`. Normal playback in a browser should also work.
+5. Write `shorts/s01/anim/scenes.json`: `[{"id": ..., "title": ..., "start": seconds, "end": seconds}, ...]` matching the timeline exactly (start/end in seconds, numbers not strings). Voice and subtitles sync to it, so it must reflect the actual timings.
+6. Rendering to MP4 is **OPTIONAL** here. Only if a headless Chrome/Chromium and ffmpeg are already available (or trivially installable) in this environment: write `shorts/s01/anim/render.py` (Python playwright, viewport 1080x1920, device scale 1) that calls `__seek(i/30)` for every frame, screenshots it and pipes frames to ffmpeg producing `out.mp4` (1080x1920, 30 fps, libx264, yuv420p, no audio); check with ffprobe; extract one still per scene into `shorts/s01/anim/stills/` (PNG) and look at them to check legibility and that the bottom 380 px is empty; fix and re-render if needed. Do **not** commit `out.mp4` (too large); stills are fine to commit. If no browser is available, skip rendering — the editor renders locally from index.html.
+7. Final commit and push to `shorts/s01`, then finish with a short report: files produced, total duration, scene timings, whether you rendered, and any script item you could not represent.
+
+## Additional constraints
+- Follow the scene timings in `script.en.md` exactly (total ~2:55, recall question 5b at ~2:42).
+- Every scene needs a visible visual change every 5 to 8 seconds (no static frame longer than 8 s), especially during the long voice-overs in scenes 3 and 4.
+- Scene 5: one line at a time, each result staying on screen before the next, with "89%" highlighted.
+- Sources credit card in the last 2 s exactly as listed at the end of the script.
