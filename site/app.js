@@ -7,11 +7,12 @@
 const TABLES = ["sources", "hardware", "models", "measurements"];
 const ATLAS = ["gpus", "systems", "measures", "models"];
 // Agentic tables are declared in datapackage.json but are not sourced measurements.
-const AGENTIC = {cloud: "agentic_selftimed_steps", box: "claude_code_box_requests"};
+const AGENTIC = {cloud: "agentic_selftimed_steps", box: "claude_code_box_requests",
+  tiers: "sonnet_concurrency_tiers", calls: "sonnet_concurrency_calls", ref: "inferencex_reference_points"};
 const ATLAS_NUMERIC = new Set(["price_usd", "memory_gb", "bandwidth_gbs", "tflops_bf16", "power_w", "gpus", "users",
   "decode_tps", "prefill_tps", "prefill_tokens", "aa_index", "weights_gb", "total_params_b", "active_params_b"]);
 const SUBS = {memory: "hardware", bandwidth: "hardware", compute: "hardware", "hardware-data": "hardware", "inference-data": "inference",
-  "agentic-cloud": "agentic", "agentic-box": "agentic", "agentic-dvp": "agentic", "agentic-data": "agentic"};
+  "agentic-cloud": "agentic", "agentic-box": "agentic", "agentic-dvp": "agentic", "agentic-conc": "agentic", "agentic-data": "agentic"};
 const EVIDENCE_LABEL = {
   measured_by_source: "measured",
   vendor_claim: "vendor claim",
@@ -69,8 +70,8 @@ const RATIOS = {
 };
 
 const state = {sub: "memory", lastHardware: "memory", lastAgentic: "agentic-cloud", x: "log", y: "log", q: "", derived: false,
-  ag: {measure: null, platform: "all", split: "cell", dup: false, boxMeasure: null, excluded: false, axis: "shared", dvpExcluded: false, dvpY: "log"}};
-const sorts = {agCloud: {key: null, dir: 1}, agBox: {key: null, dir: 1}, hw: {key: "bandwidth_gb_s", dir: -1}, m: {key: null, dir: 1}, gpus: {key: null, dir: 1}, systems: {key: null, dir: 1}, measures: {key: null, dir: 1}, models: {key: "aa_index", dir: -1}};
+  ag: {measure: null, platform: "all", split: "cell", dup: false, boxMeasure: null, excluded: false, axis: "shared", dvpExcluded: false, dvpY: "log", concY: "new"}};
+const sorts = {agCloud: {key: null, dir: 1}, agBox: {key: null, dir: 1}, agTiers: {key: null, dir: 1}, agCalls: {key: null, dir: 1}, agRef: {key: null, dir: 1}, hw: {key: "bandwidth_gb_s", dir: -1}, m: {key: null, dir: 1}, gpus: {key: null, dir: 1}, systems: {key: null, dir: 1}, measures: {key: null, dir: 1}, models: {key: "aa_index", dir: -1}};
 let db;
 
 main().catch((err) => {
@@ -224,7 +225,7 @@ function syncNav() {
   document.getElementById("axes").hidden = !isCap;
   document.getElementById("hardware-data").hidden = state.sub !== "hardware-data";
   for (const v of document.querySelectorAll(".agentic-view")) v.hidden = v.id !== state.sub;
-  document.getElementById("ag-axis-ctl").hidden = state.sub === "agentic-data" || state.sub === "agentic-dvp";
+  document.getElementById("ag-axis-ctl").hidden = state.sub === "agentic-data" || state.sub === "agentic-dvp" || state.sub === "agentic-conc";
   for (const id of ["ag-split", "ag-axis"]) {
     const key = id === "ag-split" ? "split" : "axis";
     for (const b of document.querySelectorAll(`#${id} button`)) b.setAttribute("aria-pressed", String(b.dataset.v === state.ag[key]));
@@ -254,6 +255,7 @@ function render() {
   else if (state.sub === "agentic-cloud") renderCloud();
   else if (state.sub === "agentic-box") renderBox();
   else if (state.sub === "agentic-dvp") renderDecodeVsPrefill();
+  else if (state.sub === "agentic-conc") renderConcurrency();
   else if (state.sub === "agentic-data") renderAgenticData();
   else renderMeasurements();
 }
@@ -783,6 +785,7 @@ function wireAgentic() {
   }
   document.getElementById("ag-dvp-excluded").addEventListener("change", (e) => { a.dvpExcluded = e.target.checked; render(); });
   for (const b of document.querySelectorAll("#ag-dvp-y button")) b.addEventListener("click", () => { a.dvpY = b.dataset.v; render(); });
+  for (const b of document.querySelectorAll("#ag-conc-y button")) b.addEventListener("click", () => { a.concY = b.dataset.v; render(); });
 }
 
 function renderCloud() {
@@ -973,6 +976,144 @@ function drawDvpChart(box, pts, logY) {
   }
 }
 
+/* ---------- concurrency sub-tab ---------- */
+
+const CONC_SERIES = [
+  {key: "sonnet", label: "Claude Sonnet 5.5 (Anthropic API, client-observed)", color: "--series-1", symbol: d3.symbolCircle},
+  {key: "ref", label: "DeepSeek V4.1 Flash, 4x H200 (InferenceX)", color: "--series-3", symbol: d3.symbolDiamond},
+];
+const CONC_Y = {
+  new: {field: "new_prefill_per_session_tps", label: "New prefill / session (tok/s)"},
+  ingest: {field: "ingest_per_session_tps", label: "Ingest / session (tok/s)"},
+};
+
+function concPoints(ser, rows, yField) {
+  return rows.slice().sort((p, q) => p.sessions - q.sessions)
+    .map((r) => ({ser, r, n: r.sessions, gx: r.gen_per_session_tps, gy: r[yField], sat: r.saturated === "True"}))
+    .filter((p) => p.gx > 0 && p.gy > 0);
+}
+
+function renderConcurrency() {
+  const a = state.ag, yd = CONC_Y[a.concY];
+  for (const b of document.querySelectorAll("#ag-conc-y button")) b.setAttribute("aria-pressed", String(b.dataset.v === a.concY));
+  const series = [
+    {...CONC_SERIES[0], pts: concPoints(CONC_SERIES[0], db.agentic.tiers.rows, yd.field)},
+    {...CONC_SERIES[1], pts: concPoints(CONC_SERIES[1], db.agentic.ref.rows, yd.field)},
+  ];
+  const legend = CONC_SERIES.map((s) => legendKey(s.label, s.symbol, css(s.color)));
+  legend.push(legendKey("saturated (hollow, dashed)", d3.symbolDiamond, css("--text-secondary"), true));
+  document.getElementById("ag-conc-legend").replaceChildren(...legend);
+  const tiers = db.agentic.tiers.rows;
+  document.getElementById("ag-conc-count").textContent =
+    `${tiers.length} Sonnet tier${tiers.length === 1 ? "" : "s"}, ${db.agentic.ref.rows.length} reference points.`;
+  drawConcChart(document.getElementById("ag-conc-chart"), series, yd);
+  const rt = (n) => (n == null ? "" : n);
+  const columns = [
+    {key: "sessions", label: "N", num: true}, {key: "gen_per_session_tps", label: "Gen / session (tok/s)", num: true},
+    {key: "new_prefill_per_session_tps", label: "New prefill / session (tok/s)", num: true},
+    {key: "ingest_per_session_tps", label: "Ingest / session (tok/s)", num: true},
+    {key: "inst_gen_median_tps", label: "Inst gen median (tok/s)", num: true}, {key: "inst_gen_p90_tps", label: "Inst gen p90 (slow tail, tok/s)", num: true},
+    {key: "cache_rate", label: "Cache rate", num: true}, {key: "avg_context_k", label: "Avg ctx (k)", num: true},
+    {key: "ttft_median_ms", label: "TTFT median (ms)", num: true}, {key: "ttft_p90_ms", label: "TTFT p90 (ms)", num: true},
+    {key: "requests_ok", label: "OK requests", num: true}, {key: "http_429", label: "429s", num: true}, {key: "cost_usd", label: "Cost (USD)", num: true},
+  ];
+  const t = document.getElementById("t-ag-conc");
+  const head = el("tr");
+  for (const c of columns) { const th = el("th", c.num ? "num" : "", c.label); th.scope = "col"; head.append(th); }
+  const body = tiers.slice().sort((p, q) => p.sessions - q.sessions).map((r) => {
+    const tr = el("tr");
+    for (const c of columns) tr.append(el("td", c.num ? "num" : "", rt(r[c.key]) === "" ? "" : num(r[c.key])));
+    return tr;
+  });
+  t.replaceChildren(el("thead"), el("tbody"));
+  t.tHead.append(head);
+  t.tBodies[0].append(...body);
+  const link = document.getElementById("ag-conc-ref-link"), src = db.agentic.ref.rows.find((r) => r.source);
+  if (src && /^https:\/\//.test(src.source)) link.href = src.source;
+}
+
+function drawConcChart(box, series, yd) {
+  box.replaceChildren();
+  const all = series.flatMap((s) => s.pts);
+  if (!all.length) return box.append(el("p", "empty", "No concurrency rows with both values."));
+  const W = Math.max(320, box.clientWidth), H = 460;
+  const m = {t: 16, r: 90, b: 48, l: 64};
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const xe = d3.extent(all, (p) => p.gx), ye = d3.extent(all, (p) => p.gy);
+  // Pad, then widen the log domain to the next 1-2-5 tick on each side so every point and label sits between ticks.
+  const outer = (ext, pad) => {
+    const lo = ext[0] / pad, hi = ext[1] * pad;
+    const ticks = d3.range(Math.floor(Math.log10(lo)) - 1, Math.ceil(Math.log10(hi)) + 1).flatMap((e) => [1, 2, 5].map((k) => k * 10 ** e));
+    return [d3.max(ticks.filter((v) => v <= lo)) ?? lo, d3.min(ticks.filter((v) => v >= hi)) ?? hi];
+  };
+  const x = d3.scaleLog().domain(outer(xe, 1.15)).range([m.l, m.l + iw]);
+  const y = d3.scaleLog().domain(outer(ye, 1.25)).range([ih, 0]);
+  const muted = css("--text-secondary"), surface = css("--surface-1");
+  const svg = d3.select(box).append("svg").attr("width", "100%").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img")
+    .attr("aria-label", `${yd.label} against generation per session, by number of concurrent sessions`)
+    .style("font", "12px system-ui, -apple-system, 'Segoe UI', sans-serif");
+  const g = svg.append("g").attr("transform", `translate(0,${m.t})`);
+  const yt = logTicks(y.domain()[0], y.domain()[1]), xt = logTicks(x.domain()[0], x.domain()[1]);
+  g.selectAll("line.grid").data(yt).join("line").attr("x1", m.l).attr("x2", m.l + iw).attr("y1", y).attr("y2", y).attr("stroke", css("--grid"));
+  g.selectAll("text.yt").data(yt).join("text").attr("x", m.l - 6).attr("y", (d) => y(d) + 4).attr("text-anchor", "end").attr("fill", muted).text(tickFormat);
+  g.selectAll("text.xt").data(xt).join("text").attr("x", x).attr("y", ih + 18).attr("text-anchor", "middle").attr("fill", muted).text(tickFormat);
+  g.append("line").attr("x1", m.l).attr("x2", m.l + iw).attr("y1", ih).attr("y2", ih).attr("stroke", css("--axis"));
+  g.append("text").attr("x", m.l + iw / 2).attr("y", ih + 40).attr("text-anchor", "middle").attr("fill", muted).text("Generation per session (tokens/s, log scale)");
+  g.append("text").attr("transform", `translate(14,${ih / 2}) rotate(-90)`).attr("text-anchor", "middle").attr("fill", muted).text(`${yd.label}, log scale`);
+  const tip = document.getElementById("tip");
+  const tipRows = (p) => {
+    const r = p.r, f = (v) => (v == null ? "n/a" : num(v));
+    const rows = [["t", `${p.ser.key === "sonnet" ? "Sonnet 5.5" : "DeepSeek V4.1 Flash 4xH200"} · N=${p.n}${p.sat ? " (saturated)" : ""}`],
+      ["r", "Sessions", f(r.sessions)], ["r", "Gen / session", `${f(r.gen_per_session_tps)} tok/s`],
+      ["r", "New prefill / session", `${f(r.new_prefill_per_session_tps)} tok/s`], ["r", "Ingest / session", `${f(r.ingest_per_session_tps)} tok/s`],
+      ["r", "Cache rate", f(r.cache_rate)], ["r", "Avg context", `${f(r.avg_context_k)}k`],
+      ["r", "TTFT median / p90", `${f(r.ttft_median_ms)} / ${f(r.ttft_p90_ms)} ms`],
+      ["r", "Inst gen median / p90", `${f(r.inst_gen_median_tps)} / ${f(r.inst_gen_p90_tps)} tok/s`]];
+    if (p.ser.key === "sonnet") rows.push(["r", "Requests OK", f(r.requests_ok)], ["r", "HTTP 429", f(r.http_429)], ["r", "Cost", `$${f(r.cost_usd)}`]);
+    return rows;
+  };
+  for (const s of series) {
+    const color = css(s.color);
+    if (s.pts.length > 1) {
+      g.append("path").attr("d", d3.line().x((p) => x(p.gx)).y((p) => y(p.gy))(s.pts)).attr("fill", "none")
+        .attr("stroke", color).attr("stroke-width", 1).attr("stroke-opacity", 0.6);
+    }
+    // A tight cluster gets its labels in a right-hand column, spaced apart, with leader lines.
+    const xs = s.pts.map((p) => x(p.gx)), ys = s.pts.map((p) => y(p.gy));
+    const clustered = s.pts.length > 2 && d3.max(xs) - d3.min(xs) < 80 && d3.max(ys) - d3.min(ys) < 60;
+    const slot = new Map();
+    if (clustered) {
+      const order = s.pts.map((p, i) => i).sort((i, j) => ys[i] - ys[j]), gap = 14;
+      const ty = order.map((i) => ys[i]);
+      for (let k = 1; k < ty.length; k++) ty[k] = Math.max(ty[k], ty[k - 1] + gap);
+      const shift = d3.mean(order.map((i, k) => ys[i] - ty[k]));
+      order.forEach((i, k) => slot.set(i, ty[k] + shift + 40));
+    }
+    s.pts.forEach((p, i) => {
+      const cx = x(p.gx), cy = y(p.gy), label = `N=${p.n}${p.sat ? " (saturated)" : ""}`;
+      const pt = g.append("g").attr("tabindex", 0).attr("role", "img").style("outline", "none")
+        .attr("aria-label", `${s.label}, ${label}: generation ${num(p.gx)} tok/s, ${yd.label} ${num(p.gy)} tok/s`);
+      pt.append("title").text(`${s.label} · ${label}: gen ${num(p.gx)}, ${yd.label} ${num(p.gy)}`);
+      const sym = pt.append("path").attr("d", d3.symbol(s.symbol, 90)()).attr("transform", `translate(${cx},${cy})`);
+      if (p.sat) sym.attr("fill", surface).attr("stroke", color).attr("stroke-width", 1.6).attr("stroke-dasharray", "3 2");
+      else sym.attr("fill", color).attr("stroke", surface);
+      let lx = cx + 9, ly = i % 2 === 0 ? cy - 8 : cy + 15;
+      if (clustered) {
+        lx = d3.max(xs) + 44; ly = slot.get(i) + 4;
+        pt.append("line").attr("x1", cx + 5).attr("y1", cy).attr("x2", lx - 3).attr("y2", ly - 4)
+          .attr("stroke", muted).attr("stroke-width", 0.8).attr("stroke-opacity", 0.7);
+      }
+      pt.append("text").attr("x", lx).attr("y", ly).attr("fill", css("--text-primary")).style("font-size", "11px").text(label);
+      const show = (event) => {
+        fillTip(tip, tipRows(p));
+        const r = event.currentTarget.getBoundingClientRect();
+        placeTip(tip, r.x + r.width / 2, r.y);
+      };
+      pt.on("pointerenter", show).on("pointerleave", () => { tip.hidden = true; }).on("focus", show).on("blur", () => { tip.hidden = true; });
+    });
+  }
+}
+
 // Rows by columns of small histograms. Each cell asks `series(row, col)` for
 // stacked series of {v, tag} items; the horizontal scale is shared or per chart.
 function smallMultiples(host, spec) {
@@ -1066,7 +1207,8 @@ function drawHist(box, series, opt) {
 }
 
 function renderAgenticData() {
-  for (const [key, id, sortKey, counter] of [["cloud", "t-ag-cloud", "agCloud", "ag-rows-cloud"], ["box", "t-ag-box", "agBox", "ag-rows-box"]]) {
+  for (const [key, id, sortKey, counter] of [["cloud", "t-ag-cloud", "agCloud", "ag-rows-cloud"], ["box", "t-ag-box", "agBox", "ag-rows-box"],
+    ["tiers", "t-ag-tiers", "agTiers", "ag-rows-tiers"], ["calls", "t-ag-calls", "agCalls", "ag-rows-calls"], ["ref", "t-ag-ref", "agRef", "ag-rows-ref"]]) {
     const t = db.agentic[key];
     const columns = t.fields.map((f) => ({key: f.name, label: f.name, num: f.type === "number" || f.type === "integer", raw: true}));
     document.getElementById(counter).textContent = `${t.rows.length} rows.`;

@@ -1,0 +1,6 @@
+model,provider,sessions,gen_per_session_tps,new_prefill_per_session_tps,ingest_per_session_tps,inst_gen_median_tps,inst_gen_p90_tps,cache_rate,avg_context_k,ttft_median_ms,ttft_p90_ms,requests_ok,requests_attempted,http_429,http_other_errors,sessions_completed,output_tokens,thinking_tokens,window_s,cost_usd,cost_eur,start_paris,end_paris,run_date,saturated
+claude-sonnet-5-5,anthropic-api,1,68.63,1082.5,7832,80.8,76.4,0.862,109.4,1871,2732,10,10,0,0,1,9590,430,139.7,0.5683,0.5106,2026-10-30T09:38:59+01:00,2026-10-30T09:41:19+01:00,2026-10-30,False
+claude-sonnet-5-5,anthropic-api,2,69.9,1069.8,7731,85.4,81.3,0.862,109.6,2151,3137,20,20,0,0,2,19824,977,141.8,1.1456,1.0293,2026-10-30T09:41:56+01:00,2026-10-30T09:44:18+01:00,2026-10-30,False
+claude-sonnet-5-5,anthropic-api,4,70.21,1051.2,7601,88.3,80.5,0.862,109.8,2555,3736,40,40,0,0,4,40568,3685,144.5,2.3026,2.0689,2026-10-30T09:44:19+01:00,2026-10-30T09:46:43+01:00,2026-10-30,False
+claude-sonnet-5-5,anthropic-api,8,68.01,1038.0,7501,84.1,78.4,0.862,109.7,2092,3272,80,80,0,0,8,79543,4331,146.2,4.5861,4.1205,2026-10-30T09:46:43+01:00,2026-10-30T09:49:09+01:00,2026-10-30,False
+claude-sonnet-5-5,anthropic-api,16,64.05,974.2,7042,84.4,76.6,0.862,109.7,2016,3671,160,161,0,1,16,159633,10581,155.8,9.1785,8.2466,2026-10-30T09:52:14+01:00,2026-10-30T09:54:50+01:00,2026-10-30,False

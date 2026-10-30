@@ -119,6 +119,7 @@
           <button type="button" role="tab" data-sub="agentic-cloud" aria-selected="true">Cloud agents (self-timed)</button>
           <button type="button" role="tab" data-sub="agentic-box" aria-selected="false">Claude Code on box (proxy-measured)</button>
           <button type="button" role="tab" data-sub="agentic-dvp" aria-selected="false">Decode vs prefill</button>
+          <button type="button" role="tab" data-sub="agentic-conc" aria-selected="false">Concurrency</button>
           <button type="button" role="tab" data-sub="agentic-data" aria-selected="false">Data</button>
         </nav>
         <div class="axes" id="ag-axis-ctl">
@@ -194,6 +195,34 @@
         </section>
       </div>
 
+      <div id="agentic-conc" class="agentic-view" hidden>
+        <section class="card">
+          <h3>Concurrency</h3>
+          <p class="note">Per-session generation speed against per-session prompt work as the number of concurrent sessions N grows. Sonnet 5.5 is client-observed through the Anthropic API; the DeepSeek V4.1 Flash points are an InferenceX run on dedicated 4x H200.</p>
+          <div class="controls">
+            <span>Y axis <span class="seg" id="ag-conc-y" role="group" aria-label="Vertical axis metric"><button type="button" data-v="new" aria-pressed="true">New prefill / session</button><button type="button" data-v="ingest" aria-pressed="false">Ingest / session</button></span></span>
+            <span class="note" id="ag-conc-count"></span>
+          </div>
+          <div class="legend" id="ag-conc-legend"></div>
+          <div class="chart" id="ag-conc-chart"></div>
+          <div class="table-wrap"><table class="narrow" id="t-ag-conc"></table></div>
+        </section>
+        <section class="card">
+          <h3>Method</h3>
+          <div class="prose">
+            <p><strong>Sonnet.</strong> claude-sonnet-5-5 via the Anthropic Messages API (streaming), adaptive thinking at default effort, max_tokens 16000, standard service tier. Tiers N = 1, 2, 4, 8, 16 concurrent sessions run sequentially; 31 sessions, each 10 turns. Each session starts with a unique ~60k-token prefix (a session nonce followed by public-domain Moby-Dick text, Project Gutenberg #2701) and each turn appends ~8k new tokens of the next excerpt plus a request for a ~500-word essay (~1k answer tokens); the assistant reply (including thinking blocks) is kept in history, so context grows from ~68k to ~151k tokens. Prompt caching: one ephemeral 5-minute cache breakpoint on the newest user block, so each turn reads the previous prefix from cache. Sessions start with a random 0-2 s stagger.</p>
+            <p><strong>Metrics.</strong> Same formulas as the InferenceX reference: per-tier window from first request sent to last response finished; gen/session = output tokens / window / N; new prefill/session = (uncached input + cache-write tokens) / window / N; ingest/session = all prompt tokens / window / N; inst gen = output tokens / (last delta - first delta) per call; TTFT = first streamed content delta (includes thinking). The "p90" of rates is the slow tail (10th percentile); of TTFT it is the 90th percentile.</p>
+            <p><strong>Caveats.</strong> Requests ran from a cloud box whose egress geolocates to Paris, FR (Cloudflare AS13335). API latency includes the network path and Anthropic's shared serving, so these are client-observed numbers, not hardware numbers, and are not directly comparable to the dedicated 4x H200 DeepSeek runs. Output tokens include thinking tokens.</p>
+            <p><strong>429 handling.</strong> retry-after is honored, else exponential backoff; persistent 429 stops a tier and keeps what was measured. Counts are in the table. The http_other_errors column counts attempts that failed without an HTTP status (a dropped connection) and were retried; transport errors (a dropped stream or connection) are retried with backoff like 429s.</p>
+            <p><strong>Discarded runs.</strong> Two earlier attempts are not in the tables. A first N=1 run used random words as filler and the model refused it (stop_reason refusal); it was replaced by the Moby-Dick text. A first N=16 run stopped after turn 1 when the server dropped two streams, before transport-error retries were added; N=16 was rerun in full. Their cost is included in the total spend.</p>
+            <p><strong>Spend.</strong> Total measured spend for the sweep: 21.75 USD (about 19.5 EUR at 1 EUR = 1.1130 USD), run on 2026-10-30 between 09:38 and 09:55 Paris time (CET).</p>
+            <p><strong>Observation.</strong> From N=1 to N=16, gen/session stays between 64 and 70 tok/s and TTFT median between 1.9 and 2.6 s, with 0 HTTP 429 at any tier, so the API did not saturate in this range, unlike the 4x H200 reference.</p>
+            <p><strong>DeepSeek reference.</strong> <a id="ag-conc-ref-link" href="https://github.com/SemiAnalysisAI/InferenceX/actions/runs/39960029311/attempts/1">InferenceX GitHub Actions run 39960029311</a>, DeepSeek V4.1 Flash on 4x H200, vLLM v0.32.0, FP4, MTP; values taken from the run artifacts. N=128 is flagged saturated.</p>
+            <p>The runner and aggregator scripts are scripts/agentic/sonnet_concurrency_sweep.py and scripts/agentic/sonnet_concurrency_aggregate.py.</p>
+          </div>
+        </section>
+      </div>
+
       <div id="agentic-data" class="agentic-view" hidden>
         <section class="card">
           <div class="card-head"><h3>Cloud agents, self-timed steps</h3><a class="button" href="data/agentic/agentic_selftimed_steps.csv" download>agentic_selftimed_steps.csv</a></div>
@@ -205,11 +234,26 @@
           <p class="note">Proxy-measured with API token counts. Blank means unknown; a non-blank excluded_reason marks a row left out of the charts by default. <span id="ag-rows-box"></span></p>
           <div class="table-wrap tall"><table class="narrow" id="t-ag-box"></table></div>
         </section>
+        <section class="card">
+          <div class="card-head"><h3>Sonnet concurrency, tiers</h3><a class="button" href="data/agentic/sonnet_concurrency_tiers.csv" download>sonnet_concurrency_tiers.csv</a></div>
+          <p class="note">One row per tier. Client-observed through the Anthropic API. Blank means unknown. <span id="ag-rows-tiers"></span></p>
+          <div class="table-wrap tall"><table class="narrow" id="t-ag-tiers"></table></div>
+        </section>
+        <section class="card">
+          <div class="card-head"><h3>Sonnet concurrency, API calls</h3><a class="button" href="data/agentic/sonnet_concurrency_calls.csv" download>sonnet_concurrency_calls.csv</a></div>
+          <p class="note">One row per API call. Times are unix seconds. Blank means unknown. <span id="ag-rows-calls"></span></p>
+          <div class="table-wrap tall"><table class="narrow" id="t-ag-calls"></table></div>
+        </section>
+        <section class="card">
+          <div class="card-head"><h3>InferenceX reference points</h3><a class="button" href="data/agentic/inferencex_reference_points.csv" download>inferencex_reference_points.csv</a></div>
+          <p class="note">DeepSeek V4.1 Flash on 4x H200, one row per sessions value. Blank means unknown. <span id="ag-rows-ref"></span></p>
+          <div class="table-wrap tall"><table class="narrow" id="t-ag-ref"></table></div>
+        </section>
       </div>
     </section>
 
     <footer class="page-foot">
-      <p>Data: <a href="data/measurements.csv">measurements.csv</a> · <a href="data/hardware.csv">hardware.csv</a> · <a href="data/models.csv">models.csv</a> · <a href="data/sources.csv">sources.csv</a> · <a href="datapackage.json">datapackage.json</a> · <a href="llms.txt">llms.txt</a> · <a href="data/atlas/README.md">atlas tables</a> · <a href="data/agentic/agentic_selftimed_steps.csv">agentic_selftimed_steps.csv</a> · <a href="data/agentic/claude_code_box_requests.csv">claude_code_box_requests.csv</a></p>
+      <p>Data: <a href="data/measurements.csv">measurements.csv</a> · <a href="data/hardware.csv">hardware.csv</a> · <a href="data/models.csv">models.csv</a> · <a href="data/sources.csv">sources.csv</a> · <a href="datapackage.json">datapackage.json</a> · <a href="llms.txt">llms.txt</a> · <a href="data/atlas/README.md">atlas tables</a> · <a href="data/agentic/agentic_selftimed_steps.csv">agentic_selftimed_steps.csv</a> · <a href="data/agentic/claude_code_box_requests.csv">claude_code_box_requests.csv</a> · <a href="data/agentic/sonnet_concurrency_tiers.csv">sonnet_concurrency_tiers.csv</a> · <a href="data/agentic/sonnet_concurrency_calls.csv">sonnet_concurrency_calls.csv</a> · <a href="data/agentic/inferencex_reference_points.csv">inferencex_reference_points.csv</a></p>
       <p>CC BY 4.0 data, MIT code. Source and contribution guide: <a href="https://github.com/knoel99/inference-data">github.com/knoel99/inference-data</a></p>
     </footer>
   </main>

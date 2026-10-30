@@ -278,3 +278,6 @@ select:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; 
 .sm-cell .empty { padding: 8px 0 0 24px; font-size: 12px; }
 table.narrow { width: auto; font-size: 12px; }
 table.narrow th, table.narrow td { padding: 3px 7px; }
+.prose { display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: var(--text-secondary); max-width: 90ch; }
+.prose p { margin: 0; }
+.prose strong { color: var(--text-primary); }
