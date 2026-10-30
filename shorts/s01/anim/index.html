@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Short 01 · Decode is a memory problem</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0b0d12; }
+  body { display: flex; align-items: center; justify-content: center; }
+  canvas { display: block; width: min(100vw, calc(100vh * 9 / 16)); height: min(100vh, calc(100vw * 16 / 9)); cursor: pointer; }
+</style>
+</head>
+<body>
+<canvas id="stage" width="1080" height="1920"></canvas>
+<script>
+/*
+  Short 01: Why LLM decoding is bound by memory bandwidth.
+  1080x1920, 30 fps, 175 s. Every figure on screen comes from shorts/s01/script.en.md.
+
+  Deterministic, seekable timeline. window.__seek(t) (alias window.renderAt) draws the exact frame
+  for time t in seconds; window.__duration (alias window.DURATION) is the length. Nothing depends
+  on the wall clock, there are no timers and no CSS animation; randomness is seeded.
+  Paused by default. Preview: click or Space = play/pause, Left/Right = -/+1 s (Shift: 5 s),
+  Home/End. URL: ?t=42 opens at 42 s, ?autoplay plays on load.
+  The bottom 380 px (y >= 1540) are never drawn: they are reserved for burned-in subtitles.
+*/
+(() => {
+'use strict';
+
+// ---------- Canvas, palette, type ----------
+const W = 1080, H = 1920;
+const SAFE_BOTTOM = H - 380;          // y >= 1540 stays empty
+const DURATION = 175;                 // 2:55
+const FPS = 30;
+const EXIT = 0.35;                    // scene exit fade, seconds
+
+const C = {
+  bg: '#0b0d12',
+  panel: '#121722',
+  panel2: '#181e2a',
+  tile: '#242b38',
+  line: '#2c3443',
+  dim: '#3e4758',
+  muted: '#8e98a8',
+  text: '#f2f4f7',
+  accent: '#ffb020',
+};
+const FONT = 'Inter, "SF Pro Display", "SF Pro Text", system-ui, -apple-system, "Segoe UI", Roboto, ' +
+  '"Helvetica Neue", Arial, "Liberation Sans", "DejaVu Sans", sans-serif';
+
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d');
+let SA = 1;                           // scene alpha (exit fade), multiplied into every draw
+
+// ---------- Timing ----------
+const clamp01 = x => (x < 0 ? 0 : x > 1 ? 1 : x);
+const lerp = (a, b, k) => a + (b - a) * k;
+const frac = x => x - Math.floor(x);
+const E = {
+  lin: k => k,
+  out: k => 1 - Math.pow(1 - k, 3),
+  inOut: k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2),
+};
+// Eased progress through the window [t0, t0 + d].
+const P = (t, t0, d = 0.5, e = E.out) => e(clamp01((t - t0) / d));
+// On at t0, off at t1.
+const pulse = (t, t0, t1, d = 0.4) => P(t, t0, d) * (1 - P(t, t1, d));
+
+// ---------- Seeded randomness ----------
+function mulberry32(a) {
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function hash01(a, b) {
+  let x = (Math.imul(a, 374761393) + Math.imul(b, 668265263)) | 0;
+  x = Math.imul(x ^ (x >>> 13), 1274126177);
+  x ^= x >>> 16;
+  return (x >>> 0) / 4294967296;
+}
+function pickDistinct(rnd, n, k) {
+  const s = new Set();
+  while (s.size < k) s.add(Math.floor(rnd() * n));
+  return s;
+}
+
+// ---------- Colour ----------
+const rgbCache = {};
+function rgb(hex) {
+  if (!rgbCache[hex]) {
+    const n = parseInt(hex.slice(1), 16);
+    rgbCache[hex] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  return rgbCache[hex];
+}
+function mix(a, b, k) {
+  if (k <= 0) return a;
+  if (k >= 1) return b;
+  const A = rgb(a), B = rgb(b);
+  return `rgb(${Math.round(A[0] + (B[0] - A[0]) * k)},${Math.round(A[1] + (B[1] - A[1]) * k)},` +
+    `${Math.round(A[2] + (B[2] - A[2]) * k)})`;
+}
+
+// ---------- Drawing helpers ----------
+function alpha(a) { ctx.globalAlpha = clamp01(a) * SA; }
+function setFont(size, weight) { ctx.font = `${weight} ${size}px ${FONT}`; }
+function rrPath(x, y, w, h, r) {
+  r = Math.max(0, Math.min(r, w / 2, h / 2));
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function fillRR(x, y, w, h, r, color, a = 1) {
+  if (a <= 0 || w <= 0 || h <= 0) return;
+  alpha(a); ctx.fillStyle = color; rrPath(x, y, w, h, r); ctx.fill();
+}
+function strokeRR(x, y, w, h, r, color, lw = 2, a = 1, dash) {
+  if (a <= 0) return;
+  alpha(a); ctx.strokeStyle = color; ctx.lineWidth = lw;
+  if (dash) ctx.setLineDash(dash);
+  rrPath(x, y, w, h, r); ctx.stroke();
+  if (dash) ctx.setLineDash([]);
+}
+function seg(x0, y0, x1, y1, color, lw = 2, a = 1, dash, dashOffset = 0) {
+  if (a <= 0) return;
+  alpha(a); ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round';
+  if (dash) { ctx.setLineDash(dash); ctx.lineDashOffset = dashOffset; }
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+  if (dash) { ctx.setLineDash([]); ctx.lineDashOffset = 0; }
+  ctx.lineCap = 'butt';
+}
+function bez(p0, p1, p2, p3, u) {
+  const v = 1 - u;
+  const a = v * v * v, b = 3 * v * v * u, c = 3 * v * u * u, d = u * u * u;
+  return [a * p0[0] + b * p1[0] + c * p2[0] + d * p3[0], a * p0[1] + b * p1[1] + c * p2[1] + d * p3[1]];
+}
+// Stroke a cubic Bezier from u = 0 to u = upto.
+function strokeBez(p0, p1, p2, p3, upto, color, lw, a, dash, dashOffset = 0) {
+  if (upto <= 0 || a <= 0) return;
+  alpha(a); ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round';
+  if (dash) { ctx.setLineDash(dash); ctx.lineDashOffset = dashOffset; }
+  ctx.beginPath();
+  for (let i = 0; i <= 48; i++) {
+    const p = bez(p0, p1, p2, p3, upto * i / 48);
+    if (i) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]);
+  }
+  ctx.stroke();
+  if (dash) { ctx.setLineDash([]); ctx.lineDashOffset = 0; }
+  ctx.lineCap = 'butt';
+}
+
+const hasLS = 'letterSpacing' in ctx;
+// One-style text; shrinks to maxW when needed. Returns the drawn width.
+function text(s, x, y, o = {}) {
+  const a = o.a == null ? 1 : o.a;
+  const size = o.size || 48, weight = o.weight || 600;
+  if (hasLS && o.ls) ctx.letterSpacing = o.ls + 'px';
+  setFont(size, weight);
+  let w = ctx.measureText(s).width;
+  if (o.maxW && w > o.maxW) { setFont(size * o.maxW / w, weight); w = o.maxW; }
+  if (a > 0) {
+    alpha(a);
+    ctx.fillStyle = o.color || C.text;
+    ctx.textAlign = o.align || 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(s, x, y);
+  }
+  if (hasLS && o.ls) ctx.letterSpacing = '0px';
+  return w;
+}
+// A line made of parts [{s, color, weight, a, pill}]. It is laid out at its full width, so
+// nothing shifts while the parts appear one at a time.
+function rich(parts, x, y, o = {}) {
+  const size = o.size || 52, baseW = o.weight || 600, rise = o.rise == null ? 14 : o.rise;
+  const ws = parts.map(p => { setFont(size, p.weight || baseW); return ctx.measureText(p.s).width; });
+  const total = ws.reduce((s, w) => s + w, 0);
+  const k = o.maxW && total > o.maxW ? o.maxW / total : 1;
+  const fs = size * k, tw = total * k;
+  let cx = o.align === 'left' ? x : o.align === 'right' ? x - tw : x - tw / 2;
+  const x0 = cx, boxes = [];
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  parts.forEach((p, i) => {
+    const w = ws[i] * k, a = p.a == null ? 1 : p.a;
+    boxes.push({ x: cx, w });
+    if (a > 0) {
+      const dy = (1 - a) * rise;
+      let color = p.color || C.text;
+      if (p.pill > 0) {
+        const px = fs * 0.24;
+        fillRR(cx - px, y + dy - fs * 0.86, w + 2 * px, fs * 1.1, fs * 0.22, C.accent, a * p.pill);
+        color = mix(color, C.bg, p.pill);
+      }
+      setFont(fs, p.weight || baseW);
+      alpha(a); ctx.fillStyle = color;
+      ctx.fillText(p.s, cx, y + dy);
+    }
+    cx += w;
+  });
+  return { x0, w: tw, fs, boxes };
+}
+function wrap(s, size, weight, maxW) {
+  setFont(size, weight);
+  const out = [];
+  let cur = '';
+  for (const word of s.split(' ')) {
+    const test = cur ? cur + ' ' + word : word;
+    if (cur && ctx.measureText(test).width > maxW) { out.push(cur); cur = word; } else cur = test;
+  }
+  if (cur) out.push(cur);
+  return out;
+}
+// Scene label, top left.
+function kicker(label, t) {
+  const a = P(t, 0.05, 0.45);
+  fillRR(96, 140, 8, 38, 3, C.accent, a);
+  text(label.toUpperCase(), 124, 172, { size: 32, weight: 700, color: C.muted, align: 'left', ls: 4, a });
+}
+
+// =====================================================================================
+// Scene 1 - Hook (0-8 s)
+// =====================================================================================
+function gpuCard(x, y, w, h, lit) {
+  fillRR(x, y, w, h, 18, C.panel);
+  strokeRR(x, y, w, h, 18, C.line, 3);
+  for (let j = 0; j < 5; j++) seg(x + 36, y + 24 + j * 9, x + w - 36, y + 24 + j * 9, C.line, 3);
+  const dx = x + w / 2 - 44, dy = y + 84;
+  fillRR(dx, dy, 88, 88, 10, C.panel2);
+  strokeRR(dx, dy, 88, 88, 10, C.dim, 2);
+  text('GPU', x + w / 2, dy + 54, { size: 26, weight: 700, color: C.muted });
+  for (let j = 0; j < 3; j++) {
+    const k = clamp01(lit * 1.6 - j * 0.3);
+    fillRR(dx - 40, dy - 8 + j * 36, 22, 28, 4, mix(C.dim, C.accent, k));
+    fillRR(dx + 106, dy - 8 + j * 36, 22, 28, 4, mix(C.dim, C.accent, k));
+  }
+  for (let j = 0; j < 12; j++) fillRR(x + 26 + j * 12.4, y + h - 30, 7, 18, 2, C.dim);
+}
+
+function sHook(t) {
+  const cw = 196, ch = 260, gap = 28, x0 = (W - (4 * cw + 3 * gap)) / 2, y0 = 236;
+  const mid = [];
+  for (let i = 0; i < 4; i++) {
+    const x = x0 + i * (cw + gap);
+    gpuCard(x, y0 + (1 - P(t, i * 0.05, 0.7)) * 28, cw, ch, P(t, 0.3 + i * 0.12, 0.6));
+    mid.push(x + cw / 2);
+  }
+  // Four memory streams merge into one number.
+  const draw = P(t, 1.0, 0.8, E.inOut), flow = P(t, 1.7, 0.5);
+  for (let i = 0; i < 4; i++) {
+    const p0 = [mid[i], y0 + ch + 10], p3 = [540 + (i - 1.5) * 46, 640];
+    const p1 = [p0[0], p0[1] + 80], p2 = [p3[0], p3[1] - 70];
+    strokeBez(p0, p1, p2, p3, draw, C.accent, 4, 0.3);
+    strokeBez(p0, p1, p2, p3, 1, C.accent, 4, flow * 0.95, [8, 16], -t * 70);
+  }
+  const b = P(t, 1.3, 0.6);
+  text('2,560 GB/s', 540, 790 + (1 - b) * 26, { size: 150, weight: 800, color: C.accent, maxW: 920, a: b });
+
+  // A funnel: a lot goes in, little comes out.
+  const f = P(t, 3.0, 0.7, E.inOut);
+  if (f > 0) {
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 846, W, 170 * f); ctx.clip();
+    const g = ctx.createLinearGradient(0, 850, 0, 990);
+    g.addColorStop(0, 'rgba(255,176,32,0.20)');
+    g.addColorStop(1, 'rgba(255,176,32,0.04)');
+    alpha(1); ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(280, 850); ctx.lineTo(800, 850); ctx.lineTo(562, 988); ctx.lineTo(518, 988); ctx.closePath();
+    ctx.fill();
+    seg(280, 850, 518, 988, C.dim, 3);
+    seg(800, 850, 562, 988, C.dim, 3);
+    for (let i = 0; i < 4; i++) seg(340 + i * 133, 856, 540, 990, C.accent, 3, 0.7, [6, 14], -t * 50);
+    seg(540, 990, 540, 1016, C.accent, 3, 0.8);
+    ctx.restore();
+  }
+  const c = P(t, 3.3, 0.6);
+  text('40 tok/s', 540, 1132 + (1 - c) * 26, { size: 130, weight: 800, maxW: 900, a: c });
+  const q = P(t, 4.5, 0.55);
+  if (q > 0) {
+    ctx.save();
+    ctx.translate(540, 1452);
+    const s = 0.88 + 0.12 * q;
+    ctx.scale(s, s);
+    text('?', 0, 0, { size: 320, weight: 800, color: C.accent, a: q });
+    ctx.restore();
+  }
+}
+
+// =====================================================================================
+// Scene 1b - Mixture of experts (8-20 s)
+// =====================================================================================
+const MOE = (() => {
+  const rnd = mulberry32(20261029);
+  const times = [2.2, 4.8, 7.4, 10.0];           // a new token is routed at each of these
+  return { times, sets: times.map(() => pickDistinct(rnd, 896, 16)) };
+})();
+
+function moeOn(t, i) {
+  let on = 0;
+  for (let k = 0; k < MOE.times.length; k++) {
+    if (!MOE.sets[k].has(i)) continue;
+    const next = MOE.times[k + 1];
+    on = Math.max(on, P(t, MOE.times[k], 0.3) * (next == null ? 1 : 1 - P(t, next, 0.3)));
+  }
+  return on;
+}
+
+function sMoE(t) {
+  kicker('Mixture of experts', t);
+  rich([
+    { s: '2.8T total', a: P(t, 0.4, 0.5) },
+    { s: '  →  ', color: C.muted, a: P(t, 2.2, 0.4) },
+    { s: '104B active per token', color: C.accent, a: P(t, 2.3, 0.5) },
+  ], 540, 254, { size: 56, weight: 700, maxW: 920 });
+
+  // 896 routed experts, 32 x 28.
+  const cols = 32, tile = 22, pitch = 27, gx = (W - (cols * pitch - 5)) / 2, gy = 300;
+  const dim = P(t, 2.2, 0.4);
+  for (let i = 0; i < 896; i++) {
+    const c = i % cols, r = (i / cols) | 0;
+    const ap = P(t, 0.1 + (c + r) * 0.011, 0.3);
+    if (ap <= 0) continue;
+    const on = moeOn(t, i);
+    fillRR(gx + c * pitch, gy + r * pitch, tile, tile, 4, mix(C.tile, C.accent, on), ap * (1 - 0.5 * dim * (1 - on)));
+  }
+
+  // Legend: 16 routed experts light up, plus 2 shared experts that every token uses.
+  const la = P(t, 2.8, 0.5);
+  if (la > 0) {
+    setFont(36, 600);
+    const s1 = '16 of 896 experts', s2 = '+ 2 shared';
+    const w1 = ctx.measureText(s1).width, w2 = ctx.measureText(s2).width;
+    const total = 26 + 14 + w1 + 56 + 26 + 8 + 26 + 14 + w2;
+    let x = 540 - total / 2;
+    const y = 1110;
+    fillRR(x, y - 26, 26, 26, 5, C.accent, la); x += 40;
+    text(s1, x, y, { size: 36, weight: 600, align: 'left', a: la }); x += w1 + 56;
+    fillRR(x, y - 26, 26, 26, 5, C.text, la); x += 34;
+    fillRR(x, y - 26, 26, 26, 5, C.text, la); x += 40;
+    text(s2, x, y, { size: 36, weight: 600, align: 'left', a: la });
+  }
+
+  // Bytes read per token.
+  rich([
+    { s: '104B active', a: P(t, 5.6, 0.5) },
+    { s: ' × ~0.5 byte per weight', a: P(t, 6.2, 0.5) },
+    { s: ' (4-bit)', color: C.muted, a: P(t, 6.7, 0.5) },
+  ], 540, 1232, { size: 50, weight: 600, maxW: 920 });
+  const r52 = P(t, 7.3, 0.6);
+  const w52 = text('≈ 52 GB read per token', 540, 1334 + (1 - r52) * 20,
+    { size: 74, weight: 800, color: C.accent, maxW: 920, a: r52 });
+  const u = P(t, 9.8, 0.7, E.inOut);
+  if (u > 0) fillRR(540 - w52 / 2, 1354, w52 * u, 5, 2.5, C.accent, 1);
+  const na = P(t, 8.8, 0.5);
+  wrap('(lower bound; parts kept in higher precision push it up)', 36, 500, 900).forEach((ln, i) => {
+    text(ln, 540, 1418 + i * 48, { size: 36, weight: 500, color: C.muted, a: na });
+  });
+}
+
+// =====================================================================================
+// Scenes not built yet: title card only.
+// =====================================================================================
+function placeholder(title) {
+  return t => {
+    kicker(title, t);
+    text(title, 540, 760, { size: 64, weight: 700, maxW: 920, a: P(t, 0.1, 0.5) });
+  };
+}
+
+// =====================================================================================
+// Timeline
+// =====================================================================================
+const SCENES = [
+  { id: '1', title: 'Hook', start: 0, end: 8, draw: sHook },
+  { id: '1b', title: 'Mixture of experts', start: 8, end: 20, draw: sMoE },
+  { id: '2', title: 'The path of a weight', start: 20, end: 40, draw: placeholder('The path of a weight') },
+  { id: '3', title: 'The mechanism', start: 40, end: 80, draw: placeholder('The mechanism') },
+  { id: '4', title: 'The red kimi budget', start: 80, end: 125, draw: placeholder('The red kimi budget') },
+  { id: '5', title: 'Why 16 drives in 4 groups', start: 125, end: 162, draw: placeholder('Why 16 drives in 4 groups') },
+  { id: '5b', title: 'Recall question', start: 162, end: 165, draw: placeholder('Recall question') },
+  { id: '6', title: 'Takeaway', start: 165, end: 175, draw: placeholder('Takeaway') },
+];
+
+let current = 0;
+function renderAt(t) {
+  t = Math.min(DURATION, Math.max(0, Number(t) || 0));
+  current = t;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = C.bg;
+  ctx.fillRect(0, 0, W, H);
+  let i = SCENES.length - 1;
+  while (i > 0 && t < SCENES[i].start) i--;
+  const s = SCENES[i], lt = t - s.start, d = s.end - s.start;
+  SA = i === SCENES.length - 1 ? 1 : 1 - P(lt, d - EXIT, EXIT, E.inOut);
+  ctx.save();
+  ctx.beginPath(); ctx.rect(0, 0, W, SAFE_BOTTOM); ctx.clip();
+  s.draw(lt, d);
+  ctx.restore();
+  SA = 1;
+  return t;
+}
+
+// ---------- Public API ----------
+window.__duration = DURATION;
+window.DURATION = DURATION;
+window.__fps = FPS;
+window.__scenes = SCENES.map(({ id, title, start, end }) => ({ id, title, start, end }));
+window.__seek = renderAt;
+window.renderAt = renderAt;
+
+// ---------- Preview playback (only ever calls __seek) ----------
+let playing = false, playFrom = 0, wall0 = null;
+function tick(now) {
+  if (!playing) return;
+  if (wall0 == null) wall0 = now;
+  const t = playFrom + (now - wall0) / 1000;
+  window.__seek(Math.min(t, DURATION));
+  if (t >= DURATION) { playing = false; return; }
+  requestAnimationFrame(tick);
+}
+function play() {
+  if (playing) return;
+  playFrom = current >= DURATION ? 0 : current;
+  wall0 = null;
+  playing = true;
+  requestAnimationFrame(tick);
+}
+function pause() { playing = false; }
+function toggle() { if (playing) pause(); else play(); }
+function nudge(dt) { pause(); window.__seek(current + dt); }
+canvas.addEventListener('click', toggle);
+window.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.key === 'k') { e.preventDefault(); toggle(); }
+  else if (e.key === 'ArrowRight') nudge(e.shiftKey ? 5 : 1);
+  else if (e.key === 'ArrowLeft') nudge(e.shiftKey ? -5 : -1);
+  else if (e.key === 'Home') nudge(-DURATION);
+  else if (e.key === 'End') nudge(DURATION);
+});
+
+const params = new URLSearchParams(location.search);
+renderAt(parseFloat(params.get('t')) || 0);
+window.__ready = true;
+if (params.has('autoplay') || location.hash === '#play') play();
+})();
+</script>
+</body>
+</html>
