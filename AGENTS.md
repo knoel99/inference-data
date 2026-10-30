@@ -11,6 +11,8 @@ This repository is a sourced table of LLM inference measurements. CSV is the sou
 
 `data/atlas/` holds tables compiled for the explorer's hardware charts. They are outside `datapackage.json` and carry no per-row source URL: do not cite them as measurements.
 
+`data/agentic/` holds two raw agentic benchmark tables, declared in `datapackage.json` (schema checked by `scripts/validate.py`) and shown in the site's Agentic tab: `agentic_selftimed_steps.csv` (cloud agents, timings the agent took itself, so estimated and including thinking and tool overhead) and `claude_code_box_requests.csv` (Claude Code on a box, proxy-measured with API token counts; a non-empty `excluded_reason` marks rows left out by default). They have no primary key and no per-row source URL: do not cite them as sourced measurements.
+
 Ids are stable lowercase slugs (`a-z`, `0-9`, `.`, `-`). Empty cell means unknown. Do not write `NA`, `0`, or a midpoint for a range.
 
 ## Evidence
