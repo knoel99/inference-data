@@ -11,7 +11,7 @@ const AGENTIC = {cloud: "agentic_selftimed_steps", box: "claude_code_box_request
 const ATLAS_NUMERIC = new Set(["price_usd", "memory_gb", "bandwidth_gbs", "tflops_bf16", "power_w", "gpus", "users",
   "decode_tps", "prefill_tps", "prefill_tokens", "aa_index", "weights_gb", "total_params_b", "active_params_b"]);
 const SUBS = {memory: "hardware", bandwidth: "hardware", compute: "hardware", "hardware-data": "hardware", "inference-data": "inference",
-  "agentic-cloud": "agentic", "agentic-box": "agentic", "agentic-data": "agentic"};
+  "agentic-cloud": "agentic", "agentic-box": "agentic", "agentic-dvp": "agentic", "agentic-data": "agentic"};
 const EVIDENCE_LABEL = {
   measured_by_source: "measured",
   vendor_claim: "vendor claim",
@@ -69,7 +69,7 @@ const RATIOS = {
 };
 
 const state = {sub: "memory", lastHardware: "memory", lastAgentic: "agentic-cloud", x: "log", y: "log", q: "", derived: false,
-  ag: {measure: null, platform: "all", split: "cell", dup: false, boxMeasure: null, excluded: false, axis: "shared"}};
+  ag: {measure: null, platform: "all", split: "cell", dup: false, boxMeasure: null, excluded: false, axis: "shared", dvpExcluded: false, dvpY: "log"}};
 const sorts = {agCloud: {key: null, dir: 1}, agBox: {key: null, dir: 1}, hw: {key: "bandwidth_gb_s", dir: -1}, m: {key: null, dir: 1}, gpus: {key: null, dir: 1}, systems: {key: null, dir: 1}, measures: {key: null, dir: 1}, models: {key: "aa_index", dir: -1}};
 let db;
 
@@ -224,7 +224,7 @@ function syncNav() {
   document.getElementById("axes").hidden = !isCap;
   document.getElementById("hardware-data").hidden = state.sub !== "hardware-data";
   for (const v of document.querySelectorAll(".agentic-view")) v.hidden = v.id !== state.sub;
-  document.getElementById("ag-axis-ctl").hidden = state.sub === "agentic-data";
+  document.getElementById("ag-axis-ctl").hidden = state.sub === "agentic-data" || state.sub === "agentic-dvp";
   for (const id of ["ag-split", "ag-axis"]) {
     const key = id === "ag-split" ? "split" : "axis";
     for (const b of document.querySelectorAll(`#${id} button`)) b.setAttribute("aria-pressed", String(b.dataset.v === state.ag[key]));
@@ -253,6 +253,7 @@ function render() {
   else if (state.sub === "hardware-data") renderHardwareData();
   else if (state.sub === "agentic-cloud") renderCloud();
   else if (state.sub === "agentic-box") renderBox();
+  else if (state.sub === "agentic-dvp") renderDecodeVsPrefill();
   else if (state.sub === "agentic-data") renderAgenticData();
   else renderMeasurements();
 }
@@ -780,6 +781,8 @@ function wireAgentic() {
   for (const [id, key] of [["ag-split", "split"], ["ag-axis", "axis"]]) {
     for (const b of document.querySelectorAll(`#${id} button`)) b.addEventListener("click", () => { a[key] = b.dataset.v; render(); });
   }
+  document.getElementById("ag-dvp-excluded").addEventListener("change", (e) => { a.dvpExcluded = e.target.checked; render(); });
+  for (const b of document.querySelectorAll("#ag-dvp-y button")) b.addEventListener("click", () => { a.dvpY = b.dataset.v; render(); });
 }
 
 function renderCloud() {
@@ -838,6 +841,136 @@ function renderBox() {
       ];
     },
   });
+}
+
+/* ---------- decode vs prefill ---------- */
+
+// Decode speed comes from the D cells, prefill speed from C0 (no cache) and C2
+// (cache hit): prompt_tokens / TTFT, so cached tokens count as processed.
+const DVP_SERIES = [
+  {key: "C0", label: "Prefill, no cache", color: "--series-1", symbol: d3.symbolCircle},
+  {key: "C2", label: "Prefill, cache hit", color: "--series-3", symbol: d3.symbolDiamond},
+];
+
+// Same quantile method everywhere: d3.quantile on sorted values.
+function quartiles(values) {
+  const v = values.slice().sort(d3.ascending);
+  return v.length ? {n: v.length, med: d3.quantile(v, 0.5), p25: d3.quantile(v, 0.25), p75: d3.quantile(v, 0.75)} : null;
+}
+
+// "sonnet-5-5" -> "Sonnet 5.5"
+function modelShort(name) {
+  const parts = String(name).replace(/^claude-/, "").split("-");
+  const ver = parts.filter((p) => /^\d+$/.test(p)).join(".");
+  const word = parts.filter((p) => !/^\d+$/.test(p)).join(" ");
+  return `${word.charAt(0).toUpperCase()}${word.slice(1)}${ver ? ` ${ver}` : ""}`;
+}
+
+function dvpPoints() {
+  const a = state.ag, rows = db.agentic.box.rows;
+  const usable = rows.filter((r) => r.cell != null && r.model_pinned != null && (a.dvpExcluded || r.excluded_reason == null));
+  const parsed = usable.map((r) => ({r, m: /^(D|C0|C2)_(\d+k)$/.exec(r.cell)})).filter((d) => d.m);
+  const positive = (v) => Number.isFinite(v) && v > 0;
+  const models = [...new Set(parsed.map((d) => d.r.model_pinned))].sort(natural);
+  const ctxs = [...new Set(parsed.map((d) => d.m[2]))].sort(natural);
+  const pick = (model, group, ctx, value) => parsed.filter((d) => d.r.model_pinned === model && d.m[1] === group && d.m[2] === ctx)
+    .map((d) => value(d.r)).filter(positive);
+  const out = [];
+  for (const model of models) {
+    for (const ctx of ctxs) {
+      const dec = quartiles(pick(model, "D", ctx, (r) => r.decode_tps));
+      for (const ser of DVP_SERIES) {
+        const pre = quartiles(pick(model, ser.key, ctx, (r) => (positive(r.prompt_tokens) && positive(r.ttft_ms) ? r.prompt_tokens / (r.ttft_ms / 1000) : null)));
+        out.push({model, ctx, ser, dec, pre, ok: Boolean(dec && pre), name: `${modelShort(model)} ${ctx}`});
+      }
+    }
+  }
+  return {models, ctxs, points: out};
+}
+
+function renderDecodeVsPrefill() {
+  const a = state.ag, {points} = dvpPoints();
+  const excluded = db.agentic.box.rows.filter((r) => r.excluded_reason != null);
+  document.getElementById("ag-dvp-count").textContent =
+    `${excluded.length} of ${db.agentic.box.rows.length} rows excluded: ${a.dvpExcluded ? "included in the medians" : "left out"}.`;
+  for (const b of document.querySelectorAll("#ag-dvp-y button")) b.setAttribute("aria-pressed", String(b.dataset.v === a.dvpY));
+  const missing = points.filter((p) => !p.ok);
+  document.getElementById("ag-dvp-missing").textContent = missing.length
+    ? `Missing, not plotted: ${missing.map((p) => `${p.name} (${p.ser.label.toLowerCase()})`).join(", ")}.` : "";
+  document.getElementById("ag-dvp-legend").replaceChildren(...DVP_SERIES.map((s) => legendKey(s.label, s.symbol, css(s.color))));
+  document.getElementById("ag-dvp-note").textContent =
+    "Prefill speed is end to end: TTFT includes network, queueing and API overhead, so it is a lower bound on true prefill throughput. " +
+    "Prompt tokens are the prompt_tokens column (input + cache creation + cache read tokens); for a cache hit the effective prefill counts cached tokens as processed. " +
+    "Decode is decode_tps from the D cells (long-decode runs); the same decode value is used for both series. Medians, with p25 to p75 bars, computed in the browser from the CSV.";
+  drawDvpChart(document.getElementById("ag-dvp-chart"), points.filter((p) => p.ok), a.dvpY === "log");
+  const range = (q) => `${num(q.p25)}–${num(q.p75)}`;
+  const cellText = (q) => (q ? `${num(q.med)} (${range(q)}, n=${q.n})` : "missing");
+  const columns = [
+    {key: "model", label: "Model", get: (p) => modelShort(p.model)}, {key: "ctx", label: "Context"}, {key: "series", label: "Series", get: (p) => p.ser.label},
+    {key: "dec", label: "Decode median tok/s (p25–p75, n)", get: (p) => cellText(p.dec)},
+    {key: "pre", label: "Prefill median tok/s (p25–p75, n)", get: (p) => cellText(p.pre)},
+  ];
+  const t = document.getElementById("t-ag-dvp");
+  const head = el("tr");
+  for (const c of columns) { const th = el("th", "", c.label); th.scope = "col"; head.append(th); }
+  const body = points.map((p) => {
+    const tr = el("tr");
+    for (const c of columns) tr.append(el("td", "", c.get ? c.get(p) : p[c.key]));
+    return tr;
+  });
+  t.replaceChildren(el("thead"), el("tbody"));
+  t.tHead.append(head);
+  t.tBodies[0].append(...body);
+}
+
+function drawDvpChart(box, pts, logY) {
+  box.replaceChildren();
+  if (!pts.length) return box.append(el("p", "empty", "No complete model and context pairs."));
+  const W = Math.max(320, box.clientWidth), H = 460;
+  const m = {t: 16, r: 24, b: 48, l: 64};
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const xs = pts.flatMap((p) => [p.dec.p25, p.dec.p75]), ys = pts.flatMap((p) => [p.pre.p25, p.pre.p75]);
+  const xd = d3.scaleLinear().domain([Math.max(0, d3.min(xs) * 0.9), d3.max(xs) * 1.1]).nice();
+  const x = xd.range([m.l, m.l + iw]);
+  const y = (logY ? d3.scaleLog().domain([d3.min(ys) / 1.3, d3.max(ys) * 1.3]) : d3.scaleLinear().domain([0, d3.max(ys) * 1.08]).nice()).range([ih, 0]);
+  const muted = css("--text-secondary");
+  const svg = d3.select(box).append("svg").attr("width", "100%").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img")
+    .attr("aria-label", "Prefill speed against decode speed, by model, context and cache state")
+    .style("font", "12px system-ui, -apple-system, 'Segoe UI', sans-serif");
+  const g = svg.append("g").attr("transform", `translate(0,${m.t})`);
+  const yt = logY ? logTicks(y.domain()[0], y.domain()[1]) : y.ticks(6);
+  g.selectAll("line.grid").data(yt).join("line").attr("x1", m.l).attr("x2", m.l + iw).attr("y1", y).attr("y2", y).attr("stroke", css("--grid"));
+  g.selectAll("text.yt").data(yt).join("text").attr("x", m.l - 6).attr("y", (d) => y(d) + 4).attr("text-anchor", "end").attr("fill", muted).text(tickFormat);
+  const xt = x.ticks(8);
+  g.selectAll("text.xt").data(xt).join("text").attr("x", x).attr("y", ih + 18).attr("text-anchor", "middle").attr("fill", muted).text(tickFormat);
+  g.append("line").attr("x1", m.l).attr("x2", m.l + iw).attr("y1", ih).attr("y2", ih).attr("stroke", css("--axis"));
+  g.append("text").attr("x", m.l + iw / 2).attr("y", ih + 40).attr("text-anchor", "middle").attr("fill", muted).text("Decode speed (tokens/s, median)");
+  g.append("text").attr("transform", `translate(14,${ih / 2}) rotate(-90)`).attr("text-anchor", "middle").attr("fill", muted)
+    .text(`Prefill speed (tokens/s, median${logY ? ", log scale" : ""})`);
+  // Thin line between the no-cache and cache-hit points of one model and context.
+  const pairs = d3.group(pts, (p) => p.name);
+  for (const [, two] of pairs) {
+    if (two.length < 2) continue;
+    g.append("line").attr("x1", x(two[0].dec.med)).attr("y1", y(two[0].pre.med)).attr("x2", x(two[1].dec.med)).attr("y2", y(two[1].pre.med))
+      .attr("stroke", muted).attr("stroke-width", 1).attr("stroke-opacity", 0.6);
+  }
+  const tip = document.getElementById("tip");
+  const stat = (q) => `${num(q.med)} (p25 ${num(q.p25)}, p75 ${num(q.p75)}, n=${q.n})`;
+  for (const p of pts) {
+    const color = css(p.ser.color), cx = x(p.dec.med), cy = y(p.pre.med);
+    const pt = g.append("g").attr("tabindex", 0).attr("role", "img").style("outline", "none")
+      .attr("aria-label", `${p.name}, ${p.ser.label}: decode ${num(p.dec.med)} tok/s, prefill ${num(p.pre.med)} tok/s`);
+    pt.append("line").attr("x1", x(p.dec.p25)).attr("x2", x(p.dec.p75)).attr("y1", cy).attr("y2", cy).attr("stroke", color).attr("stroke-width", 1.4);
+    pt.append("line").attr("x1", cx).attr("x2", cx).attr("y1", y(p.pre.p25)).attr("y2", y(p.pre.p75)).attr("stroke", color).attr("stroke-width", 1.4);
+    pt.append("path").attr("d", d3.symbol(p.ser.symbol, 90)()).attr("transform", `translate(${cx},${cy})`).attr("fill", color).attr("stroke", css("--surface-1"));
+    pt.append("text").attr("class", "dvp-point").attr("x", cx + 9).attr("y", p.ser.key === "C0" ? cy - 8 : cy + 15).attr("fill", css("--text-primary")).style("font-size", "11px").text(p.name);
+    const show = (event) => {
+      fillTip(tip, [["t", `${p.name} · ${p.ser.label}`], ["r", "Decode tok/s", stat(p.dec)], ["r", "Prefill tok/s", stat(p.pre)]]);
+      const r = event.currentTarget.getBoundingClientRect();
+      placeTip(tip, r.x + r.width / 2, r.y);
+    };
+    pt.on("pointerenter", show).on("pointerleave", () => { tip.hidden = true; }).on("focus", show).on("blur", () => { tip.hidden = true; });
+  }
 }
 
 // Rows by columns of small histograms. Each cell asks `series(row, col)` for
