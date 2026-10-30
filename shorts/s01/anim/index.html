@@ -176,34 +176,34 @@ function text(s, x, y, o = {}) {
   return w;
 }
 // A line made of parts [{s, color, weight, a, pill}]. It is laid out at its full width, so
-// nothing shifts while the parts appear one at a time.
+// nothing shifts while the parts appear one at a time. A part with a pill (0..1) gets room
+// for its highlight box from the start.
 function rich(parts, x, y, o = {}) {
   const size = o.size || 52, baseW = o.weight || 600, rise = o.rise == null ? 14 : o.rise;
-  const ws = parts.map(p => { setFont(size, p.weight || baseW); return ctx.measureText(p.s).width; });
+  const pads = parts.map(p => (p.pill == null ? 0 : 0.26 * size));
+  const ws = parts.map((p, i) => { setFont(size, p.weight || baseW); return ctx.measureText(p.s).width + 2 * pads[i]; });
   const total = ws.reduce((s, w) => s + w, 0);
   const k = o.maxW && total > o.maxW ? o.maxW / total : 1;
   const fs = size * k, tw = total * k;
   let cx = o.align === 'left' ? x : o.align === 'right' ? x - tw : x - tw / 2;
-  const x0 = cx, boxes = [];
+  const x0 = cx;
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   parts.forEach((p, i) => {
     const w = ws[i] * k, a = p.a == null ? 1 : p.a;
-    boxes.push({ x: cx, w });
     if (a > 0) {
       const dy = (1 - a) * rise;
       let color = p.color || C.text;
       if (p.pill > 0) {
-        const px = fs * 0.24;
-        fillRR(cx - px, y + dy - fs * 0.86, w + 2 * px, fs * 1.1, fs * 0.22, C.accent, a * p.pill);
+        fillRR(cx, y + dy - fs * 0.86, w, fs * 1.1, fs * 0.22, C.accent, a * p.pill);
         color = mix(color, C.bg, p.pill);
       }
       setFont(fs, p.weight || baseW);
       alpha(a); ctx.fillStyle = color;
-      ctx.fillText(p.s, cx, y + dy);
+      ctx.fillText(p.s, cx + pads[i] * k, y + dy);
     }
     cx += w;
   });
-  return { x0, w: tw, fs, boxes };
+  return { x0, w: tw, fs };
 }
 function wrap(s, size, weight, maxW) {
   setFont(size, weight);
@@ -638,13 +638,277 @@ function sMech(t) {
 }
 
 // =====================================================================================
-// Scenes not built yet: title card only.
+// Scene 4 - The red kimi budget (80-125 s)
 // =====================================================================================
-function placeholder(title) {
-  return t => {
-    kicker(title, t);
-    text(title, 540, 760, { size: 64, weight: 700, maxW: 920, a: P(t, 0.1, 0.5) });
-  };
+const BUD = {
+  x: 140, len: 800, gbMax: 64,                  // bar scale: 800 px = 64 GB per token
+  // Per token: experts found in VRAM (hits) and, every third token, one fetched from NVMe (a miss).
+  tokens: (() => {
+    const rnd = mulberry32(4040);
+    return Array.from({ length: 12 }, () =>
+      ({ hits: pickDistinct(rnd, 48, 7), miss: Math.floor(rnd() * 16), land: Math.floor(rnd() * 48) }));
+  })(),
+};
+const gbx = gb => BUD.x + BUD.len * gb / BUD.gbMax;
+
+function boxIcon(x, y, lit, a) {
+  fillRR(x, y, 180, 116, 14, C.panel, a);
+  strokeRR(x, y, 180, 116, 14, C.line, 3, a);
+  for (let j = 0; j < 4; j++) fillRR(x + 22 + j * 36, y + 18, 26, 80, 5, mix(C.dim, C.accent, clamp01(lit * 2 - j * 0.3)), a);
+}
+// A dashed marker with a dark halo so it reads on the accent bar and on the track.
+function marker(x, y0, y1) {
+  seg(x, y0, x, y1, C.bg, 9, 1);
+  seg(x, y0, x, y1, C.text, 3, 1, [9, 7]);
+}
+
+function sBudget(t) {
+  kicker('The red kimi budget', t);
+  const pa = P(t, 0.4, 0.6);
+  boxIcon(120, 222, P(t, 1.0, 1.0), pa);
+  text('tiny corp · red kimi', 334, 276, { size: 52, weight: 800, align: 'left', maxW: 620, a: pa });
+  text('built to run Kimi K3', 334, 328, { size: 38, weight: 500, color: C.muted, align: 'left', maxW: 620, a: P(t, 1.2, 0.5) });
+
+  // Target, and one token's time slot out of 40.
+  const ta = P(t, 5.8, 0.5), tb = P(t, 7.2, 0.5);
+  rich([
+    { s: 'Target: ', color: C.muted, a: ta },
+    { s: '40 tok/s', a: ta },
+    { s: ' = ', color: C.muted, a: tb },
+    { s: '25 ms', color: C.accent, weight: 800, a: tb },
+    { s: ' per token', a: tb },
+  ], 540, 442, { size: 58, weight: 700, maxW: 920 });
+  const sl = P(t, 6.3, 1.0, E.lin);
+  for (let j = 0; j < 40; j++) {
+    fillRR(140 + j * 20.075, 476, 17, 30, 3, mix(C.tile, C.accent, j === 0 ? tb : 0), clamp01(sl * 2.2 - j * 0.03));
+  }
+  // "...in that window": the 25 ms slot pulses with the bar it feeds.
+  const winV = pulse(t, 18.4, 19.8, 0.35), winN = pulse(t, 27.2, 28.6, 0.35);
+  if (winV + winN > 0) {
+    ctx.shadowColor = C.accent; ctx.shadowBlur = 22 * (winV + winN);
+    fillRR(140, 476, 17, 30, 3, C.accent, 1);
+    ctx.shadowBlur = 0;
+  }
+
+  // VRAM.
+  const v1 = P(t, 12.2, 0.5), v2 = P(t, 13.4, 0.5), v3 = P(t, 15.0, 0.5), v4 = P(t, 16.4, 0.5);
+  rich([
+    { s: 'VRAM: ', weight: 800, a: v1 },
+    { s: '4 × 640 GB/s', a: v1 },
+    { s: ' = ', color: C.muted, a: v2 },
+    { s: '2,560 GB/s', a: v2 },
+  ], 140, 616, { size: 50, weight: 600, align: 'left', maxW: 800 });
+  rich([
+    { s: '→ ', color: C.muted, a: v3 },
+    { s: '2,560 / 40', a: v3 },
+    { s: ' = ', color: C.muted, a: v4 },
+    { s: '64 GB per token', color: C.accent, weight: 800, a: v4 },
+  ], 140, 680, { size: 50, weight: 600, align: 'left', maxW: 800 });
+  fillRR(BUD.x, 706, BUD.len, 62, 12, C.tile, v1 * 0.8);
+  fillRR(BUD.x, 706, BUD.len * P(t, 15.2, 1.4, E.inOut), 62, 12, C.accent, 1);
+  text('64 GB', BUD.x + 22, 750, { size: 38, weight: 800, color: C.bg, align: 'left', a: v4 });
+
+  // NVMe.
+  const n1 = P(t, 22.2, 0.5), n2 = P(t, 23.8, 0.5), n3 = P(t, 25.0, 0.5);
+  rich([
+    { s: 'NVMe RAID: ', weight: 800, a: n1 },
+    { s: '225 GB/s measured', a: n1 },
+  ], 140, 876, { size: 50, weight: 600, align: 'left', maxW: 800 });
+  rich([
+    { s: '→ ', color: C.muted, a: n2 },
+    { s: '225 / 40', a: n2 },
+    { s: ' = ', color: C.muted, a: n3 },
+    { s: '5.6 GB per token', weight: 800, a: n3 },
+  ], 140, 940, { size: 50, weight: 600, align: 'left', maxW: 800 });
+  fillRR(BUD.x, 966, BUD.len, 62, 12, C.tile, n1 * 0.8);
+  fillRR(BUD.x, 966, (gbx(5.6) - BUD.x) * P(t, 24.0, 0.9, E.inOut), 62, 10, C.text, 1);
+  text('5.6 GB', gbx(5.6) + 18, 1010, { size: 38, weight: 800, align: 'left', a: n3 });
+
+  // What a token needs (scene 1b): about 52 GB.
+  const m = P(t, 30.2, 0.7, E.inOut);
+  if (m > 0) {
+    const mx = gbx(52);
+    marker(mx, 698, lerp(698, 776, m));
+    marker(mx, 958, lerp(958, 1036, m));
+  }
+  text('≈ 52 GB read per token', 940, 1088, { size: 38, weight: 700, align: 'right', a: P(t, 30.7, 0.5) });
+  // Re-reads: VRAM covers it, the drives cannot.
+  strokeRR(BUD.x - 7, 699, BUD.len + 14, 76, 17, C.accent, 3, Math.max(winV, pulse(t, 37.4, 41.0, 0.5)));
+  strokeRR(BUD.x - 7, 959, gbx(5.6) - BUD.x + 14, 76, 15, C.text, 3, Math.max(winN, P(t, 41.0, 0.5)));
+
+  // Experts mostly sit in VRAM; the drives only serve the misses.
+  const cd = P(t, 31.4, 0.6);
+  fillRR(140, 1140, 460, 262, 20, C.panel, cd);
+  strokeRR(140, 1140, 460, 262, 20, C.line, 2, cd);
+  text('VRAM · expert cache', 164, 1190, { size: 34, weight: 700, align: 'left', maxW: 420, a: cd });
+  fillRR(730, 1140, 210, 262, 20, C.panel, cd);
+  strokeRR(730, 1140, 210, 262, 20, C.line, 2, cd);
+  text('NVMe', 754, 1190, { size: 34, weight: 700, align: 'left', a: cd });
+  const ar = P(t, 33.0, 0.5);
+  if (ar > 0) {
+    const xh = lerp(722, 612, ar);
+    seg(722, 1290, xh, 1290, C.muted, 3, ar);
+    alpha(ar); ctx.fillStyle = C.muted;
+    ctx.beginPath(); ctx.moveTo(xh - 8, 1290); ctx.lineTo(xh + 8, 1281); ctx.lineTo(xh + 8, 1299); ctx.closePath(); ctx.fill();
+    text('misses', 667, 1268, { size: 32, weight: 600, color: C.muted, a: ar });
+  }
+  const tk = t >= 32 ? Math.floor((t - 32) / 1.3) : -1, ph = t >= 32 ? frac((t - 32) / 1.3) : 0;
+  const cur = tk >= 0 ? BUD.tokens[tk % BUD.tokens.length] : null, missing = cur && tk % 3 === 2;
+  const tileXY = i => [168 + (i % 12) * 34, 1212 + ((i / 12) | 0) * 34];
+  const nvXY = i => [771 + (i % 4) * 34, 1212 + ((i / 4) | 0) * 34];
+  for (let i = 0; i < 48; i++) {
+    let on = cur && cur.hits.has(i) ? Math.max(0, 1 - ph * 1.15) : 0;
+    if (missing && i === cur.land) on = Math.max(on, P(ph, 0.72, 0.08) * (1 - P(ph, 0.9, 0.1)));
+    const [x, y] = tileXY(i);
+    fillRR(x, y, 26, 26, 4, mix('#3a4456', C.accent, on), cd);
+  }
+  for (let i = 0; i < 16; i++) {
+    const on = missing && i === cur.miss ? pulse(ph, 0.0, 0.3, 0.08) : 0;
+    const [x, y] = nvXY(i);
+    fillRR(x, y, 26, 26, 4, mix(C.tile, C.text, on), cd);
+  }
+  if (missing && ph > 0.2 && ph < 0.74) {
+    const q = E.inOut((ph - 0.2) / 0.54), [x0, y0] = nvXY(cur.miss), [x1, y1] = tileXY(cur.land);
+    fillRR(lerp(x0, x1, q), lerp(y0, y1, q), 26, 26, 4, mix(C.text, C.accent, q), cd);
+  }
+}
+
+// =====================================================================================
+// Scene 5 - Why 16 drives in 4 groups (125-162 s)
+// =====================================================================================
+const TOPO = { cx: [180, 420, 660, 900], drives: [-69, -23, 23, 69], ports: [-54, -18, 18, 54] };
+
+function lanes(x0, y0, x1, y1, n, pitch, color, a) {
+  for (let k = 0; k < n; k++) {
+    const o = (k - (n - 1) / 2) * pitch;
+    seg(x0 + o, y0, x1 + o, y1, color, 2, a);
+  }
+}
+function tag(s, cx, cy, a) {
+  setFont(30, 700);
+  const w = ctx.measureText(s).width + 24;
+  fillRR(cx - w / 2, cy - 20, w, 40, 11, C.bg, a);
+  strokeRR(cx - w / 2, cy - 20, w, 40, 11, C.dim, 2, a);
+  text(s, cx, cy + 11, { size: 30, weight: 700, a });
+}
+
+function sPCIe(t) {
+  kicker('Why 16 drives in 4 groups', t);
+  // One line at a time; earlier lines step back but stay. 89% stays bright.
+  const l1 = 1 - 0.45 * P(t, 8.0, 0.6), l2 = 1 - 0.45 * P(t, 17.0, 0.6);
+  text('PCIe 5.0 x4:', 540, 270, { size: 46, weight: 700, color: C.muted, a: P(t, 0.6, 0.5) * l1 });
+  rich([
+    { s: '32 GT/s', a: P(t, 1.2, 0.45) * l1 },
+    { s: ' × 4 lanes', a: P(t, 1.8, 0.45) * l1 },
+    { s: ' × 128/130', a: P(t, 2.4, 0.45) * l1 },
+    { s: ' ÷ 8', a: P(t, 3.0, 0.45) * l1 },
+  ], 540, 350, { size: 58, weight: 600, maxW: 920 });
+  rich([
+    { s: '≈ ', color: C.muted, a: P(t, 4.4, 0.5) * l1 },
+    { s: '15.75 GB/s', color: C.accent, weight: 800, a: P(t, 4.4, 0.5) * l1 },
+    { s: ' per drive', a: P(t, 4.6, 0.5) * l1 },
+  ], 540, 434, { size: 64, weight: 700, maxW: 920 });
+
+  rich([
+    { s: '× 16 drives', a: P(t, 8.0, 0.5) * l2 },
+    { s: ' ≈ 252 GB/s peak', a: P(t, 9.0, 0.5) * l2 },
+  ], 540, 550, { size: 58, weight: 600, maxW: 920 });
+  const e89 = P(t, 12.4, 0.4);
+  rich([
+    { s: '→ 225 GB/s measured', a: P(t, 10.8, 0.5) * l2 },
+    { s: ' = ', color: C.muted, a: e89 * l2 },
+    { s: '89%', color: C.accent, weight: 800, pill: P(t, 12.8, 0.4), a: e89 },
+  ], 540, 634, { size: 58, weight: 600, maxW: 920 });
+
+  const focus1 = pulse(t, 28.0, 32.0, 0.5);    // one group = one x16 link
+  rich([
+    { s: '4 drives ≈ 63 GB/s', a: P(t, 17.0, 0.5) },
+    { s: ' ≈ one x16 link', color: mix(C.text, C.accent, focus1), a: P(t, 18.0, 0.5) },
+  ], 540, 742, { size: 58, weight: 600, maxW: 920 });
+
+  // Topology: 4 columns, each 1 GPU on x16 + 4 NVMe on x4, one per IO hub.
+  for (let c = 0; c < 4; c++) {
+    const cx = TOPO.cx[c];
+    const dimmed = c === 0 ? 0 : focus1;
+    const fade = 1 - 0.72 * dimmed;
+    const hub = P(t, 19.8 + c * 0.08, 0.5) * fade;
+    const gpu = P(t, 20.6 + c * 0.08, 0.5) * fade;
+    const nv = P(t, 21.4 + c * 0.08, 0.5) * fade;
+    const gp = P(t, 22.4, 0.6) * fade;
+    const hl = c === 0 ? P(t, 28.0, 0.5) : P(t, 32.0, 0.5);
+    fillRR(cx - 112, 800, 224, 600, 24, C.panel, gp * 0.8);
+    strokeRR(cx - 112, 800, 224, 600, 24, mix(C.line, C.accent, hl), 2 + hl, gp);
+    // links first, boxes and tags on top
+    lanes(cx, 926, cx, 1032, 16, 4, mix(C.dim, C.accent, 0.35 + 0.65 * hl), gpu);
+    for (let j = 0; j < 4; j++) lanes(cx + TOPO.ports[j], 1114, cx + TOPO.drives[j], 1206, 4, 4, mix(C.dim, C.accent, 0.35 + 0.65 * hl), nv);
+    const fl = P(t, 23.6, 0.6) * fade;
+    if (fl > 0) {
+      for (let j = 0; j < 4; j++) seg(cx + TOPO.drives[j], 1204, cx + TOPO.ports[j], 1116, C.accent, 5, fl, [8, 14], -t * 60);
+      seg(cx, 1030, cx, 928, C.accent, 10, fl, [10, 16], -t * 60);
+    }
+    fillRR(cx - 88, 820, 176, 106, 14, C.panel2, gpu);
+    strokeRR(cx - 88, 820, 176, 106, 14, mix(C.dim, C.accent, hl), 3, gpu);
+    text('GPU', cx, 888, { size: 42, weight: 800, a: gpu });
+    fillRR(cx - 88, 1032, 176, 82, 14, C.panel2, hub);
+    strokeRR(cx - 88, 1032, 176, 82, 14, mix(C.dim, C.accent, hl), 3, hub);
+    text('IO hub', cx, 1085, { size: 36, weight: 700, a: hub });
+    for (let j = 0; j < 4; j++) {
+      const dx = cx + TOPO.drives[j];
+      fillRR(dx - 17, 1206, 34, 134, 6, C.panel2, nv);
+      strokeRR(dx - 17, 1206, 34, 134, 6, mix(C.dim, C.accent, hl), 2, nv);
+      for (let k = 0; k < 3; k++) fillRR(dx - 10, 1222 + k * 36, 20, 26, 3, C.dim, nv);
+    }
+    text('NVMe', cx, 1382, { size: 32, weight: 600, color: C.muted, a: nv });
+    tag('x16', cx, 979, gpu);
+    tag('x4', cx, 1160, nv);
+  }
+  text('1 GPU on x16 + 4 NVMe on x4, one per IO hub', 540, 1468, { size: 40, weight: 600, maxW: 920, a: P(t, 22.4, 0.5) });
+}
+
+// =====================================================================================
+// Scene 5b - Recall question (162-165 s): on screen only the question
+// =====================================================================================
+function sRecall(t) {
+  const a = P(t, 0.12, 0.45), b = P(t, 0.6, 0.45);
+  text('Bandwidth doubles.', 540, 770 + (1 - a) * 20, { size: 92, weight: 800, maxW: 920, a });
+  text('Max tok/s?', 540, 924 + (1 - b) * 20, { size: 130, weight: 800, color: C.accent, maxW: 920, a: b });
+}
+
+// =====================================================================================
+// Scene 6 - Takeaway (165-175 s), sources card in the last 2 s
+// =====================================================================================
+const SOURCES = [
+  'Kimi K3 model card (2.8T total, 104B active, 16 of 896 experts + 2 shared)',
+  'tiny corp posts, 29 Oct 2026 (red kimi specs, 225 GB/s measured)',
+  'PCIe 5.0 spec (32 GT/s, 128b/130b)',
+];
+
+function sTakeaway(t, d) {
+  const out = 1 - P(t, d - 2.25, 0.25);
+  const a1 = P(t, 0.15, 0.5), a2 = P(t, 0.45, 0.5);
+  text('Decode =', 540, 650 + (1 - a1) * 20, { size: 124, weight: 800, maxW: 920, a: a1 * out });
+  const w = text('a memory problem.', 540, 790 + (1 - a2) * 20, { size: 104, weight: 800, color: C.accent, maxW: 940, a: a2 * out });
+  const u = P(t, 5.4, 0.8, E.inOut);
+  if (u > 0) fillRR(540 - w / 2, 822, w * u, 6, 3, C.accent, out);
+  text('Next:', 540, 1012, { size: 40, weight: 700, color: C.muted, ls: 3, a: P(t, 2.6, 0.5) * out });
+  text('Prefill: bound by compute.', 540, 1094, { size: 66, weight: 700, maxW: 920, a: P(t, 2.8, 0.5) * out });
+  text('Why?', 540, 1176, { size: 66, weight: 700, maxW: 920, a: P(t, 3.3, 0.5) * out });
+
+  const sc = P(t, d - 2, 0.25);
+  if (sc <= 0) return;
+  const blocks = SOURCES.map(s => wrap(s, 40, 600, 740));
+  const lh = 54, gap = 30;
+  const bodyH = blocks.reduce((h, b) => h + b.length * lh, 0) + gap * (blocks.length - 1);
+  const cardH = 120 + bodyH + 50, y0 = (SAFE_BOTTOM - cardH) / 2;
+  fillRR(90, y0, 900, cardH, 28, C.panel, sc);
+  strokeRR(90, y0, 900, cardH, 28, C.line, 2, sc);
+  text('Sources', 140, y0 + 88, { size: 48, weight: 800, color: C.accent, align: 'left', a: sc });
+  let y = y0 + 170;
+  blocks.forEach(lines => {
+    fillRR(140, y - 24, 12, 12, 3, C.accent, sc);
+    lines.forEach(ln => { text(ln, 176, y, { size: 40, weight: 600, align: 'left', a: sc }); y += lh; });
+    y += gap;
+  });
 }
 
 // =====================================================================================
@@ -655,10 +919,10 @@ const SCENES = [
   { id: '1b', title: 'Mixture of experts', start: 8, end: 20, draw: sMoE },
   { id: '2', title: 'The path of a weight', start: 20, end: 40, draw: sPath },
   { id: '3', title: 'The mechanism', start: 40, end: 80, draw: sMech },
-  { id: '4', title: 'The red kimi budget', start: 80, end: 125, draw: placeholder('The red kimi budget') },
-  { id: '5', title: 'Why 16 drives in 4 groups', start: 125, end: 162, draw: placeholder('Why 16 drives in 4 groups') },
-  { id: '5b', title: 'Recall question', start: 162, end: 165, draw: placeholder('Recall question') },
-  { id: '6', title: 'Takeaway', start: 165, end: 175, draw: placeholder('Takeaway') },
+  { id: '4', title: 'The red kimi budget', start: 80, end: 125, draw: sBudget },
+  { id: '5', title: 'Why 16 drives in 4 groups', start: 125, end: 162, draw: sPCIe },
+  { id: '5b', title: 'Recall question', start: 162, end: 165, draw: sRecall },
+  { id: '6', title: 'Takeaway', start: 165, end: 175, draw: sTakeaway },
 ];
 
 let current = 0;
