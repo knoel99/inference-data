@@ -24,7 +24,7 @@ erDiagram
 | `data/models.csv` | A checkpoint: total and active parameters, architecture, license |
 | `data/measurements.csv` | One result: device count, quant, engine, token lengths, concurrency, prefill and decode tok/s, TTFT, power, task time, cache state, evidence |
 
-`datapackage.json` is a [Frictionless Data Package](https://specs.frictionlessdata.io/data-package/) with types, units, and foreign keys. `data/json/` is the same tables as JSON. `data/agentic/` holds two raw agentic benchmark tables (self-timed cloud agents, Claude Code on a box) that feed the site's Agentic tab; they are in the package but are not sourced measurements. Column units are in the name (`decode_tok_s`, `ttft_ms`, `bandwidth_gb_s`) and in the package field descriptions.
+`datapackage.json` is a [Frictionless Data Package](https://specs.frictionlessdata.io/data-package/) with types, units, and foreign keys. `data/json/` is the same tables as JSON. `data/agentic/` holds five raw agentic benchmark tables (self-timed cloud agents, Claude Code on a box, the Sonnet 5.5 concurrency sweep per call and per tier, InferenceX reference points) that feed the site's Agentic tab; they are in the package but are not sourced measurements. Column units are in the name (`decode_tok_s`, `ttft_ms`, `bandwidth_gb_s`) and in the package field descriptions.
 
 `source_type` is `benchmark`, `vendor`, `video`, or `post`.
 
