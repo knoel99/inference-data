@@ -145,7 +145,7 @@ def main():
     if jobs == 1:
         bad = render_range((0, frames, args.fps, args.out, args.chromium, 'frames'))
     else:
-        with tempfile.TemporaryDirectory(dir=HERE) as tmp:
+        with tempfile.TemporaryDirectory() as tmp:
             bounds = [frames * k // jobs for k in range(jobs + 1)]
             parts = [Path(tmp) / f'part{k:02d}.mp4' for k in range(jobs)]
             work = [(bounds[k], bounds[k + 1], args.fps, parts[k], args.chromium, f'part {k + 1}/{jobs}')

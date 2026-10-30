@@ -617,11 +617,11 @@ function sMech(t) {
   strokeRR(104, 1270, 872, 170, 24, C.accent, 3, lowA);
   fillRR(132, 1250, 96, 42, 12, C.accent, lowA);
   text('low', 180, 1281, { size: 30, weight: 800, color: C.bg, a: lowA });
-  text('arithmetic intensity', 540, 1340, { size: 48, weight: 700, a: P(t, 11.0, 0.5) * lower });
+  text('arithmetic intensity', 540, 1340, { size: 48, weight: 700, maxW: 820, a: P(t, 11.0, 0.5) * lower });
   rich([
     { s: '≈ 1 multiply-add', color: C.accent, weight: 800, a: P(t, 11.4, 0.5) * lower },
     { s: ' per weight read', a: P(t, 11.7, 0.5) * lower },
-  ], 540, 1410, { size: 54, weight: 600, maxW: 900 });
+  ], 540, 1410, { size: 54, weight: 600, maxW: 820 });
 
   // The ceiling.
   const f1 = P(t, 27.2, 0.5), f2 = P(t, 27.8, 0.4), f3 = P(t, 28.4, 0.5), f4 = P(t, 29.0, 0.6, E.inOut), f5 = P(t, 29.5, 0.5);
@@ -750,15 +750,15 @@ function sBudget(t) {
   const ar = P(t, 33.0, 0.5);
   if (ar > 0) {
     const xh = lerp(722, 612, ar);
-    seg(722, 1290, xh, 1290, C.muted, 3, ar);
+    seg(722, 1298, xh, 1298, C.muted, 3, ar);
     alpha(ar); ctx.fillStyle = C.muted;
-    ctx.beginPath(); ctx.moveTo(xh - 8, 1290); ctx.lineTo(xh + 8, 1281); ctx.lineTo(xh + 8, 1299); ctx.closePath(); ctx.fill();
-    text('misses', 667, 1268, { size: 32, weight: 600, color: C.muted, a: ar });
+    ctx.beginPath(); ctx.moveTo(xh - 8, 1298); ctx.lineTo(xh + 8, 1289); ctx.lineTo(xh + 8, 1307); ctx.closePath(); ctx.fill();
+    text('misses', 667, 1276, { size: 32, weight: 600, color: C.muted, maxW: 116, a: ar });
   }
   const tk = t >= 32 ? Math.floor((t - 32) / 1.3) : -1, ph = t >= 32 ? frac((t - 32) / 1.3) : 0;
   const cur = tk >= 0 ? BUD.tokens[tk % BUD.tokens.length] : null, missing = cur && cur.land >= 0;
-  const tileXY = i => [168 + (i % 12) * 34, 1212 + ((i / 12) | 0) * 34];
-  const nvXY = i => [771 + (i % 4) * 34, 1212 + ((i / 4) | 0) * 34];
+  const tileXY = i => [168 + (i % 12) * 34, 1234 + ((i / 12) | 0) * 34];
+  const nvXY = i => [771 + (i % 4) * 34, 1234 + ((i / 4) | 0) * 34];
   for (let i = 0; i < 48; i++) {
     let on = cur && cur.hits.has(i) ? Math.max(0, 1 - ph * 1.15) : 0;
     if (missing && i === cur.land) on = Math.max(on, P(ph, 0.72, 0.08) * (1 - P(ph, 0.9, 0.1)));
