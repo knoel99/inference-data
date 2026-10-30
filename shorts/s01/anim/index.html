@@ -642,11 +642,14 @@ function sMech(t) {
 // =====================================================================================
 const BUD = {
   x: 140, len: 800, gbMax: 64,                  // bar scale: 800 px = 64 GB per token
-  // Per token: experts found in VRAM (hits) and, every third token, one fetched from NVMe (a miss).
+  // Per token, the 16 routed experts it needs (as in scene 1b). They are found in VRAM, except that
+  // every third token one of them is a miss and comes from NVMe.
   tokens: (() => {
     const rnd = mulberry32(4040);
-    return Array.from({ length: 12 }, () =>
-      ({ hits: pickDistinct(rnd, 48, 7), miss: Math.floor(rnd() * 16), land: Math.floor(rnd() * 48) }));
+    return Array.from({ length: 12 }, (_, n) => {
+      const lit = [...pickDistinct(rnd, 48, 16)], miss = n % 3 === 2;
+      return { hits: new Set(miss ? lit.slice(1) : lit), land: miss ? lit[0] : -1, from: Math.floor(rnd() * 16) };
+    });
   })(),
 };
 const gbx = gb => BUD.x + BUD.len * gb / BUD.gbMax;
@@ -683,7 +686,7 @@ function sBudget(t) {
     fillRR(140 + j * 20.075, 476, 17, 30, 3, mix(C.tile, C.accent, j === 0 ? tb : 0), clamp01(sl * 2.2 - j * 0.03));
   }
   // "...in that window": the 25 ms slot pulses with the bar it feeds.
-  const winV = pulse(t, 18.4, 19.8, 0.35), winN = pulse(t, 27.2, 28.6, 0.35);
+  const winV = pulse(t, 17.8, 19.2, 0.35), winN = pulse(t, 27.2, 28.6, 0.35);
   if (winV + winN > 0) {
     ctx.shadowColor = C.accent; ctx.shadowBlur = 22 * (winV + winN);
     fillRR(140, 476, 17, 30, 3, C.accent, 1);
@@ -753,7 +756,7 @@ function sBudget(t) {
     text('misses', 667, 1268, { size: 32, weight: 600, color: C.muted, a: ar });
   }
   const tk = t >= 32 ? Math.floor((t - 32) / 1.3) : -1, ph = t >= 32 ? frac((t - 32) / 1.3) : 0;
-  const cur = tk >= 0 ? BUD.tokens[tk % BUD.tokens.length] : null, missing = cur && tk % 3 === 2;
+  const cur = tk >= 0 ? BUD.tokens[tk % BUD.tokens.length] : null, missing = cur && cur.land >= 0;
   const tileXY = i => [168 + (i % 12) * 34, 1212 + ((i / 12) | 0) * 34];
   const nvXY = i => [771 + (i % 4) * 34, 1212 + ((i / 4) | 0) * 34];
   for (let i = 0; i < 48; i++) {
@@ -763,12 +766,12 @@ function sBudget(t) {
     fillRR(x, y, 26, 26, 4, mix('#3a4456', C.accent, on), cd);
   }
   for (let i = 0; i < 16; i++) {
-    const on = missing && i === cur.miss ? pulse(ph, 0.0, 0.3, 0.08) : 0;
+    const on = missing && i === cur.from ? pulse(ph, 0.0, 0.3, 0.08) : 0;
     const [x, y] = nvXY(i);
     fillRR(x, y, 26, 26, 4, mix(C.tile, C.text, on), cd);
   }
   if (missing && ph > 0.2 && ph < 0.74) {
-    const q = E.inOut((ph - 0.2) / 0.54), [x0, y0] = nvXY(cur.miss), [x1, y1] = tileXY(cur.land);
+    const q = E.inOut((ph - 0.2) / 0.54), [x0, y0] = nvXY(cur.from), [x1, y1] = tileXY(cur.land);
     fillRR(lerp(x0, x1, q), lerp(y0, y1, q), 26, 26, 4, mix(C.text, C.accent, q), cd);
   }
 }
@@ -925,6 +928,35 @@ const SCENES = [
   { id: '6', title: 'Takeaway', start: 165, end: 175, draw: sTakeaway },
 ];
 
+// Where each voice-over sentence of script.en.md is meant to start (s). The visual beats are timed to
+// these; they are exported to vo_cues.json for the editor.
+const CUES = [
+  ['1', 0.3, 'Four GPUs.'],
+  ['1', 1.3, '2.5 terabytes a second.'],
+  ['1', 3.2, 'Why only forty tokens per second?'],
+  ['1b', 8.3, '2.8 trillion weights, but each token wakes only 104 billion.'],
+  ['1b', 13.5, "At four bits, that's 52 gigabytes per token, minimum."],
+  ['2', 20.3, 'A weight starts on an NVMe drive.'],
+  ['2', 22.6, "It's read into host RAM, copied across the PCIe bus, and lands in GPU memory."],
+  ['2', 28.3, 'The cores only ever compute on bytes that are already in VRAM.'],
+  ['2', 32.8, 'Every hop has its own speed, and the slowest hop sets the pace for everything else.'],
+  ['3', 40.4, 'When you decode one request at a time, every new token forces the GPU to read every active weight once.'],
+  ['3', 50.0, 'For each weight it reads, it does roughly one multiply-add.'],
+  ['3', 56.5, "That's almost no math per byte — low arithmetic intensity — so the cores spend their time waiting on memory."],
+  ['3', 66.7, 'The ceiling is simple: bandwidth divided by the bytes you read per token.'],
+  ['4', 80.4, "Take tiny corp's red kimi box, built to run Kimi K3."],
+  ['4', 85.8, 'Forty tokens per second means twenty-five milliseconds per token.'],
+  ['4', 92.0, 'From VRAM — four GPUs at 640 gigabytes per second each — you can read 64 gigabytes in that window.'],
+  ['4', 102.0, 'From the NVMe array, at 225 gigabytes per second measured, only 5.6.'],
+  ['4', 109.5, 'So the experts a token needs have to sit mostly in VRAM, and the drives only serve the misses.'],
+  ['5', 125.4, 'Each drive sits on four PCIe 5 lanes: about 15.75 gigabytes per second.'],
+  ['5', 132.8, 'Sixteen of them give about 252 peak, and tiny corp measured 225, eighty-nine percent.'],
+  ['5', 141.8, "Four drives roughly fill one sixteen-lane link, which is why they're split into four groups, one per IO hub, each next to its GPU."],
+  ['5b', 162.1, 'Quick check: bandwidth doubles. What happens?'],
+  ['6', 165.2, 'Decode is a memory problem.'],
+  ['6', 167.6, 'Tomorrow: why prefill, on the same hardware, is bound by compute instead.'],
+].map(([scene, t, vo]) => ({ scene, t, vo }));
+
 let current = 0;
 function renderAt(t) {
   t = Math.min(DURATION, Math.max(0, Number(t) || 0));
@@ -950,6 +982,7 @@ window.__duration = DURATION;
 window.DURATION = DURATION;
 window.__fps = FPS;
 window.__scenes = SCENES.map(({ id, title, start, end }) => ({ id, title, start, end }));
+window.__cues = CUES;
 window.__seek = renderAt;
 window.renderAt = renderAt;
 
