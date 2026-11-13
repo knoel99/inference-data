@@ -388,5 +388,25 @@
     "license": null,
     "source_id": "x-0xsero-20260606",
     "notes": "The post says Nemotron NVFP4 and does not name the size. Not the same row as Nemotron3-Super."
+  },
+  {
+    "model_id": "nemotron-3.5-bolt-e4b",
+    "name": "Nemotron 3.5 Bolt E4B",
+    "params_total_b": null,
+    "params_active_b": null,
+    "architecture": null,
+    "license": null,
+    "source_id": "x-kireistudios-20261111",
+    "notes": "Named in the X post. Parameter count, architecture, and license were not stated."
+  },
+  {
+    "model_id": "minimax-m3.1-flash",
+    "name": "MiniMax M3.1 Flash",
+    "params_total_b": null,
+    "params_active_b": null,
+    "architecture": null,
+    "license": null,
+    "source_id": "omlx-0.8.0rc1",
+    "notes": "Named in the oMLX 0.8.0rc1 prefill table. Parameter count, architecture, and license were not stated. Not the same row as MiniMax-M3."
   }
 ]

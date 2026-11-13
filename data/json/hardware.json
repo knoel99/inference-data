@@ -373,5 +373,20 @@
     "market_price_date": null,
     "source_id": "x-sympathylabs-20261023",
     "notes": "A Mac running Claude Code. The post does not say MacBook, Studio, or which chip. Memory, bandwidth, compute, power, and price were not stated."
+  },
+  {
+    "hardware_id": "nvidia-rtx-3060-12gb",
+    "name": "NVIDIA GeForce RTX 3060 12 GB",
+    "vendor": "NVIDIA",
+    "memory_gb": 12,
+    "bandwidth_gb_s": null,
+    "dense_bf16_fp16_tflops": null,
+    "fp4_tflops": null,
+    "tdp_w": null,
+    "launch_price_usd": null,
+    "market_price_usd": null,
+    "market_price_date": null,
+    "source_id": "reddit-serious-scarcity-rtx-3060",
+    "notes": "Named as RTX 3060 12 GB in the post, with Ryzen 5 7600X and 32 GB RAM. memory_gb 12 is that stated capacity. Bandwidth, TFLOPS, TDP, and price were not stated."
   }
 ]

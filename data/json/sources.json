@@ -1175,5 +1175,137 @@
     "date_accessed": "2026-10-29",
     "source_type": "post",
     "notes": "Europe/Paris date. Hermes. This is not the 1 June post."
+  },
+  {
+    "source_id": "omlx-0.8.0rc1",
+    "title": "oMLX 0.8.0rc1 Prefill Accelerator",
+    "url": "https://github.com/jundot/omlx/releases/tag/v0.8.0rc1",
+    "author": "jundot",
+    "publisher": "GitHub",
+    "date_published": "2026-11-12",
+    "date_accessed": "2026-11-13",
+    "source_type": "benchmark",
+    "notes": "GitHub release published 2026-11-12T16:06:56Z (Europe/Paris 2026-11-12). Prefill table is oQ4e models, 64K prompt, M3 Ultra 512GB with a CUDA helper over 2.5 GbE. Decode is described only as staying about the same and is not stored. Tensor-parallel cluster figures marked estimated are not stored."
+  },
+  {
+    "source_id": "capyctl-qwen3.8-27b-fanout-vllm-rtx-pro-6000",
+    "title": "Qwen3.8-27B NVFP4 fan-out on vLLM 0.32.0, one RTX PRO 6000",
+    "url": "https://github.com/edurdias/capyctl-recipes/tree/main/comparisons/qwen3.8-27b-fanout-vllm-rtx-pro-6000",
+    "author": "edurdias",
+    "publisher": "GitHub",
+    "date_published": "2026-11-11",
+    "date_accessed": "2026-11-13",
+    "source_type": "benchmark",
+    "notes": "Measured 2026-11-11 on a rented RTX PRO 6000 Blackwell Server Edition, vLLM 0.32.0, DFlash2, CapyCTL. The README summary table is combined end-to-end tok/s (e2e_tok_s, median of 3 rounds), not decode_tok_s, so those rates are not stored as measurements. Published medians, for the record and not copied into decode_tok_s: 8-lane fan-out capped at 2048 tokens, 849 (5 GiB KV, range 841 to 860) and 1566 (16 GiB KV, range 1472 to 1581); 8-lane uncapped 712 (670 to 767) and 1102 (1101 to 1272); same task as one stream, run 2, 311 and 309; 8 unrelated coding prompts of 1024 tokens 1020 (978 to 1073) and 1424 (1402 to 1426); 1 coding prompt of 1024 tokens 323 and 327. Per-lane decode of about 230 to 240 tok/s is a range and is not stored."
+  },
+  {
+    "source_id": "toms-m5-ultra-vs-gb10-20261110",
+    "title": "Going deep on local AI performance with Apple's Mac Studio with M5 Ultra versus NVIDIA DGX Spark",
+    "url": "https://www.tomshardware.com/tech-industry/artificial-intelligence/going-deep-on-local-ai-performance-with-apples-mac-studio-with-m5-ultra-inference-engine-recipes-mandatory-for-bigger-models-as-mlx-stack-matures",
+    "author": "Jeffrey Kampman",
+    "publisher": "Tom's Hardware",
+    "date_published": "2026-11-10",
+    "date_accessed": "2026-11-13",
+    "source_type": "post",
+    "notes": "Member-exclusive article. The fetched text states relative results (Mac finishes the agentic test in just under half the time of one GB10; energy is compared in charts) and prices of about $12300 for the tested Mac Studio and $10K for a 4TB Dell Pro Precision GB10. No absolute tok/s, task_time_s, or joule figures were readable in the fetched text, so no measurements are stored from this page."
+  },
+  {
+    "source_id": "x-cerebralcoding-20261111",
+    "title": "Tom's Hardware GLM 5.3 Flash figures on a 256GB M5 Ultra, summarized on X",
+    "url": "https://x.com/CerebralCoding_/status/2120440960987361511",
+    "author": "CerebralCoding_",
+    "publisher": "X",
+    "date_published": "2026-11-11",
+    "date_accessed": "2026-11-13",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-11T08:58:15Z. The post attributes decode figures for GLM 5.3 Flash on a 256GB M5 Ultra Mac Studio to the Tom's Hardware article. That article was only partly readable here and did not show those absolute tok/s values in the fetched text, so the measurements cite this post as unverified_claim."
+  },
+  {
+    "source_id": "reddit-anarchaotic-4x-r9700",
+    "title": "Joined the 4x R9700 Club | Initial Benchmarks for QFN 3.8 Below",
+    "url": "https://www.reddit.com/r/LocalLLaMA/comments/1xrcia4/joined_the_4x_r9700_club_initial_benchmarks_for/",
+    "author": "Anarchaotic",
+    "publisher": "Reddit r/LocalLLaMA",
+    "date_published": null,
+    "date_accessed": "2026-11-13",
+    "source_type": "post",
+    "notes": "Original r/LocalLLaMA thread, confirmed from the page. The exact publication clock time was not read from Reddit, so date_published is empty. A dated copy on 2026-11-08 was not used as the source URL."
+  },
+  {
+    "source_id": "reddit-serious-scarcity-rtx-3060",
+    "title": "RustingStrata vs PolyStrata vs llama.cpp on one RTX 3060 12 GB: Qwen3.6-35B-A3B",
+    "url": "https://www.reddit.com/r/LocalLLaMA/comments/1xsipew/rustingstrata_vs_polystrata_vs_llamacpp_on_one/",
+    "author": "Serious_Scarcity7818",
+    "publisher": "Reddit r/LocalLLaMA",
+    "date_published": null,
+    "date_accessed": "2026-11-13",
+    "source_type": "post",
+    "notes": "Original r/LocalLLaMA thread, confirmed from the page. The exact publication clock time was not read from Reddit, so date_published is empty."
+  },
+  {
+    "source_id": "sparkrouter-radiance-r9700-20261110",
+    "title": "Qwen3.8-27B on RDNA4 R9700: Radiance vs llama.cpp benchmark",
+    "url": "https://relay.sparkrouter.com/ai--and--local-models/radiance-vs-llama.cpp-r9700-benchmark",
+    "author": "dad__vibes",
+    "publisher": "SparkRouter",
+    "date_published": "2026-11-10",
+    "date_accessed": "2026-11-13",
+    "source_type": "benchmark",
+    "notes": "Article dated 10 November 2026. The same figures are summarized in the author's X post x-dad-vibes-20261112. Measurements cite this article, which prints the unrounded values. Workloads whose results are ranges (long code, math) are not stored."
+  },
+  {
+    "source_id": "x-dad-vibes-20261112",
+    "title": "Radiance vs llama.cpp on one R9700, Qwen3.8-27B",
+    "url": "https://x.com/dad__vibes/status/2120934255513477440",
+    "author": "dad__vibes",
+    "publisher": "X",
+    "date_published": "2026-11-12",
+    "date_accessed": "2026-11-13",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-12T17:38:26Z. Points to the SparkRouter article. The tweet rounds cold prefill 2696.9 to 2697; measurements cite the article instead, so no measurement rows use this source_id."
+  },
+  {
+    "source_id": "x-bnjmn-marie-20261112",
+    "title": "Gemma 4 31B NVFP4, NIM 2.1.5 vs SGLang 0.5.21, one RTX PRO 6000",
+    "url": "https://x.com/bnjmn_marie/status/2120905710150074583",
+    "author": "bnjmn_marie",
+    "publisher": "X",
+    "date_published": "2026-11-12",
+    "date_accessed": "2026-11-13",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-12T15:45:00Z. NIM versus the same SGLang 0.5.21 build NIM ships. The author attributes the concurrency gap to mem-fraction-static 0.92 versus SGLang's heuristic 0.785."
+  },
+  {
+    "source_id": "x-ft-ioxcs-20261112",
+    "title": "4x DGX Spark TP4, DeepSeek-V4.1-Flash-1017, 16 concurrent requests",
+    "url": "https://x.com/FT_IOxCS/status/2120988242077982945",
+    "author": "FT_IOxCS",
+    "publisher": "X",
+    "date_published": "2026-11-12",
+    "date_accessed": "2026-11-13",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-12T21:12:57Z. Full text from the note tweet. 4x DGX Spark, tensor parallel 4, MikroTik CRS812-DDQ, 200GbE RoCE, spark-ds41f 1107, temperature 0, thinking off, starting at 32K context."
+  },
+  {
+    "source_id": "x-kireistudios-20261111",
+    "title": "Nemotron 3.5 Bolt E4B prefill on one and two Strix Halo nodes",
+    "url": "https://x.com/KireiStudios/status/2120495430911852642",
+    "author": "KireiStudios",
+    "publisher": "X",
+    "date_published": "2026-11-11",
+    "date_accessed": "2026-11-13",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-11T12:34:42Z. Author's own Strix Halo inference engine with a new Flash prefill path. Two-node figures are over USB4. Quantization was not stated."
+  },
+  {
+    "source_id": "x-gptware-20261111",
+    "title": "QMesh DeepSeek-V4.1-Flash-1017 on RTX PRO 6000 Max-Q plus ASUS GX10",
+    "url": "https://x.com/GPTWare/status/2120640206214717690",
+    "author": "GPTWare",
+    "publisher": "X",
+    "date_published": "2026-11-11",
+    "date_accessed": "2026-11-13",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-11T22:09:59Z. 1x RTX PRO 6000 Max-Q plus 1x ASUS GX10, 100 GbE RoCE, 2.935 bpw, official base. Peak rates as printed. Perplexity 1.5861 versus 1.5720 is quality, not a throughput, and is not stored as a measurement."
   }
 ]
