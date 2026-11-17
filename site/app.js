@@ -1012,10 +1012,13 @@ function renderConcurrency() {
     {key: "sessions", label: "N", num: true}, {key: "gen_per_session_tps", label: "Gen / session (tok/s)", num: true},
     {key: "new_prefill_per_session_tps", label: "New prefill / session (tok/s)", num: true},
     {key: "ingest_per_session_tps", label: "Ingest / session (tok/s)", num: true},
+    {key: "gen_per_session_span_tps", label: "Gen / session, own span (tok/s)", num: true}, {key: "inflight_mean", label: "Mean in flight", num: true},
     {key: "inst_gen_median_tps", label: "Inst gen median (tok/s)", num: true}, {key: "inst_gen_p90_tps", label: "Inst gen p90 (slow tail, tok/s)", num: true},
+    {key: "inst_gen_text_median_tps", label: "Inst gen text-only median (tok/s)", num: true},
     {key: "cache_rate", label: "Cache rate", num: true}, {key: "avg_context_k", label: "Avg ctx (k)", num: true},
     {key: "ttft_median_ms", label: "TTFT median (ms)", num: true}, {key: "ttft_p90_ms", label: "TTFT p90 (ms)", num: true},
-    {key: "requests_ok", label: "OK requests", num: true}, {key: "http_429", label: "429s", num: true}, {key: "cost_usd", label: "Cost (USD)", num: true},
+    {key: "requests_ok", label: "OK requests", num: true}, {key: "http_429", label: "429s", num: true}, {key: "http_529", label: "529s", num: true},
+    {key: "cost_usd", label: "Cost (USD)", num: true},
   ];
   const t = document.getElementById("t-ag-conc");
   const head = el("tr");
@@ -1069,7 +1072,11 @@ function drawConcChart(box, series, yd) {
       ["r", "Cache rate", f(r.cache_rate)], ["r", "Avg context", `${f(r.avg_context_k)}k`],
       ["r", "TTFT median / p90", `${f(r.ttft_median_ms)} / ${f(r.ttft_p90_ms)} ms`],
       ["r", "Inst gen median / p90", `${f(r.inst_gen_median_tps)} / ${f(r.inst_gen_p90_tps)} tok/s`]];
-    if (p.ser.key === "sonnet") rows.push(["r", "Requests OK", f(r.requests_ok)], ["r", "HTTP 429", f(r.http_429)], ["r", "Cost", `$${f(r.cost_usd)}`]);
+    if (p.ser.key === "sonnet") {
+      rows.push(["r", "Gen / session, own span", `${f(r.gen_per_session_span_tps)} tok/s`], ["r", "Mean in flight", f(r.inflight_mean)],
+        ["r", "Inst gen text-only median", `${f(r.inst_gen_text_median_tps)} tok/s`],
+        ["r", "Requests OK", f(r.requests_ok)], ["r", "HTTP 429 / 529", `${f(r.http_429)} / ${f(r.http_529)}`], ["r", "Cost", `$${f(r.cost_usd)}`]);
+    }
     return rows;
   };
   for (const s of series) {

@@ -565,6 +565,11 @@
             "description": "concurrent sessions in the tier (N)"
           },
           {
+            "name": "turns",
+            "type": "integer",
+            "description": "turns per session in the tier"
+          },
+          {
             "name": "gen_per_session_tps",
             "type": "number",
             "description": "output tok/s over the tier window / sessions (output includes thinking tokens)"
@@ -580,14 +585,34 @@
             "description": "all prompt tok/s (input + cache-write + cache-read) over the tier window / sessions"
           },
           {
+            "name": "gen_per_session_span_tps",
+            "type": "number",
+            "description": "mean over sessions of output tokens / (session last response finished - session first request sent); immune to the ragged tier end that lowers the window formula as N grows"
+          },
+          {
+            "name": "inflight_mean",
+            "type": "number",
+            "description": "time-weighted mean number of requests in flight over the window; equals N only when every session is busy the whole time"
+          },
+          {
             "name": "inst_gen_median_tps",
             "type": "number",
-            "description": "median of per-call decode tok/s (output tokens / (last delta - first delta))"
+            "description": "median of per-call decode tok/s (output tokens / (last delta - first delta)); output includes thinking tokens, which this model generates before its first delta, so calls with long thinking read high; see inst_gen_text_median_tps"
           },
           {
             "name": "inst_gen_p90_tps",
             "type": "number",
             "description": "10th percentile of per-call decode tok/s, i.e. the slow tail"
+          },
+          {
+            "name": "inst_gen_text_median_tps",
+            "type": "number",
+            "description": "median of per-call visible-text decode tok/s: (output - thinking tokens) / (last delta - first text delta)"
+          },
+          {
+            "name": "inst_gen_text_p90_tps",
+            "type": "number",
+            "description": "10th percentile of per-call visible-text decode tok/s, i.e. the slow tail"
           },
           {
             "name": "cache_rate",
@@ -602,12 +627,17 @@
           {
             "name": "ttft_median_ms",
             "type": "number",
-            "description": "median time to first streamed content delta (includes thinking)"
+            "description": "median time to first streamed content delta; this model does not stream thinking, so the thinking time is included"
           },
           {
             "name": "ttft_p90_ms",
             "type": "number",
-            "description": "90th percentile of time to first streamed content delta"
+            "description": "90th percentile of time to first streamed content delta, thinking time included"
+          },
+          {
+            "name": "ttft_turn0_median_ms",
+            "type": "number",
+            "description": "median TTFT of each session's first turn, an uncached prefix write"
           },
           {
             "name": "requests_ok",
@@ -623,9 +653,14 @@
             "description": "HTTP 429 responses received"
           },
           {
+            "name": "http_529",
+            "type": "integer",
+            "description": "HTTP 529 overloaded_error responses received: API-side overload, unlike 429 which is the key's rate limit"
+          },
+          {
             "name": "http_other_errors",
             "type": "integer",
-            "description": "Attempts that failed without an HTTP status (dropped stream or connection) and were retried with backoff."
+            "description": "attempts that ended with any other HTTP status or none at all (dropped stream or connection); retried with backoff"
           },
           {
             "name": "sessions_completed",
@@ -670,7 +705,7 @@
           {
             "name": "saturated",
             "type": "boolean",
-            "description": "True when the tier hit persistent 429s and was stopped early"
+            "description": "set by hand when the API side saturates (529s, runaway TTFT); 429s are the key's rate limit, not saturation"
           }
         ],
         "missingValues": [
@@ -723,6 +758,21 @@
             "description": "unix seconds"
           },
           {
+            "name": "t_headers_unix",
+            "type": "number",
+            "description": "unix seconds, response headers received"
+          },
+          {
+            "name": "t_message_start_unix",
+            "type": "number",
+            "description": "unix seconds, message_start event"
+          },
+          {
+            "name": "t_first_block_unix",
+            "type": "number",
+            "description": "unix seconds, first content_block_start (thinking or text)"
+          },
+          {
             "name": "t_first_event_unix",
             "type": "number",
             "description": "unix seconds"
@@ -743,9 +793,19 @@
             "description": "unix seconds"
           },
           {
+            "name": "ttfb_ms",
+            "type": "number",
+            "description": "send to response headers"
+          },
+          {
+            "name": "ttft_block_ms",
+            "type": "number",
+            "description": "send to first content_block_start"
+          },
+          {
             "name": "ttft_ms",
             "type": "number",
-            "description": "send to first streamed content delta (includes thinking)"
+            "description": "send to first streamed content delta; thinking is not streamed for this model, so its time is included"
           },
           {
             "name": "ttft_text_ms",
@@ -760,7 +820,12 @@
           {
             "name": "inst_gen_tps",
             "type": "number",
-            "description": "output_tokens / decode window, tok/s"
+            "description": "output_tokens / decode window, tok/s; output includes thinking tokens generated before the window, see inst_gen_text_tps"
+          },
+          {
+            "name": "inst_gen_text_tps",
+            "type": "number",
+            "description": "(output - thinking tokens) / (last delta - first text delta), tok/s; the visible-text decode rate"
           },
           {
             "name": "input_tokens",
@@ -803,6 +868,11 @@
             "type": "integer"
           },
           {
+            "name": "block_types",
+            "type": "string",
+            "description": "content block types in stream order, comma separated"
+          },
+          {
             "name": "stop_reason",
             "type": "string"
           },
@@ -811,14 +881,44 @@
             "type": "number"
           },
           {
+            "name": "rpm_remaining",
+            "type": "integer",
+            "description": "rate-limit header: requests per minute remaining"
+          },
+          {
+            "name": "itpm_limit",
+            "type": "integer",
+            "description": "rate-limit header: input tokens per minute limit"
+          },
+          {
             "name": "itpm_remaining",
             "type": "integer",
             "description": "rate-limit header: input tokens per minute remaining"
           },
           {
+            "name": "itpm_reset",
+            "type": "string",
+            "description": "rate-limit header: when the input-token bucket is full again, RFC 3339"
+          },
+          {
+            "name": "otpm_limit",
+            "type": "integer",
+            "description": "rate-limit header: output tokens per minute limit"
+          },
+          {
             "name": "otpm_remaining",
             "type": "integer",
             "description": "rate-limit header: output tokens per minute remaining"
+          },
+          {
+            "name": "otpm_reset",
+            "type": "string",
+            "description": "rate-limit header: when the output-token bucket is full again, RFC 3339"
+          },
+          {
+            "name": "retry_after",
+            "type": "number",
+            "description": "retry-after header on 429/529, seconds"
           },
           {
             "name": "error",
