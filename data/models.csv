@@ -40,3 +40,4 @@ step-3.7-flash,Step-3.7-Flash,,,,,x-alvinlai-20260609,Named in a vLLM log line. 
 nemotron-unspecified,Nemotron (variant not stated),,,,,x-0xsero-20260606,The post says Nemotron NVFP4 and does not name the size. Not the same row as Nemotron3-Super.
 nemotron-3.5-bolt-e4b,Nemotron 3.5 Bolt E4B,,,,,x-kireistudios-20261111,"Named in the X post. Parameter count, architecture, and license were not stated."
 minimax-m3.1-flash,MiniMax M3.1 Flash,,,,,omlx-0.8.0rc1,"Named in the oMLX 0.8.0rc1 prefill table. Parameter count, architecture, and license were not stated. Not the same row as MiniMax-M3."
+qwen3.5-4b,Qwen3.5-4B,,,,,x-flaviusburca-20261118,Named in the source post only. Size is in the name and is not stored as a counted parameter. Architecture is not stored because no model card was fetched. License not stated.

@@ -408,5 +408,15 @@
     "license": null,
     "source_id": "omlx-0.8.0rc1",
     "notes": "Named in the oMLX 0.8.0rc1 prefill table. Parameter count, architecture, and license were not stated. Not the same row as MiniMax-M3."
+  },
+  {
+    "model_id": "qwen3.5-4b",
+    "name": "Qwen3.5-4B",
+    "params_total_b": null,
+    "params_active_b": null,
+    "architecture": null,
+    "license": null,
+    "source_id": "x-flaviusburca-20261118",
+    "notes": "Named in the source post only. Size is in the name and is not stored as a counted parameter. Architecture is not stored because no model card was fetched. License not stated."
   }
 ]
