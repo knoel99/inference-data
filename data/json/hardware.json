@@ -388,5 +388,20 @@
     "market_price_date": null,
     "source_id": "reddit-serious-scarcity-rtx-3060",
     "notes": "Named as RTX 3060 12 GB in the post, with Ryzen 5 7600X and 32 GB RAM. memory_gb 12 is that stated capacity. Bandwidth, TFLOPS, TDP, and price were not stated."
+  },
+  {
+    "hardware_id": "apple-mac-studio-m5-max-64gb",
+    "name": "Apple Mac Studio (M5 Max, 64 GB)",
+    "vendor": "Apple",
+    "memory_gb": 64,
+    "bandwidth_gb_s": null,
+    "dense_bf16_fp16_tflops": null,
+    "fp4_tflops": null,
+    "tdp_w": null,
+    "launch_price_usd": null,
+    "market_price_usd": null,
+    "market_price_date": null,
+    "source_id": "x-yh31377807-20261118",
+    "notes": "Named in the source post as Mac Studio M5 Max 64GB. Bandwidth, TFLOPS, power and price were not printed there and no Apple spec page was fetched, so those fields are empty."
   }
 ]
