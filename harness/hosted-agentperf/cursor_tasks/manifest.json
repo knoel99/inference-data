@@ -1,0 +1,806 @@
+{
+  "measurement": "user_experienced_wall_clock",
+  "models": [
+    "composer-2.5",
+    "grok-4.7"
+  ],
+  "refused_on_this_account": "Claude, GPT, and Opus model ids are refused because usage beyond the included plan is off. composer-2.5 and grok-4.7 are included and are launched as two separate targets.",
+  "timing": "The agent writes bench/cursor_runs/<run_id>/steps.jsonl with date +%s.%N around each tool call and commits that file. model_pinned is the launch id in the prompt (composer-2.5 or grok-4.7). The transcript dump is not the measurement.",
+  "cells": [
+    {
+      "cell": "C0",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "do_not_launch",
+      "reason": "No confirmed Cursor control disables prompt caching. C0 is Claude Code only."
+    },
+    {
+      "cell": "C1_2k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "prompt_file": "prompts/C1_2k.txt",
+      "corpus_tokens_estimate_chars_over_4": 2000,
+      "same_agent_follow_ups": [
+        "C2_2k",
+        "D_2k"
+      ],
+      "note": "Replace the nonce before every new agent. Keep it if you send a follow-up on that agent.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C1_2k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "prompt_file": "prompts/C1_2k.txt",
+      "corpus_tokens_estimate_chars_over_4": 2000,
+      "same_agent_follow_ups": [
+        "C2_2k",
+        "D_2k"
+      ],
+      "note": "Replace the nonce before every new agent. Keep it if you send a follow-up on that agent.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C2_2k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_2k",
+      "within_seconds": 60,
+      "prompt_file": "prompts/C2_follow_up.txt",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C2_2k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_2k",
+      "within_seconds": 60,
+      "prompt_file": "prompts/C2_follow_up.txt",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C1_8k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "prompt_file": "prompts/C1_8k.txt",
+      "corpus_tokens_estimate_chars_over_4": 8000,
+      "same_agent_follow_ups": [
+        "C2_8k"
+      ],
+      "note": "Replace the nonce before every new agent. Keep it if you send a follow-up on that agent.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C1_8k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "prompt_file": "prompts/C1_8k.txt",
+      "corpus_tokens_estimate_chars_over_4": 8000,
+      "same_agent_follow_ups": [
+        "C2_8k"
+      ],
+      "note": "Replace the nonce before every new agent. Keep it if you send a follow-up on that agent.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C2_8k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_8k",
+      "within_seconds": 60,
+      "prompt_file": "prompts/C2_follow_up.txt",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C2_8k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_8k",
+      "within_seconds": 60,
+      "prompt_file": "prompts/C2_follow_up.txt",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C1_32k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "prompt_file": "prompts/C1_32k.txt",
+      "corpus_tokens_estimate_chars_over_4": 32000,
+      "same_agent_follow_ups": [
+        "C2_32k",
+        "D_32k"
+      ],
+      "note": "Replace the nonce before every new agent. Keep it if you send a follow-up on that agent.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C1_32k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "prompt_file": "prompts/C1_32k.txt",
+      "corpus_tokens_estimate_chars_over_4": 32000,
+      "same_agent_follow_ups": [
+        "C2_32k",
+        "D_32k"
+      ],
+      "note": "Replace the nonce before every new agent. Keep it if you send a follow-up on that agent.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C2_32k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_32k",
+      "within_seconds": 60,
+      "prompt_file": "prompts/C2_follow_up.txt",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C2_32k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_32k",
+      "within_seconds": 60,
+      "prompt_file": "prompts/C2_follow_up.txt",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C1_56k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "prompt_file": "prompts/C1_56k.txt",
+      "corpus_tokens_estimate_chars_over_4": 56000,
+      "same_agent_follow_ups": [
+        "C2_56k",
+        "D_56k"
+      ],
+      "note": "Replace the nonce before every new agent. Keep it if you send a follow-up on that agent.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C1_56k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "prompt_file": "prompts/C1_56k.txt",
+      "corpus_tokens_estimate_chars_over_4": 56000,
+      "same_agent_follow_ups": [
+        "C2_56k",
+        "D_56k"
+      ],
+      "note": "Replace the nonce before every new agent. Keep it if you send a follow-up on that agent.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C2_56k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_56k",
+      "within_seconds": 60,
+      "prompt_file": "prompts/C2_follow_up.txt",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C2_56k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_56k",
+      "within_seconds": 60,
+      "prompt_file": "prompts/C2_follow_up.txt",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C3_2k_1k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_2k",
+      "prompt_file": "prompts/C3_tail_1k.txt",
+      "tail_tokens_estimate_chars_over_4": 1000,
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C3_2k_1k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_2k",
+      "prompt_file": "prompts/C3_tail_1k.txt",
+      "tail_tokens_estimate_chars_over_4": 1000,
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C3_2k_4k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_2k",
+      "prompt_file": "prompts/C3_tail_4k.txt",
+      "tail_tokens_estimate_chars_over_4": 4000,
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C3_2k_4k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_2k",
+      "prompt_file": "prompts/C3_tail_4k.txt",
+      "tail_tokens_estimate_chars_over_4": 4000,
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C3_2k_16k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_2k",
+      "prompt_file": "prompts/C3_tail_16k.txt",
+      "tail_tokens_estimate_chars_over_4": 16000,
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C3_2k_16k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_2k",
+      "prompt_file": "prompts/C3_tail_16k.txt",
+      "tail_tokens_estimate_chars_over_4": 16000,
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C3_8k_1k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_8k",
+      "prompt_file": "prompts/C3_tail_1k.txt",
+      "tail_tokens_estimate_chars_over_4": 1000,
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C3_8k_1k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_8k",
+      "prompt_file": "prompts/C3_tail_1k.txt",
+      "tail_tokens_estimate_chars_over_4": 1000,
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C3_8k_4k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_8k",
+      "prompt_file": "prompts/C3_tail_4k.txt",
+      "tail_tokens_estimate_chars_over_4": 4000,
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C3_8k_4k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_8k",
+      "prompt_file": "prompts/C3_tail_4k.txt",
+      "tail_tokens_estimate_chars_over_4": 4000,
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C3_8k_16k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_8k",
+      "prompt_file": "prompts/C3_tail_16k.txt",
+      "tail_tokens_estimate_chars_over_4": 16000,
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C3_8k_16k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_8k",
+      "prompt_file": "prompts/C3_tail_16k.txt",
+      "tail_tokens_estimate_chars_over_4": 16000,
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C3_32k_1k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_32k",
+      "prompt_file": "prompts/C3_tail_1k.txt",
+      "tail_tokens_estimate_chars_over_4": 1000,
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C3_32k_1k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_32k",
+      "prompt_file": "prompts/C3_tail_1k.txt",
+      "tail_tokens_estimate_chars_over_4": 1000,
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C3_32k_4k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_32k",
+      "prompt_file": "prompts/C3_tail_4k.txt",
+      "tail_tokens_estimate_chars_over_4": 4000,
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C3_32k_4k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_32k",
+      "prompt_file": "prompts/C3_tail_4k.txt",
+      "tail_tokens_estimate_chars_over_4": 4000,
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C3_32k_16k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_32k",
+      "prompt_file": "prompts/C3_tail_16k.txt",
+      "tail_tokens_estimate_chars_over_4": 16000,
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C3_32k_16k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_32k",
+      "prompt_file": "prompts/C3_tail_16k.txt",
+      "tail_tokens_estimate_chars_over_4": 16000,
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C3_56k_1k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_56k",
+      "prompt_file": "prompts/C3_tail_1k.txt",
+      "tail_tokens_estimate_chars_over_4": 1000,
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C3_56k_1k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_56k",
+      "prompt_file": "prompts/C3_tail_1k.txt",
+      "tail_tokens_estimate_chars_over_4": 1000,
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C3_56k_4k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_56k",
+      "prompt_file": "prompts/C3_tail_4k.txt",
+      "tail_tokens_estimate_chars_over_4": 4000,
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C3_56k_4k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_56k",
+      "prompt_file": "prompts/C3_tail_4k.txt",
+      "tail_tokens_estimate_chars_over_4": 4000,
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "C3_56k_16k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_56k",
+      "prompt_file": "prompts/C3_tail_16k.txt",
+      "tail_tokens_estimate_chars_over_4": 16000,
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "C3_56k_16k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_56k",
+      "prompt_file": "prompts/C3_tail_16k.txt",
+      "tail_tokens_estimate_chars_over_4": 16000,
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "D_2k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_2k",
+      "prompt_file": "prompts/D_follow_up.txt",
+      "output_cap": null,
+      "note": "No output cap, and the transcript will not report output tokens. The ingester records wall time and character length only.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "D_2k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_2k",
+      "prompt_file": "prompts/D_follow_up.txt",
+      "output_cap": null,
+      "note": "No output cap, and the transcript will not report output tokens. The ingester records wall time and character length only.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "D_32k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_32k",
+      "prompt_file": "prompts/D_follow_up.txt",
+      "output_cap": null,
+      "note": "No output cap, and the transcript will not report output tokens. The ingester records wall time and character length only.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "D_32k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_32k",
+      "prompt_file": "prompts/D_follow_up.txt",
+      "output_cap": null,
+      "note": "No output cap, and the transcript will not report output tokens. The ingester records wall time and character length only.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "D_56k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_56k",
+      "prompt_file": "prompts/D_follow_up.txt",
+      "output_cap": null,
+      "note": "No output cap, and the transcript will not report output tokens. The ingester records wall time and character length only.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "D_56k",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "follow_up",
+      "same_agent_as": "C1_56k",
+      "prompt_file": "prompts/D_follow_up.txt",
+      "output_cap": null,
+      "note": "No output cap, and the transcript will not report output tokens. The ingester records wall time and character length only.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "T5_32k_3m",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "pair",
+      "launch_prompt_file": "prompts/C1_32k.txt",
+      "follow_up_prompt_file": "prompts/C2_follow_up.txt",
+      "gap_minutes": 3,
+      "note": "One fresh agent, then one follow-up after the gap. The transcript cannot show whether the prefix was cached. The only number is the wall time the orchestrator records.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "T5_32k_3m",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "pair",
+      "launch_prompt_file": "prompts/C1_32k.txt",
+      "follow_up_prompt_file": "prompts/C2_follow_up.txt",
+      "gap_minutes": 3,
+      "note": "One fresh agent, then one follow-up after the gap. The transcript cannot show whether the prefix was cached. The only number is the wall time the orchestrator records.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "T5_32k_7m",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "pair",
+      "launch_prompt_file": "prompts/C1_32k.txt",
+      "follow_up_prompt_file": "prompts/C2_follow_up.txt",
+      "gap_minutes": 7,
+      "note": "One fresh agent, then one follow-up after the gap. The transcript cannot show whether the prefix was cached. The only number is the wall time the orchestrator records.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "T5_32k_7m",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "pair",
+      "launch_prompt_file": "prompts/C1_32k.txt",
+      "follow_up_prompt_file": "prompts/C2_follow_up.txt",
+      "gap_minutes": 7,
+      "note": "One fresh agent, then one follow-up after the gap. The transcript cannot show whether the prefix was cached. The only number is the wall time the orchestrator records.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "T5_32k_20m",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "pair",
+      "launch_prompt_file": "prompts/C1_32k.txt",
+      "follow_up_prompt_file": "prompts/C2_follow_up.txt",
+      "gap_minutes": 20,
+      "note": "One fresh agent, then one follow-up after the gap. The transcript cannot show whether the prefix was cached. The only number is the wall time the orchestrator records.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "T5_32k_20m",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "pair",
+      "launch_prompt_file": "prompts/C1_32k.txt",
+      "follow_up_prompt_file": "prompts/C2_follow_up.txt",
+      "gap_minutes": 20,
+      "note": "One fresh agent, then one follow-up after the gap. The transcript cannot show whether the prefix was cached. The only number is the wall time the orchestrator records.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "T5_32k_70m",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "pair",
+      "launch_prompt_file": "prompts/C1_32k.txt",
+      "follow_up_prompt_file": "prompts/C2_follow_up.txt",
+      "gap_minutes": 70,
+      "note": "One fresh agent, then one follow-up after the gap. The transcript cannot show whether the prefix was cached. The only number is the wall time the orchestrator records.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "T5_32k_70m",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "pair",
+      "launch_prompt_file": "prompts/C1_32k.txt",
+      "follow_up_prompt_file": "prompts/C2_follow_up.txt",
+      "gap_minutes": 70,
+      "note": "One fresh agent, then one follow-up after the gap. The transcript cannot show whether the prefix was cached. The only number is the wall time the orchestrator records.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "ctx2k_short",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "context_tokens": 2000,
+      "output_class": "short",
+      "prompt_file": "prompts/measure/ctx2k_short__composer-2.5.txt",
+      "note": "Self-timed. The agent commits bench/cursor_runs/<run_id>/steps.jsonl. Turn time is the gap between tool calls. Tokens are bytes/4.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "ctx2k_short",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "context_tokens": 2000,
+      "output_class": "short",
+      "prompt_file": "prompts/measure/ctx2k_short__grok-4.7.txt",
+      "note": "Self-timed. The agent commits bench/cursor_runs/<run_id>/steps.jsonl. Turn time is the gap between tool calls. Tokens are bytes/4.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "ctx2k_long",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "context_tokens": 2000,
+      "output_class": "long",
+      "prompt_file": "prompts/measure/ctx2k_long__composer-2.5.txt",
+      "note": "Self-timed. The agent commits bench/cursor_runs/<run_id>/steps.jsonl. Turn time is the gap between tool calls. Tokens are bytes/4.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "ctx2k_long",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "context_tokens": 2000,
+      "output_class": "long",
+      "prompt_file": "prompts/measure/ctx2k_long__grok-4.7.txt",
+      "note": "Self-timed. The agent commits bench/cursor_runs/<run_id>/steps.jsonl. Turn time is the gap between tool calls. Tokens are bytes/4.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "ctx8k_short",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "context_tokens": 8000,
+      "output_class": "short",
+      "prompt_file": "prompts/measure/ctx8k_short__composer-2.5.txt",
+      "note": "Self-timed. The agent commits bench/cursor_runs/<run_id>/steps.jsonl. Turn time is the gap between tool calls. Tokens are bytes/4.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "ctx8k_short",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "context_tokens": 8000,
+      "output_class": "short",
+      "prompt_file": "prompts/measure/ctx8k_short__grok-4.7.txt",
+      "note": "Self-timed. The agent commits bench/cursor_runs/<run_id>/steps.jsonl. Turn time is the gap between tool calls. Tokens are bytes/4.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "ctx8k_long",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "context_tokens": 8000,
+      "output_class": "long",
+      "prompt_file": "prompts/measure/ctx8k_long__composer-2.5.txt",
+      "note": "Self-timed. The agent commits bench/cursor_runs/<run_id>/steps.jsonl. Turn time is the gap between tool calls. Tokens are bytes/4.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "ctx8k_long",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "context_tokens": 8000,
+      "output_class": "long",
+      "prompt_file": "prompts/measure/ctx8k_long__grok-4.7.txt",
+      "note": "Self-timed. The agent commits bench/cursor_runs/<run_id>/steps.jsonl. Turn time is the gap between tool calls. Tokens are bytes/4.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "ctx32k_short",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "context_tokens": 32000,
+      "output_class": "short",
+      "prompt_file": "prompts/measure/ctx32k_short__composer-2.5.txt",
+      "note": "Self-timed. The agent commits bench/cursor_runs/<run_id>/steps.jsonl. Turn time is the gap between tool calls. Tokens are bytes/4.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "ctx32k_short",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "context_tokens": 32000,
+      "output_class": "short",
+      "prompt_file": "prompts/measure/ctx32k_short__grok-4.7.txt",
+      "note": "Self-timed. The agent commits bench/cursor_runs/<run_id>/steps.jsonl. Turn time is the gap between tool calls. Tokens are bytes/4.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "ctx32k_long",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "context_tokens": 32000,
+      "output_class": "long",
+      "prompt_file": "prompts/measure/ctx32k_long__composer-2.5.txt",
+      "note": "Self-timed. The agent commits bench/cursor_runs/<run_id>/steps.jsonl. Turn time is the gap between tool calls. Tokens are bytes/4.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "ctx32k_long",
+      "phase": "A",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "context_tokens": 32000,
+      "output_class": "long",
+      "prompt_file": "prompts/measure/ctx32k_long__grok-4.7.txt",
+      "note": "Self-timed. The agent commits bench/cursor_runs/<run_id>/steps.jsonl. Turn time is the gap between tool calls. Tokens are bytes/4.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "B_django-15851",
+      "phase": "B",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "prompt_file": "swebench/django-15851__composer-2.5.txt",
+      "repo": "django/django",
+      "base_commit": "b4817d20b9e55df30be0b1b2ca8c8bb6d61aab07",
+      "repeats_later": 4,
+      "note": "Phase B repeat count is not launched by this pilot. The prompt is the task text.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "B_django-15851",
+      "phase": "B",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "prompt_file": "swebench/django-15851__grok-4.7.txt",
+      "repo": "django/django",
+      "base_commit": "b4817d20b9e55df30be0b1b2ca8c8bb6d61aab07",
+      "repeats_later": 4,
+      "note": "Phase B repeat count is not launched by this pilot. The prompt is the task text.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "B_django-14500",
+      "phase": "B",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "prompt_file": "swebench/django-14500__composer-2.5.txt",
+      "repo": "django/django",
+      "base_commit": "8c3bd0b708b488a1f6e8bd8cc6b96569904605be",
+      "repeats_later": 4,
+      "note": "Phase B repeat count is not launched by this pilot. The prompt is the task text.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "B_django-14500",
+      "phase": "B",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "prompt_file": "swebench/django-14500__grok-4.7.txt",
+      "repo": "django/django",
+      "base_commit": "8c3bd0b708b488a1f6e8bd8cc6b96569904605be",
+      "repeats_later": 4,
+      "note": "Phase B repeat count is not launched by this pilot. The prompt is the task text.",
+      "model_pinned": "grok-4.7"
+    },
+    {
+      "cell": "B_sphinx-10614",
+      "phase": "B",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "prompt_file": "swebench/sphinx-10614__composer-2.5.txt",
+      "repo": "sphinx-doc/sphinx",
+      "base_commit": "ac2b7599d212af7d04649959ce6926c63c3133fa",
+      "repeats_later": 4,
+      "note": "Phase B repeat count is not launched by this pilot. The prompt is the task text.",
+      "model_pinned": "composer-2.5"
+    },
+    {
+      "cell": "B_sphinx-10614",
+      "phase": "B",
+      "target": "cursor_cloud",
+      "action": "launch",
+      "prompt_file": "swebench/sphinx-10614__grok-4.7.txt",
+      "repo": "sphinx-doc/sphinx",
+      "base_commit": "ac2b7599d212af7d04649959ce6926c63c3133fa",
+      "repeats_later": 4,
+      "note": "Phase B repeat count is not launched by this pilot. The prompt is the task text.",
+      "model_pinned": "grok-4.7"
+    }
+  ]
+}

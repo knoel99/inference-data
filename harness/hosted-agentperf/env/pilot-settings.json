@@ -1,0 +1,11 @@
+{
+  "ultracode": false,
+  "idleCompaction": false,
+  "autoCompactEnabled": false,
+  "workflowKeywordTriggerEnabled": false,
+  "promptSuggestionEnabled": false,
+  "disableAllHooks": true,
+  "permissions": {
+    "deny": ["*", "mcp__*"]
+  }
+}
