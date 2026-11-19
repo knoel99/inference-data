@@ -1395,5 +1395,104 @@
     "date_accessed": "2026-11-18",
     "source_type": "post",
     "notes": "Europe/Paris date from created_at 2026-11-18T07:36:46Z. Post in Chinese. Only the author's own measurement is used; the M5 Ultra and GX10 figures it quotes from other people are second-hand and not stored."
+  },
+  {
+    "source_id": "x-fandodjsnake-20261119",
+    "title": "Qwen3.8-27B on one RTX 3090, N=1 to 16 concurrent sequences, five engines",
+    "url": "https://x.com/FanDoDjSnake/status/2123262497360613848",
+    "author": "FanDoDjSnake",
+    "publisher": "X",
+    "date_published": "2026-11-19",
+    "date_accessed": "2026-11-19",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-19T03:50:02Z. Figures from the post text and the attached throughput-matrix image (slide 02/08): single RTX 3090 (GA102, sm_86, 24 GB, 350 W, CUDA 13.0), fixed prompt, 256 generated tokens per sequence, greedy T=0, stationary P0 clocks; image footer cites docs/u11_comparativo_unificado_350w.json and Qwen3.8-27B W4A16 / EXL3 4.0 bpw / GGUF Q4_K_M. kr3090 is the author's own sm_86 kernel set."
+  },
+  {
+    "source_id": "x-weiwang-20261118",
+    "title": "Qwen3.8 Flash-Next, 1 to 16 streams on one RTX PRO 6000 at a 350 W cap",
+    "url": "https://x.com/wei_wang/status/2123086096548462724",
+    "author": "wei_wang",
+    "publisher": "X",
+    "date_published": "2026-11-18",
+    "date_accessed": "2026-11-19",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-18T16:09:05Z. Post in Chinese with two images (bar chart of total decode tok/s per stream count, server dashboard). Author's card: RTX PRO 6000 96GB capped at 350 W, 400-token prose test per stream, configuration sized for 16 streams and 524K context. The M5 Ultra 256GB figures (453 total, 27 to 28 per stream) are another person's live workload and are not stored."
+  },
+  {
+    "source_id": "x-jrbai-20261119",
+    "title": "Hy4 Flash on a single DGX Spark: decode and prefill",
+    "url": "https://x.com/JRB_AI/status/2123325907066843302",
+    "author": "JRB_AI",
+    "publisher": "X",
+    "date_published": "2026-11-19",
+    "date_accessed": "2026-11-19",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-19T08:02:00Z. Figures read from the attached card (One DGX Spark, 1 of 2). Setup from the follow-up post https://x.com/JRB_AI/status/2123325908102906023: llama.cpp, Spark 4-bit fast quant, built-in MTP layer as drafter; the Hy4 decode bars come from a separate Hy4-only test with 256-token replies, pure decode. Quality scores and reply lengths are not stored."
+  },
+  {
+    "source_id": "x-kireistudios-20261118",
+    "title": "HY4 Flash prefill on two AMD Strix Halo nodes over USB4",
+    "url": "https://x.com/KireiStudios/status/2123146037330153566",
+    "author": "KireiStudios",
+    "publisher": "X",
+    "date_published": "2026-11-18",
+    "date_accessed": "2026-11-19",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-18T20:07:16Z. Exact figures from the attached image (829.5, 942.2, 982.9 tok/s); the text rounds them to 830, 942 and 983. The same text was posted again at 2123146118443798691, 2123146154124694012, 2123146271057949167, 2123146353505190220 and 2123146567129739751. Early implementation; the author says decode is not ready, so no decode is stored."
+  },
+  {
+    "source_id": "hf-angelslim-hy4-flash-gguf",
+    "title": "Hy4-flash GGUF model card, SPEED section",
+    "url": "https://huggingface.co/AngelSlim/Hy4-flash-GGUF",
+    "author": "AngelSlim (Tencent)",
+    "publisher": "Hugging Face",
+    "date_published": null,
+    "date_accessed": "2026-11-19",
+    "source_type": "vendor",
+    "notes": "Read at repo revision 65acb8ae (lastModified 2026-11-19T07:34:16Z). Repo created 2026-11-16; the README was edited several times on 2026-11-18 and the SPARK-4Bit and SPARK-4Bit-Fast files were renamed between each other that morning, so date_published is empty. A third-party copy shows different SPARK-4Bit decode figures (26.28 / 30.23 / 35.38), so the card may have been revised; the figures stored are the ones on the card at that revision. The card says the test was run in real WorkBuddy scenarios."
+  },
+  {
+    "source_id": "x-uctive-20261119",
+    "title": "Strata 0.1.62 vs Basalt 0.4.1, Qwen3.8-Flash-Next IQ3_S on one RTX 5090 Laptop",
+    "url": "https://x.com/uctive/status/2123323827144814599",
+    "author": "uctive",
+    "publisher": "X",
+    "date_published": "2026-11-19",
+    "date_accessed": "2026-11-19",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-19T07:53:44Z (thread head). Figures from the thread posts 2/6 https://x.com/uctive/status/2123323877304525189 (setup), 3/6 https://x.com/uctive/status/2123323956669141309 (long context) and 5/6 https://x.com/uctive/status/2123324135124131982 (multi-agent and energy). Setup: RTX 5090 Laptop 24 GB, AMD Zen server CPU, 64 GB RAM, PCIe 5.0 x8, Linux, CUDA 13.0, 54.5 GB IQ3_S GGUF, 196,608-token context, INT8 KV cache, temperature 0, SSE streaming. The author says the tests were run by agents and that some token-accounting methods differ between engines."
+  },
+  {
+    "source_id": "x-yh31377807-20261118-llamabench",
+    "title": "Mac Studio M5 Max 64GB, llama-bench Qwen3.8-27B Q5 and Qwen3.6-35B-A3B Q4",
+    "url": "https://x.com/YH31377807/status/2123088561406877899",
+    "author": "YH31377807",
+    "publisher": "X",
+    "date_published": "2026-11-18",
+    "date_accessed": "2026-11-19",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-18T16:18:52Z. Post in Chinese. Only the author's own numbers are used (Mac Studio M5 Max 40-core GPU, 64 GB, llama.cpp, measured with llama-bench). The quoted penberg figures and the bandwidth projections are not stored."
+  },
+  {
+    "source_id": "gh-vllm-68380",
+    "title": "vLLM issue 68380: HY4 Flash on compute capability 12 with ModelOpt NVFP4 experts",
+    "url": "https://github.com/vllm-project/vllm/issues/68380",
+    "author": "atakann",
+    "publisher": "GitHub",
+    "date_published": "2026-11-18",
+    "date_accessed": "2026-11-19",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-18T11:39:02Z. Result on two DGX Sparks (TP=2 + EP over RoCE, DFly 5, 262,144 context, one user, thinking off) with six patches on the vllm/vllm-openai:hy4-flash image (77766db, FlashInfer 0.7.4). Checkpoint https://huggingface.co/atakans/Hy4-flash-NVFP4, recipe https://github.com/atakann/dgx-spark-recipes."
+  },
+  {
+    "source_id": "gh-vllm-68081",
+    "title": "vLLM issue 68081: MTP speculative decoding is a net negative on Qwen3.5/3.8 hybrid models",
+    "url": "https://github.com/vllm-project/vllm/issues/68081",
+    "author": "123123213weqw",
+    "publisher": "GitHub",
+    "date_published": "2026-11-17",
+    "date_accessed": "2026-11-19",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-17T04:16:43Z. Same host and config with only speculative decoding toggled: vLLM 0.32.0+cu129, Qwen3.8-27B AWQ INT4 community quant, TP2 on 2x RTX 4090D in the same PCIe group, 256K context, FP8 KV cache, driver 580.178, FlashInfer JIT kernels."
   }
 ]
