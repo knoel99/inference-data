@@ -418,5 +418,15 @@
     "license": null,
     "source_id": "x-flaviusburca-20261118",
     "notes": "Named in the source post only. Size is in the name and is not stored as a counted parameter. Architecture is not stored because no model card was fetched. License not stated."
+  },
+  {
+    "model_id": "hy4-flash",
+    "name": "Hy4-flash",
+    "params_total_b": null,
+    "params_active_b": null,
+    "architecture": "moe",
+    "license": null,
+    "source_id": "x-jrbai-20261119",
+    "notes": "Tencent Hy4 flash (https://huggingface.co/tencent/Hy4-flash). The JRB_AI card prints 11.3B active of 155.5B plus 63.5B of n-gram (Engram) memory; Tencent's release counts 224B total including 64B Engram and 12B active. Parameter fields are empty because the public counts disagree on what is included. License not stated in the fetched sources."
   }
 ]

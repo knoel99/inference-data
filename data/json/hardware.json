@@ -403,5 +403,50 @@
     "market_price_date": null,
     "source_id": "x-yh31377807-20261118",
     "notes": "Named in the source post as Mac Studio M5 Max 64GB. Bandwidth, TFLOPS, power and price were not printed there and no Apple spec page was fetched, so those fields are empty."
+  },
+  {
+    "hardware_id": "apple-m5-max-128gb",
+    "name": "Apple M5 Max (128 GB), Mac model not stated",
+    "vendor": "Apple",
+    "memory_gb": 128,
+    "bandwidth_gb_s": null,
+    "dense_bf16_fp16_tflops": null,
+    "fp4_tflops": null,
+    "tdp_w": null,
+    "launch_price_usd": null,
+    "market_price_usd": null,
+    "market_price_date": null,
+    "source_id": "hf-angelslim-hy4-flash-gguf",
+    "notes": "Named on the model card only as Mac M5 Max 128GB; Mac Studio or MacBook Pro is not stated. Bandwidth, TFLOPS, power and price were not printed there, so those fields are empty."
+  },
+  {
+    "hardware_id": "nvidia-rtx-5090-laptop",
+    "name": "NVIDIA GeForce RTX 5090 Laptop GPU (24 GB)",
+    "vendor": "NVIDIA",
+    "memory_gb": 24,
+    "bandwidth_gb_s": null,
+    "dense_bf16_fp16_tflops": null,
+    "fp4_tflops": null,
+    "tdp_w": null,
+    "launch_price_usd": null,
+    "market_price_usd": null,
+    "market_price_date": null,
+    "source_id": "x-uctive-20261119",
+    "notes": "Named in the source thread as RTX 5090 Laptop with 24 GB VRAM. Laptop model, power limit, bandwidth and price were not printed, so those fields are empty."
+  },
+  {
+    "hardware_id": "nvidia-rtx-4090d",
+    "name": "NVIDIA GeForce RTX 4090D",
+    "vendor": "NVIDIA",
+    "memory_gb": null,
+    "bandwidth_gb_s": null,
+    "dense_bf16_fp16_tflops": null,
+    "fp4_tflops": null,
+    "tdp_w": null,
+    "launch_price_usd": null,
+    "market_price_usd": null,
+    "market_price_date": null,
+    "source_id": "gh-vllm-68081",
+    "notes": "Named in the source issue as RTX 4090D (sm_89). Memory size, bandwidth, power and price were not printed there and no NVIDIA spec page was fetched, so those fields are empty."
   }
 ]
