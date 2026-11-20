@@ -448,5 +448,50 @@
     "market_price_date": null,
     "source_id": "gh-vllm-68081",
     "notes": "Named in the source issue as RTX 4090D (sm_89). Memory size, bandwidth, power and price were not printed there and no NVIDIA spec page was fetched, so those fields are empty."
+  },
+  {
+    "hardware_id": "nvidia-rtx-4090-48gb",
+    "name": "NVIDIA GeForce RTX 4090 48 GB (memory-modified)",
+    "vendor": "NVIDIA",
+    "memory_gb": 48,
+    "bandwidth_gb_s": null,
+    "dense_bf16_fp16_tflops": null,
+    "fp4_tflops": null,
+    "tdp_w": null,
+    "launch_price_usd": null,
+    "market_price_usd": null,
+    "market_price_date": null,
+    "source_id": "gh-llamacpp-32640",
+    "notes": "Named in the source issue as RTX 4090 48 GB (49,140 MiB), compute capability 8.9. NVIDIA never sold a 48 GB 4090, so this is a memory-modified card; bandwidth, power and price were not printed, so those fields are empty."
+  },
+  {
+    "hardware_id": "apple-m4-max-64gb",
+    "name": "Apple M4 Max (64 GB), Mac model not stated",
+    "vendor": "Apple",
+    "memory_gb": 64,
+    "bandwidth_gb_s": null,
+    "dense_bf16_fp16_tflops": null,
+    "fp4_tflops": null,
+    "tdp_w": null,
+    "launch_price_usd": null,
+    "market_price_usd": null,
+    "market_price_date": null,
+    "source_id": "x-kinfx-20261120",
+    "notes": "Named in the source only as M4 Max 64GB; Mac model, GPU core count and bandwidth were not printed, so those fields are empty."
+  },
+  {
+    "hardware_id": "amd-radeon-rx-6800",
+    "name": "AMD Radeon RX 6800 (16 GB)",
+    "vendor": "AMD",
+    "memory_gb": 16,
+    "bandwidth_gb_s": null,
+    "dense_bf16_fp16_tflops": null,
+    "fp4_tflops": null,
+    "tdp_w": null,
+    "launch_price_usd": null,
+    "market_price_usd": null,
+    "market_price_date": null,
+    "source_id": "x-projemohomelab-20261120",
+    "notes": "Named in the source thread as AMD RX 6800 16GB on PCIe 4.0 x16. Bandwidth, power and price were not printed, so those fields are empty."
   }
 ]

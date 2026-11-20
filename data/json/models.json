@@ -428,5 +428,25 @@
     "license": null,
     "source_id": "x-jrbai-20261119",
     "notes": "Tencent Hy4 flash (https://huggingface.co/tencent/Hy4-flash). The JRB_AI card prints 11.3B active of 155.5B plus 63.5B of n-gram (Engram) memory; Tencent's release counts 224B total including 64B Engram and 12B active. Parameter fields are empty because the public counts disagree on what is included. License not stated in the fetched sources."
+  },
+  {
+    "model_id": "beam-1.0",
+    "name": "Beam 1.0",
+    "params_total_b": null,
+    "params_active_b": null,
+    "architecture": null,
+    "license": null,
+    "source_id": "x-arlogilbert-20261119",
+    "notes": "Reflection AI model (the post credits @reflection_ai for the official FP8 attention projections and calls it American made). Parameter counts, architecture and license were not printed in the cited post, so those fields are empty."
+  },
+  {
+    "model_id": "inkling-2-small",
+    "name": "Inkling-2-Small",
+    "params_total_b": null,
+    "params_active_b": null,
+    "architecture": null,
+    "license": "Apache-2.0",
+    "source_id": "x-woolsey-20261120",
+    "notes": "Thinking Machines Inkling-2-Small; the chart footer gives the license as Apache-2.0. Parameter counts and architecture were not printed in the cited post, so those fields are empty."
   }
 ]
