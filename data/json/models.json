@@ -448,5 +448,15 @@
     "license": "Apache-2.0",
     "source_id": "x-woolsey-20261120",
     "notes": "Thinking Machines Inkling-2-Small; the chart footer gives the license as Apache-2.0. Parameter counts and architecture were not printed in the cited post, so those fields are empty."
+  },
+  {
+    "model_id": "inkling-2-mini",
+    "name": "Inkling-2-Mini",
+    "params_total_b": 26.4,
+    "params_active_b": 3.4,
+    "architecture": "moe",
+    "license": "Apache-2.0",
+    "source_id": "gh-thefullctx-inkling2mini-sglang-spark",
+    "notes": "Thinking Machines Inkling-2-Mini (https://huggingface.co/thinkingmachines/Inkling-2-Mini). The cited README gives 26.4B total / 3.4B active (~5.4B effective across 3 looped middle-layer passes); SGLang's launch post says 26B MoE with 5.4B active, counting the loops. License Apache-2.0 per the model card as quoted in the snailbrainx and pratikgx sources. Bundled DSpark speculator, up to 1M context."
   }
 ]
