@@ -458,5 +458,15 @@
     "license": "Apache-2.0",
     "source_id": "gh-thefullctx-inkling2mini-sglang-spark",
     "notes": "Thinking Machines Inkling-2-Mini (https://huggingface.co/thinkingmachines/Inkling-2-Mini). The cited README gives 26.4B total / 3.4B active (~5.4B effective across 3 looped middle-layer passes); SGLang's launch post says 26B MoE with 5.4B active, counting the loops. License Apache-2.0 per the model card as quoted in the snailbrainx and pratikgx sources. Bundled DSpark speculator, up to 1M context."
+  },
+  {
+    "model_id": "ornith-1.5-35b-a3b",
+    "name": "Ornith 1.5 35B A3B",
+    "params_total_b": 35,
+    "params_active_b": 3,
+    "architecture": "moe",
+    "license": null,
+    "source_id": "x-jrbai-20261122-smallmodels",
+    "notes": "The JRB_AI card shows Ornith 1.5 35B A3B as a MoE with 3B active of 35B, released August 2026. License not stated in the cited source."
   }
 ]

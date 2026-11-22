@@ -568,5 +568,35 @@
     "market_price_date": null,
     "source_id": "hf-pratikgx-inkling2mini-m5pro",
     "notes": "Named in the source as an Apple M5 Pro Mac mini with 64 GB unified memory. GPU core count, bandwidth and price were not printed, so those fields are empty."
+  },
+  {
+    "hardware_id": "intel-core-i7-1355u-32gb",
+    "name": "Intel Core i7-1355U laptop (32 GB RAM)",
+    "vendor": "Intel",
+    "memory_gb": 32,
+    "bandwidth_gb_s": null,
+    "dense_bf16_fp16_tflops": null,
+    "fp4_tflops": null,
+    "tdp_w": 15,
+    "launch_price_usd": null,
+    "market_price_usd": null,
+    "market_price_date": null,
+    "source_id": "x-keendisregard-20261121",
+    "notes": "Named in the source post as a 13th Gen i7-1355U (10C/12T, 15W, Iris Xe) with 32 GB RAM. tdp_w is the 15 W the post prints. Memory type, bandwidth and price were not printed, so those fields are empty."
+  },
+  {
+    "hardware_id": "apple-macbook-m5-pro-24gb",
+    "name": "Apple MacBook (M5 Pro, 24 GB)",
+    "vendor": "Apple",
+    "memory_gb": 24,
+    "bandwidth_gb_s": null,
+    "dense_bf16_fp16_tflops": null,
+    "fp4_tflops": null,
+    "tdp_w": null,
+    "launch_price_usd": null,
+    "market_price_usd": null,
+    "market_price_date": null,
+    "source_id": "x-muradylan-20261121",
+    "notes": "Named in the source post as a 24GB M5 Pro MacBook. GPU core count, bandwidth and price were not printed, so those fields are empty."
   }
 ]
