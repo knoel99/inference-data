@@ -1692,5 +1692,115 @@
     "date_accessed": "2026-11-21",
     "source_type": "benchmark",
     "notes": "Europe/Paris date from the dataset createdAt 2026-11-21T00:17:56Z (runs dated 2026-11-20 in the card); card read at revision 7acaf39. Official ggml-org Inkling-2-Mini-IQ4_NL.gguf (17,627,940,768 bytes), llama.cpp PR #32694 commit d7cb78c91 (build 12587), Metal, ngl=99, flash-attn on, persistent llama-server with a 133,120-token slot, temperature 0, thinking off, 256 generated tokens, 1 warmup + 3 timed runs, median."
+  },
+  {
+    "source_id": "x-orenoa7-20261122",
+    "title": "Inkling 2 Mini on one RTX 5090 across Basalt, SGLang, vLLM and llama.cpp, 8K to 256K input",
+    "url": "https://x.com/orenoa7/status/2124416990244966660",
+    "author": "orenoa7",
+    "publisher": "X",
+    "date_published": "2026-11-22",
+    "date_accessed": "2026-11-22",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-22T08:17:34Z. Post in Japanese; figures from the post text (charts attached). RTX 5090 32GB at 400W, 1 request, output 1024, greedy, thinking off (Basalt kept some thinking), median of 10 runs. Basalt v0.5.5 (experts NVFP4, Q8_0); SGLang and vLLM with the official NVFP4+MXFP8 weights; llama.cpp b12588 UD-Q4_K_XL with dspark Q8_0. Official dspark drafter on Basalt, SGLang and llama.cpp; vLLM run without dspark. SGLang with dspark did not fit 256K in 32 GB. Follow-up to x-orenoa7-20261121."
+  },
+  {
+    "source_id": "x-niklaslenz-20261121-inkling",
+    "title": "Inkling 2 Mini on RTX 5090 (vLLM + DSpark) and RTX 5060 Ti 16 GB (llama.cpp IQ4_NL)",
+    "url": "https://x.com/niklaslenz_ai/status/2124099276955365842",
+    "author": "niklaslenz_ai",
+    "publisher": "X",
+    "date_published": "2026-11-21",
+    "date_accessed": "2026-11-22",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-21T11:15:06Z. 5090: vLLM in the official Inkling 2 Mini image, DSpark drafts, 93K window. 5060 Ti 16 GB: llama.cpp, ggml-org IQ4_NL, 32K window, some experts on CPU. Standard speed test, median of 2 runs per prompt with 512 tokens."
+  },
+  {
+    "source_id": "x-niklaslenz-20261121-glm53flash",
+    "title": "GLM-5.3-Flash on two DGX Sparks with TensorFold 1.3.0 (Mia recipe a691916, EXL3 4 bpw)",
+    "url": "https://x.com/niklaslenz_ai/status/2124242697557016674",
+    "author": "niklaslenz_ai",
+    "publisher": "X",
+    "date_published": "2026-11-21",
+    "date_accessed": "2026-11-22",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-21T20:45:00Z. The same text was posted again at 20:55:56Z (https://x.com/niklaslenz_ai/status/2124245450895053105); the earlier post is cited. 2 DGX Sparks (256 GB), Mia recipe at a691916, TensorFold 1.3.0 with 16 patches, EXL3 4 bpw. sparkDash: thinking on, temperature 0.7, median of 3. Standard test: thinking off, temperature 1.0, 512 tokens, top-p 0.95, top-k 20, seed 42, median of 2. RULER 75.0 % at 8K and 57.5 % at 32K."
+  },
+  {
+    "source_id": "x-jrbai-20261122-smallmodels",
+    "title": "Battle of the small models: Qwen3.6-35B-A3B, Qwen3.8-27B, Ornith 1.5 35B A3B and Inkling 2 Mini on one DGX Spark",
+    "url": "https://x.com/JRB_AI/status/2124411056680559068",
+    "author": "JRB_AI",
+    "publisher": "X",
+    "date_published": "2026-11-22",
+    "date_accessed": "2026-11-22",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-22T07:54:00Z. Figures read from the attached card (One DGX Spark). Setup from the author reply in the same thread (https://x.com/JRB_AI/status/2124411057515229505): Qwen3.6-35B-A3B TensorFold 1.2.9 NVFP4 + DFlash2 drafter; Qwen3.8-27B TensorFold 1.2.9 MLX 4-bit + DFlash2; Ornith 1.5 35B A3B TensorFold 1.2.9 NVFP4 + Qwen3.6 DFlash2 drafter; Inkling 2 Mini SGLang with DSpark for code, vLLM for prose, official NVFP4/MXFP8 mix. Each task ran once."
+  },
+  {
+    "source_id": "x-keendisregard-20261121",
+    "title": "Inkling 2 Mini IQ4_NL on a 15 W Intel Core i7-1355U laptop, llama.cpp CPU only",
+    "url": "https://x.com/keendisregard/status/2124273215841112337",
+    "author": "keendisregard",
+    "publisher": "X",
+    "date_published": "2026-11-21",
+    "date_accessed": "2026-11-22",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-21T22:46:16Z (reply in a thread). i7-1355U (10C/12T, 15 W, Iris Xe), 32 GB RAM; ggml-org IQ4_NL (16.41 GiB, 4.5 bpw), llama.cpp b12613, -fa 1, q8_0 KV, -b 512 -ub 128; Iris Xe hit Vulkan OOM so the run is CPU only."
+  },
+  {
+    "source_id": "x-muradylan-20261121",
+    "title": "Inkling 2 Mini MLX 3-bit on a 24 GB M5 Pro MacBook",
+    "url": "https://x.com/muradylan/status/2124208200475930948",
+    "author": "muradylan",
+    "publisher": "X",
+    "date_published": "2026-11-21",
+    "date_accessed": "2026-11-22",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-21T18:27:55Z. MLX 3-bit (12.8 GB), 16.4 GB peak memory. The post also gives llama.cpp on the same Mac as ~17 tok/s; that approximate value is not stored."
+  },
+  {
+    "source_id": "x-eres2k-20261121",
+    "title": "Inkling 2 Mini on one RTX 5090 with vLLM, native NVFP4 and DSpark, 64K cap",
+    "url": "https://x.com/eres2k/status/2124115502737809447",
+    "author": "eres2k",
+    "publisher": "X",
+    "date_published": "2026-11-21",
+    "date_accessed": "2026-11-22",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-21T12:19:34Z (reply). vLLM + native NVFP4 + DSpark drafter, context capped at 64K. Not stored: 8 streams 756-780 tok/s (range), prefill ~13,000 tok/s (approximate), llama.cpp 91-96 tok/s and ~2,000 prefill (range, approximate)."
+  },
+  {
+    "source_id": "gh-kyojin-248",
+    "title": "Kyojin issue 248: Hy4-flash Q3_K on Strix Halo (gfx1151), 1M context",
+    "url": "https://github.com/Yamz-Labs/kyojin/issues/248",
+    "author": "zaxbysauce",
+    "publisher": "GitHub",
+    "date_published": "2026-11-22",
+    "date_accessed": "2026-11-22",
+    "source_type": "benchmark",
+    "notes": "Europe/Paris date from created_at 2026-11-22T06:37:32Z. Ryzen AI Max+ 395 / Radeon 8060S (gfx1151), 124 GiB RAM, ROCm 7.13.0a20260411, kernel 7.3.0-rc5. Kyojin tools/hy4/serve.py with HY4_KV_DTYPE=fp16, HY4_SWA_RING=4096, -c 1000000, --num-draft 3, --draft-fill-rows 2048. Public Hy4-flash Q3_K GGUF in two shards (92,010,389,504 B + 63,360,616,128 B). Prefill = prompt tokens / wall time (1 output token); decode = (tokens - 1) / streaming time; median of 3."
+  },
+  {
+    "source_id": "gh-local-ai-registry-484",
+    "title": "local-ai-registry issue 484: Qwen3.8-Flash-Next on Strix Halo 128 GB with Gufo (stock, PR 1321, Q4K_DENSE, strix-w15 fork)",
+    "url": "https://github.com/sybil-solutions/local-ai-registry/issues/484",
+    "author": "poitee",
+    "publisher": "GitHub",
+    "date_published": "2026-11-21",
+    "date_accessed": "2026-11-22",
+    "source_type": "benchmark",
+    "notes": "Europe/Paris date from created_at 2026-11-21T22:22:03Z. Ryzen AI Max+ 395 / Radeon 8060S 128 GB (gfx1151, ~122 GiB usable). Qwen3.8-Flash-Next UD-Q4_K_XL + mtp-Qwen3.8-Flash-Next-shared-Q8_0 draft, Gufo ROCm HIP with native MTP speculative decoding. Serving profile --sessions 3 --context 87040 --reasoning-budget 2048 --speculative mtp (~98 GiB resident). Cold prefill with 6/6 needles at 50% and 90% of 87K context."
+  },
+  {
+    "source_id": "hf-inkling2mini-disc24-2x5060ti",
+    "title": "Inkling-2-Mini discussion 24: llama.cpp on 2x RTX 5060 Ti 16 GB, pp/tg depth ladder, max context and parallel tests (UD-Q4_K_XL)",
+    "url": "https://huggingface.co/thinkingmachines/Inkling-2-Mini/discussions/24",
+    "author": "rafaelsobek",
+    "publisher": "Hugging Face",
+    "date_published": "2026-11-21",
+    "date_accessed": "2026-11-22",
+    "source_type": "benchmark",
+    "notes": "Europe/Paris date from the discussion createdAt 2026-11-21T21:34:16Z. 2x RTX 5060 Ti 16 GB (layer split + auto-fit), Ryzen 5 7500F, llama.cpp at 2a28df0f9bd5 (PR #32694 layout + #32704 scale-reshare fix), flash-attn on, ubatch 256, 12 CPU threads, Unsloth Mainline_Support UD-Q4_K_XL. Measured through the server API. Setup and raw data in https://github.com/accelerando-developers/inkling-2-mini-llamacpp."
   }
 ]
