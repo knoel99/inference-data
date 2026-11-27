@@ -1912,5 +1912,181 @@
     "date_accessed": "2026-11-25",
     "source_type": "benchmark",
     "notes": "Europe/Paris date from created_at 2026-11-23T22:26:54Z. 1x Intel Arc Pro B70 (32 GB), Linux 7.0 xe, vLLM main 3bc0f4308 (0.34.0rc1.dev270+g3bc0f4308.xpu), torch 2.15.0+xpu, auto-round-lib 0.16.0, vllm-xpu-kernels 0.1.17, Intel/Qwen3.6-27B-int4-AutoRound at abc86de; eager (cudagraph_mode NONE), --max-model-len 16384, --max-num-seqs 256, --max-num-batched-tokens 8192, PYTORCH_ALLOC_CONF=expandable_segments:True. vllm bench serve random in1024/out256, concurrency 1/2/4/8, medians over 3 rounds. Only the KV pool of each arm is stored. Out tok/s aggregates (25.3/38.48/71.8/126.55 ARK, 31.96/60.78/101.12/155.52 w4a16) are bench-serve output throughput, not decode; ITL p50 has no column; TTFT medians are decimal ms (ttft_ms is integer) and are kept in the row notes."
+  },
+  {
+    "source_id": "x-niklaslenz-20261126-bonsai-5090",
+    "title": "Ternary Bonsai 2.5 27B vs Qwen3.8-27B on an RTX 5090 (1/4): decode, 8K prefill, 8 requests",
+    "url": "https://x.com/niklaslenz_ai/status/2125816828991561752",
+    "author": "niklaslenz_ai",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-26",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-26T05:00:02Z. Part 1 of 4 on Ternary Bonsai 2.5 27B (PrismML, built on Qwen3.8-27B) against Qwen3.8-27B, one machine per post. Two recipes, not a one-switch test: different file, engine and draft head. Both ran 8 slots, thinking off, temperature 0.7, seed 42; standard test is 512 tokens and the median of 2 runs, code and prose prompts. Qwen is Unsloth UD-IQ4_XS (14.25 GB) on llama.cpp b12675, no draft, 24K context. MMLU-Pro, GPQA Diamond, IFEval and LiveCodeBench scores in the post are quality scores and are not stored. RTX 5090 32 GB. Bonsai is the PTQ1_0 file (1.76 bpw, 6.2 GB) on the PrismML llama.cpp fork prism-b12178 with its MTP draft head, 262K context. PrismML own method (greedy, 1 request, 16K context, MTP on): author measured 267.6 tok/s, PrismML measured 305.1 (the PrismML figure is not stored)."
+  },
+  {
+    "source_id": "x-niklaslenz-20261126-bonsai-m5ultra",
+    "title": "Ternary Bonsai 2.5 27B vs Qwen3.8-27B on a Mac Studio M5 Ultra (2/4): decode, 8K prefill, 8 requests",
+    "url": "https://x.com/niklaslenz_ai/status/2125839470037524658",
+    "author": "niklaslenz_ai",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-26",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-26T06:30:00Z. Part 2 of 4 on Ternary Bonsai 2.5 27B (PrismML, built on Qwen3.8-27B) against Qwen3.8-27B, one machine per post. Two recipes, not a one-switch test: different file, engine and draft head. Both ran 8 slots, thinking off, temperature 0.7, seed 42; standard test is 512 tokens and the median of 2 runs, code and prose prompts. Qwen is Unsloth UD-IQ4_XS (14.25 GB) on llama.cpp b12675, no draft, 24K context. MMLU-Pro, GPQA Diamond, IFEval and LiveCodeBench scores in the post are quality scores and are not stored. Mac Studio M5 Ultra 256 GB. Bonsai is the PQ2_0 file on the PrismML llama.cpp fork prism-b12178, MTP draft head with PrismML Mac settings, 262K context; file size not printed. PrismML own method (greedy, 1 request, 16K context, MTP on): 65.8 tok/s measured by the author, PrismML has no M5 Ultra number."
+  },
+  {
+    "source_id": "x-niklaslenz-20261126-bonsai-spark",
+    "title": "Ternary Bonsai 2.5 27B vs Qwen3.8-27B on one DGX Spark (3/4): decode, 8K prefill, 8 requests",
+    "url": "https://x.com/niklaslenz_ai/status/2125862129676828782",
+    "author": "niklaslenz_ai",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-26",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-26T08:00:02Z. Part 3 of 4 on Ternary Bonsai 2.5 27B (PrismML, built on Qwen3.8-27B) against Qwen3.8-27B, one machine per post. Two recipes, not a one-switch test: different file, engine and draft head. Both ran 8 slots, thinking off, temperature 0.7, seed 42; standard test is 512 tokens and the median of 2 runs, code and prose prompts. Qwen is Unsloth UD-IQ4_XS (14.25 GB) on llama.cpp b12675, no draft, 24K context. MMLU-Pro, GPQA Diamond, IFEval and LiveCodeBench scores in the post are quality scores and are not stored. One DGX Spark 128 GB. Bonsai is the PTQ1_0 file (1.76 bpw, 6.2 GB) with its MTP draft head, 262K context, on a build from PrismML source because no arm64 CUDA package exists (fork tag not printed). The PrismML own-method run was not made on the Spark."
+  },
+  {
+    "source_id": "hf-nielsrogge-20261125-inkling2mini-rtxpro6000",
+    "title": "Hill-climbing Inkling 2 Mini inference on one RTX PRO 6000 (Hugging Face blog)",
+    "url": "https://huggingface.co/blog/inkling-2-mini-inference-hillclimb",
+    "author": "Niels Rogge",
+    "publisher": "Hugging Face",
+    "date_published": "2026-11-25",
+    "date_accessed": "2026-11-26",
+    "source_type": "benchmark",
+    "notes": "Published November 25, 2026 (date as printed on the page). Full page read. 46 valid runs by a coding agent on Hugging Face Jobs (rtx-pro-6000 flavor, same GPU as the nvidia-rtx-pro-6000 endpoint, 2.75 USD/h). bench.py: fixed panel of six prompts, temperature 1.0, thinking on, 512 output tokens, 12 repetitions with speculation, token counts from the server usage field. SGLang image lmsysorg/sglang:inkling-2-mini, vLLM vllm/vllm-openai:nightly (pinned 0.34.0rc1.dev1235+gf2f9edcac). The page reports a probed 1,469 GB/s copy bandwidth, a derived bandwidth ceiling of about 256 tok/s without speculation and about 201 tok/s with it at measured acceptance of about 2.3 tokens per step; these are the authors estimates and are not stored. Ranges, the approximate 570 tok/s baseline and the network-inclusive endpoint prefill figures are not stored. Raw logs: github.com/NielsRogge/inkling-2-mini-hillclimb."
+  },
+  {
+    "source_id": "llmd-20261123-glm52-sglang-hicache",
+    "title": "Bringing First-Class SGLang Serving to llm-d: GLM-5.2 on H200 with HiCache host RAM and shared storage",
+    "url": "https://llm-d.ai/blog/serving-glm-5-2-sglang-tiered-kv-cache-on-llm-d",
+    "author": "Yuchen Tian",
+    "publisher": "llm-d",
+    "date_published": "2026-11-23",
+    "date_accessed": "2026-11-26",
+    "source_type": "benchmark",
+    "notes": "Date as printed on the page (November 23, 2026). Full text read; charts are images and only figures printed in the text are stored. GLM-5.2-FP8 on 8-GPU NVIDIA H200 nodes on GKE A3 Ultra (ConnectX-7 RoCE), 1P1D = one 8-GPU DEP8 prefill pod plus one 8-GPU DEP8 decode pod (16 GPUs); p2w1d1w2 = two prefill pods plus a 2-node 16-GPU decode pool (32 GPUs). Load: AIPerf inferencex-agentx-mvp, 900 s, cc-traces-weka-062126 Claude Code traces, 142K context cap. MTP (EAGLE, 3 steps). Output tokens per second in the post are benchmark output throughput over the whole run (prefill included), so they are in notes only and not stored as decode_tok_s."
+  },
+  {
+    "source_id": "x-jrbai-20261126-qwen38-quants",
+    "title": "JRB_AI: Qwen3.8-27B on a DGX Spark from 16-bit to 2-bit, 16 concurrent chats",
+    "url": "https://x.com/JRB_AI/status/2125851800515285235",
+    "author": "JRB_AI",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-26",
+    "source_type": "post",
+    "notes": "Europe/Paris date from created_at 2026-11-26T07:19:00Z (thread continues at status 2125851801987518478, created 07:19:00Z). Same 75 tasks and same speed tests on one DGX Spark, 16-bit down to 2-bit; the rest of the speed table is in an image and was not read, so only figures printed in the text are stored. The thread names TensorFold as the engine (\"EXL3 prefill is slower on TensorFold\") and says the 6-bit file is an EXL3 pack while the others are MLX; the 6-bit pack was loaded from a copy with one config flag corrected. Task scores are quality results and are not stored."
+  },
+  {
+    "source_id": "x-eres2k-20261126-hyperinkling-5090",
+    "title": "Inkling 2 Mini (uncensored) on one RTX 5090: vLLM + DSpark decode at 1-32 streams and prefill 4K-60K (HyperInkling cards)",
+    "url": "https://x.com/eres2k/status/2126048410264347011",
+    "author": "eres2k",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-27",
+    "source_type": "post",
+    "notes": "Posted 2026-11-26T20:20:15Z. Two benchmark cards read from the attached images: decode (code task, 400 forced tokens, temp 0.7, thinking on, mean of 2 runs) and prefill (median of 3, fresh salted prompt, 8-token reply, thinking off). NVFP4 experts, 64K context, vLLM preview image + SM120 patch, DSpark drafter 7 tokens, 32 seats. The Spark1 comparison numbers on the cards are another author's (Alexintosh) and are not stored here. Shared-card prefill profile (512-token chunks) is not stored."
+  },
+  {
+    "source_id": "x-cerebralcoding-20261126-mlxserve-m5ultra",
+    "title": "MLX-Serve main on Mac Studio M5 Ultra 256 GB: Inkling 2 Mini decode, 8-user total and 16K prefill before and after kernel speedups",
+    "url": "https://x.com/CerebralCoding_/status/2125877745158607113",
+    "author": "CerebralCoding_",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-27",
+    "source_type": "post",
+    "notes": "Posted 2026-11-26T09:02:06Z by a contributor to the change. Text figures, before to after, for speedups that landed on MLX-Serve main for the next release. Vision encode ~60 to ~37 ms is approximate and not stored."
+  },
+  {
+    "source_id": "x-pranjal-20261126-spark-sglang-tensorfold",
+    "title": "SGLang vs TensorFold on Inkling 2 Mini, both with DFlash2, on one DGX Spark: 1 and 8 streams, 32K first token",
+    "url": "https://x.com/_Pranjal/status/2125989549633675761",
+    "author": "_Pranjal",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-27",
+    "source_type": "post",
+    "notes": "Posted 2026-11-26T16:26:22Z. Values read from the attached chart: decode tok/s, median of 3 runs, same DGX Spark, same stock checkpoint, same drafter revision. SGLang: lmsysorg/sglang:inkling-2-mini, cookbook DGX Spark recipe (bf16 KV, mem-fraction 0.45). TensorFold: Mia kit 0018, 8 slots, fp8 KV, 131K window. Author notes SGLang temp-0 replies changed with batching; TensorFold byte-identical. Best single SGLang run 82.4 tok/s is not stored."
+  },
+  {
+    "source_id": "x-superalesha-20261126-colab-rtxpro6000-glm53flash",
+    "title": "GLM-5.3-Flash Uncensored (321B) EXL3 on a Colab G4 RTX PRO 6000 96 GB with Project Maya + DFlash2: decode by bpw tier",
+    "url": "https://x.com/superalesha/status/2126011712692224264",
+    "author": "superalesha",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-27",
+    "source_type": "post",
+    "notes": "Posted 2026-11-26T17:54:26Z. Text figures for three public abliterated EXL3 tiers. Prefill printed as \"1,190 / 2,255 tok/s\" without saying what the two numbers are, so it is not stored. Colab compute-unit prices in the post are not hardware prices and are not stored."
+  },
+  {
+    "source_id": "x-superalesha-20261126-ling32air-4x3090",
+    "title": "Ling-3.2-air W4A16 (72.5 GiB) on 4x RTX 3090 with SGLang PR #52593: single-stream decode from 1K to 250K",
+    "url": "https://x.com/superalesha/status/2125926818121121911",
+    "author": "superalesha",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-27",
+    "source_type": "post",
+    "notes": "Posted 2026-11-26T12:17:05Z. Author quantized routed experts (including the MTP layer) to INT4 g32; attention, vision and routers BF16/F32. TP=4, Marlin W4A16, FlashInfer prefill + Triton decode, 300 W rig, 282,692 BF16 KV tokens free. Prefill given as a 4,100-5,300 tok/s range and not stored. Whether MTP speculation was on during decode is not stated."
+  },
+  {
+    "source_id": "x-svincents2-20261126-spark-qwen38flashnext",
+    "title": "Qwen3.8-Flash-Next Q2_0 + Q8_0 MTP on one DGX Spark with Magnitude CUDA: decode and cold 64K prefill",
+    "url": "https://x.com/svincents2/status/2125945296589029524",
+    "author": "svincents2",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-27",
+    "source_type": "post",
+    "notes": "Posted 2026-11-26T13:30:31Z. Text figures, 1 request. Attached image not read."
+  },
+  {
+    "source_id": "x-svincents2-20261126-spark-glm53flash",
+    "title": "GLM-5.3-Flash UD-IQ2_XXS on one DGX Spark with Magnitude CUDA: decode and cold 64K prefill",
+    "url": "https://x.com/svincents2/status/2125967597019800041",
+    "author": "svincents2",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-27",
+    "source_type": "post",
+    "notes": "Posted 2026-11-26T14:59:08Z. Text figures, 1 request. Attached image not read."
+  },
+  {
+    "source_id": "x-jayleaton-20261126-2xrtxpro6000-qwen38flashnext",
+    "title": "Full FP8 Qwen3.8-Flash-Next on 2x RTX PRO 6000: TP2 and PP2 before/after (prefill, 32K TTFT, decode, parallel OpenCode agents)",
+    "url": "https://x.com/jayleaton/status/2126051868761891142",
+    "author": "jayleaton",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-27",
+    "source_type": "post",
+    "notes": "Posted 2026-11-26T20:34:00Z. Text figures; model and precision (Full FP8 Qwen3.8-Flash-Next, token-exact) from the attached image. Engine is not named in the post (recipe link not followed), so engine is empty. PP2 code x1 300.1 -> 310.6 tok/s is not stored: it is above the ~299 tok/s single-stream ceiling of one 1792 GB/s card reading ~6 GB of FP8 active weights per token, and no speculative decoding is stated. Mixed-traffic percentages not stored."
+  },
+  {
+    "source_id": "gh-mlxlm-2112-qsa-gqa",
+    "title": "mlx-lm PR #2112 qwen4_exp: sparse QSA attention + GQA support, prefill/decode sweeps for Qwen3.8-Flash-Next on M3 Ultra and M5 Ultra",
+    "url": "https://github.com/ml-explore/mlx-lm/pull/2112",
+    "author": "vinceclifford",
+    "publisher": "GitHub",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-27",
+    "source_type": "benchmark",
+    "notes": "Open PR, created 2026-11-26T14:16:25Z, read 2026-11-27. M3 Ultra and M5 Ultra, 512 GB, MLX 0.32.3, mlx-community/Qwen3.8-Flash-Next-4bit. Baseline = main at 1bf8da0; patch = PR branch, default settings. One warmup, 3 timed runs, mean. Not merged. KLD main||patch 0.0104 mean on 131072 tokens, top-1 agreement 96.7%."
+  },
+  {
+    "source_id": "x-pratikg-20261126-aion-m5pro",
+    "title": "Microsoft Aion 1.0 Instruct 2.3B on a 64 GB M5 Pro Mac mini: MLX 4-bit and BF16 decode by context",
+    "url": "https://x.com/pratikg/status/2126009126400786459",
+    "author": "pratikg",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-27",
+    "source_type": "post",
+    "notes": "Posted 2026-11-26T17:44:09Z. Author's own small MLX port (mlx-lm cannot load the model), checked against the PyTorch implementation. Median of 3, 256 tokens generated."
   }
 ]

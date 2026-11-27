@@ -468,5 +468,35 @@
     "license": null,
     "source_id": "x-jrbai-20261122-smallmodels",
     "notes": "The JRB_AI card shows Ornith 1.5 35B A3B as a MoE with 3B active of 35B, released August 2026. License not stated in the cited source."
+  },
+  {
+    "model_id": "glm-5.2",
+    "name": "GLM-5.2",
+    "params_total_b": null,
+    "params_active_b": null,
+    "architecture": "moe",
+    "license": null,
+    "source_id": "llmd-20261123-glm52-sglang-hicache",
+    "notes": "Checkpoint zai-org/GLM-5.2-FP8 as named in the llm-d post (MLA attention, DSA indexer, EAGLE MTP). Parameter counts and license were not printed in that post, so those fields are empty."
+  },
+  {
+    "model_id": "ling-3.2-air",
+    "name": "Ling-3.2-air",
+    "params_total_b": 124,
+    "params_active_b": 5.5,
+    "architecture": "moe",
+    "license": null,
+    "source_id": "x-superalesha-20261126-ling32air-4x3090",
+    "notes": "From the superalesha post: 124B total, 5.5B active, 35 linear KDA + 7 Gated MLA layers, shipped by Ant Group as FP8 (120.4 GiB). License not stated in that post."
+  },
+  {
+    "model_id": "aion-1.0-instruct-2.3b",
+    "name": "Aion 1.0 Instruct 2.3B",
+    "params_total_b": 2.3,
+    "params_active_b": null,
+    "architecture": null,
+    "license": "MIT",
+    "source_id": "x-pratikg-20261126-aion-m5pro",
+    "notes": "From the pratikg post: Microsoft Windows Applied Sciences Group, 2.3B, released under the MIT license. Architecture and active parameters not stated there."
   }
 ]
