@@ -2088,5 +2088,82 @@
     "date_accessed": "2026-11-27",
     "source_type": "post",
     "notes": "Posted 2026-11-26T17:44:09Z. Author's own small MLX port (mlx-lm cannot load the model), checked against the PyTorch implementation. Median of 3, 256 tokens generated."
+  },
+  {
+    "source_id": "x-niklaslenz-20261126-5090-basalt-tensorfold",
+    "title": "Inkling 2 Mini on one RTX 5090: Basalt 0.5.7 vs TensorFold (Mia recipe) vs llama.cpp b12728, decode, 32K and 128K prefill",
+    "url": "https://x.com/niklaslenz_ai/status/2126065962013110490",
+    "author": "niklaslenz_ai",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-28",
+    "source_type": "post",
+    "notes": "Posted 2026-11-26T21:30:00Z (Europe/Paris date). Best setup against best setup, a different file per engine. Basalt 0.5.7 MX8 pack (NVFP4 and MXFP8 experts) with its DSpark draft model, fp16 KV. TensorFold built from Mia recipe commit 0f0e768 on the original checkpoint with the DFlash2 draft model, fp8 KV. Thinking set to none. House test: median of 2 runs, 512 tokens, temperature 1.0. The llama.cpp UD-Q4_K_XL + DSpark figures are the same run as the companion quant post and are stored under that source. Bracketed author and RTX PRO 6000 figures are other people's and are not stored. Quality scores are not stored."
+  },
+  {
+    "source_id": "x-niklaslenz-20261127-5090-llamacpp-quants",
+    "title": "Inkling 2 Mini on one RTX 5090 with llama.cpp b12728 + DSpark: Unsloth UD-Q3_K_XL vs UD-Q4_K_XL vs UD-Q8_K_XL",
+    "url": "https://x.com/niklaslenz_ai/status/2126088617512636433",
+    "author": "niklaslenz_ai",
+    "publisher": "X",
+    "date_published": "2026-11-27",
+    "date_accessed": "2026-11-28",
+    "source_type": "post",
+    "notes": "Posted 2026-11-26T23:00:01Z (2026-11-27 Europe/Paris). One RTX 5090, llama.cpp b12728, DSpark draft at 2 draft tokens, 4 slots, temperature 1.0, reasoning effort none. Median of 2 runs, 512 tokens. File sizes 13.6, 17.6 and 22.9 GB. Q8 ran with a 49,152 window because of the draft model. KL divergence and quality scores are not stored."
+  },
+  {
+    "source_id": "x-niklaslenz-20261127-2xspark-inkling-1m",
+    "title": "Inkling 2 Mini EXL3 4.05 bpw on two DGX Sparks with TensorFold v1.3.3: spark-bench streams, prefill and decode at 16K, 128K, 512K and 1M",
+    "url": "https://x.com/niklaslenz_ai/status/2126428355230666821",
+    "author": "niklaslenz_ai",
+    "publisher": "X",
+    "date_published": "2026-11-27",
+    "date_accessed": "2026-11-28",
+    "source_type": "post",
+    "notes": "Posted 2026-11-27T21:30:01Z as the numbers post of the thread started at https://x.com/niklaslenz_ai/status/2126428353884287486. Reproduction of Anders (andersjw_) recipe at 0b9b594: TensorFold v1.3.3 with 29 patches, EXL3 4.05 bpw, DSpark drafter, fp8 KV, window 1,048,576 in shape long, 2 DGX Sparks. spark-bench 1.0.0 unchanged, greedy, ignore_eos; stream rows median of 3 with 512 tokens, depth rows 128 tokens. House test: median of 2 runs, 512 tokens, temperature 1.0, window 131,072. Anders README figures in brackets are not stored. Author: prose swings 16 percent between runs, code 1 percent."
+  },
+  {
+    "source_id": "x-cnsiva-20261126-spark-kv-dtype",
+    "title": "BF16 vs FP8 KV cache on one DGX Spark: Qwen3.8-Flash-Next-FP4 on vLLM 0.34.0rc1",
+    "url": "https://x.com/cn_siva/status/2125936714317246924",
+    "author": "cn_siva",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-28",
+    "source_type": "post",
+    "notes": "Posted 2026-11-26T12:56:25Z. Same model, same Spark, same vLLM build, only --kv-cache-dtype changed. MTP acceptance 53.1 vs 48.4 percent and peak KV usage 99.5 vs 55.6 percent are not stored as columns. The 4-user test used fresh documents of about 200K tokens each (approximate, not stored as a count)."
+  },
+  {
+    "source_id": "x-flaviusburca-20261127-spark-prefill-surogate",
+    "title": "Cold 32K prompt on one DGX Spark: Qwen3.8-Flash-Next prefill, Surogate (NVFP4) vs llama.cpp (UD-IQ4_XS)",
+    "url": "https://x.com/flaviusburca/status/2126246701543379173",
+    "author": "flaviusburca",
+    "publisher": "X",
+    "date_published": "2026-11-27",
+    "date_accessed": "2026-11-28",
+    "source_type": "post",
+    "notes": "Posted 2026-11-27T09:28:12Z by a Surogate author. Not a one-switch test: their NVFP4 conversion on Surogate vs Unsloth UD-IQ4_XS GGUF on llama.cpp. Time to first token given as about 16 s vs over 50 s, approximate, not stored. vLLM did not fit on the Spark."
+  },
+  {
+    "source_id": "x-chinooxtomas-20261126-3090-maya-ik2",
+    "title": "Five engines serving Inkling 2 Mini Q4_K_XL on an RTX 3090 shared with Whisper: maya-ik2 KV parking in RAM vs vLLM",
+    "url": "https://x.com/ChinooxTomas/status/2126061536779153874",
+    "author": "ChinooxTomas",
+    "publisher": "X",
+    "date_published": "2026-11-26",
+    "date_accessed": "2026-11-28",
+    "source_type": "post",
+    "notes": "Posted 2026-11-26T21:12:25Z. RTX 3090 also running Whisper. maya-ik2, Q4_K_XL, 128K context, 12 agent conversations cycling, single slot with KV parked in RAM. Cold return to a 115K conversation given as 60 to 75 s (range, not stored). Parallelism 3 test (TTFT 3.7, 7.2, 11 s queued; 6 conversations at 32K went to 14.5 s per turn with 0 percent cached) is not stored. vLLM cache p50 0.2 s / p95 16 s not stored: workload not defined."
+  },
+  {
+    "source_id": "x-superalesha-20261127-ling32air-maya-3090",
+    "title": "Ling-3.2-air on 1x and 2x RTX 3090 with maya-ling (Project Maya): decode with and without MTP and at 262K context",
+    "url": "https://x.com/superalesha/status/2126105865124302914",
+    "author": "superalesha",
+    "publisher": "X",
+    "date_published": "2026-11-27",
+    "date_accessed": "2026-11-28",
+    "source_type": "post",
+    "notes": "Posted 2026-11-27T00:08:34Z. PCIe 3.0 x16 EPYC rig, 58 GiB mixed IQ3_XXS/Q4_K test GGUF. 1x RTX 3090: 31 percent of experts in VRAM plus an AVX2 CPU lane. 2x: about 71 percent of experts in VRAM, adaptive per-expert VRAM cache (96 to 97 percent hits on 2 GPUs). Partial CPU offload, so not a GPU-only figure. The 2x peak 128.8 tok/s with MTP is a peak and is not stored. Maya-S/M/L GGUF sizes are not measurements."
   }
 ]
